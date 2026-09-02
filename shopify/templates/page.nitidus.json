@@ -1,0 +1,76 @@
+{
+  "sections": {
+    "nitidus-header": {
+      "type": "nitidus-header",
+      "settings": {}
+    },
+    "nitidus-hero": {
+      "type": "nitidus-hero",
+      "settings": {}
+    },
+    "nitidus-assurance": {
+      "type": "nitidus-assurance",
+      "settings": {}
+    },
+    "nitidus-problem": {
+      "type": "nitidus-problem",
+      "settings": {}
+    },
+    "nitidus-anatomy": {
+      "type": "nitidus-anatomy",
+      "settings": {}
+    },
+    "nitidus-spec": {
+      "type": "nitidus-spec",
+      "settings": {}
+    },
+    "nitidus-usecase": {
+      "type": "nitidus-usecase",
+      "settings": {}
+    },
+    "nitidus-compare": {
+      "type": "nitidus-compare",
+      "settings": {}
+    },
+    "nitidus-reviews": {
+      "type": "nitidus-reviews",
+      "settings": {}
+    },
+    "nitidus-offer": {
+      "type": "nitidus-offer",
+      "settings": {}
+    },
+    "nitidus-guarantee": {
+      "type": "nitidus-guarantee",
+      "settings": {}
+    },
+    "nitidus-faq": {
+      "type": "nitidus-faq",
+      "settings": {}
+    },
+    "nitidus-closing": {
+      "type": "nitidus-closing",
+      "settings": {}
+    },
+    "nitidus-footer": {
+      "type": "nitidus-footer",
+      "settings": {}
+    }
+  },
+  "order": [
+    "nitidus-header",
+    "nitidus-hero",
+    "nitidus-assurance",
+    "nitidus-problem",
+    "nitidus-anatomy",
+    "nitidus-spec",
+    "nitidus-usecase",
+    "nitidus-compare",
+    "nitidus-reviews",
+    "nitidus-offer",
+    "nitidus-guarantee",
+    "nitidus-faq",
+    "nitidus-closing",
+    "nitidus-footer"
+  ]
+}
