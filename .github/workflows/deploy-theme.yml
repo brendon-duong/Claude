@@ -1,0 +1,84 @@
+name: Deploy Nitidus to Shopify
+
+# Overlays the Nitidus files onto a Shopify theme and pushes the result.
+#
+# The overlay is done against a fresh pull rather than pushed on its own,
+# because shopify/ is a partial theme — it has no layout, config or locales —
+# and the CLI pushes a theme directory, not a fragment. Pulling first also
+# means the layout edit happens against whatever the theme actually contains
+# today rather than against an assumption.
+
+on:
+  push:
+    branches: [claude/access-issue-jb081h]
+    paths: ['shopify/**', '.github/workflows/deploy-theme.yml', 'scripts/**']
+  workflow_dispatch:
+    inputs:
+      theme_id:
+        description: Theme to deploy to (blank uses the THEME_ID variable)
+        required: false
+      allow_live:
+        description: Permit deploying to the PUBLISHED theme
+        type: boolean
+        default: false
+
+concurrency:
+  group: shopify-theme-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SHOPIFY_FLAG_STORE: ${{ vars.SHOPIFY_STORE }}
+      SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+      THEME_ID: ${{ github.event.inputs.theme_id || vars.SHOPIFY_THEME_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Shopify CLI
+        run: npm install -g @shopify/cli@latest
+
+      - name: Check the target is not the live theme
+        if: ${{ github.event.inputs.allow_live != 'true' }}
+        run: |
+          set -euo pipefail
+          role=$(shopify theme list --json \
+                 | python3 -c "import json,sys,os; t=json.load(sys.stdin); i=os.environ['THEME_ID']; print(next((x.get('role','') for x in t if str(x.get('id'))==i), 'missing'))")
+          echo "target theme $THEME_ID has role: $role"
+          if [ "$role" = "live" ] || [ "$role" = "main" ]; then
+            echo "Refusing to deploy to the published theme."
+            echo "Re-run from the Actions tab with allow_live checked if that is genuinely intended."
+            exit 1
+          fi
+          if [ "$role" = "missing" ]; then
+            echo "Theme $THEME_ID not found on $SHOPIFY_FLAG_STORE."
+            exit 1
+          fi
+
+      - name: Pull the current theme
+        run: shopify theme pull --theme "$THEME_ID" --path build --force
+
+      - name: Overlay the Nitidus files
+        run: |
+          set -euo pipefail
+          cp -rv shopify/assets/.     build/assets/
+          cp -rv shopify/sections/.   build/sections/
+          cp -rv shopify/templates/.  build/templates/
+          ./scripts/inject-theme-tags.sh build/layout/theme.liquid
+
+      - name: Push
+        run: shopify theme push --theme "$THEME_ID" --path build --allow-live=false
+
+      - name: Summary
+        run: |
+          {
+            echo "### Deployed to theme \`$THEME_ID\` on \`$SHOPIFY_FLAG_STORE\`"
+            echo
+            echo "Sections: $(ls shopify/sections | wc -l)  ·  Assets: $(ls shopify/assets | wc -l)"
+          } >> "$GITHUB_STEP_SUMMARY"
