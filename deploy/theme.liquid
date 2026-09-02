@@ -64,9 +64,25 @@
     {% render 'chat-drawer' %}
 
     <div class="page-wrapper">
-      <div id="header-group">
-        {% sections 'header-group' %}
-      </div>
+      {%- comment -%}
+        The Nitidus templates carry their own header and footer, so the theme's
+        own groups are skipped on them. Rendering both stacks two headers and
+        two footers around the page.
+
+        The measuring script below is unaffected: every branch of it already
+        guards against a missing #header-group or #header-component and
+        returns early rather than throwing.
+      {%- endcomment -%}
+      {%- assign nit_template = false -%}
+      {%- if template.suffix == 'nitidus' or template.name == 'index' -%}
+        {%- assign nit_template = true -%}
+      {%- endif -%}
+
+      {% unless nit_template %}
+        <div id="header-group">
+          {% sections 'header-group' %}
+        </div>
+      {% endunless %}
 
       <script>
         /**
@@ -186,9 +202,11 @@
         {{ content_for_layout }}
       </main>
 
-      <footer>
-        {% sections 'footer-group' %}
-      </footer>
+      {% unless nit_template %}
+        <footer>
+          {% sections 'footer-group' %}
+        </footer>
+      {% endunless %}
     </div>
 
     {% render 'cart-drawer', render_wrapper: true %}
