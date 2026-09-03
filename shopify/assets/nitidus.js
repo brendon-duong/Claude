@@ -26,6 +26,12 @@ const TALL_RATIO = 0.6;
 
 let observer = null;
 
+/* Set the first time the observer reports anything. IntersectionObserver
+   invokes its callback once per observed target immediately, so this flips
+   true within a frame of the first observe() wherever the observer works at
+   all. It staying false is the signal that it does not. */
+let observerFired = false;
+
 function reveal(el) {
   el.classList.add('is-revealed');
 }
@@ -35,6 +41,7 @@ function getObserver() {
 
   observer = new IntersectionObserver(
     (entries) => {
+      observerFired = true;
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
 
@@ -93,6 +100,26 @@ document.addEventListener('nit:reveal', (event) => {
 });
 
 initReveal();
+
+/* --- Fail-safe -------------------------------------------------------------
+   .nit-js hides every reveal the moment this file runs, so anything that
+   stops the observer working leaves the page permanently blank rather than
+   merely unanimated - a host theme that scrolls a container instead of the
+   document, a platform that shims IntersectionObserver, a policy that blocks
+   it. Hiding the content is this file's doing, so uncovering it again is this
+   file's responsibility.
+
+   Health is judged on whether the callback ever ran, not on whether anything
+   revealed: with a tall hero, no reveal item is near the viewport on load, so
+   a count of zero is normal and proves nothing.
+   -------------------------------------------------------------------------- */
+const SAFETY_MS = 3000;
+window.setTimeout(() => {
+  if (observerFired) return;
+  for (const el of document.querySelectorAll(`${ITEM}:not(.is-revealed)`)) {
+    reveal(el);
+  }
+}, SAFETY_MS);
 
 /* ============================================================================
    nit-header.js — Brick 02
