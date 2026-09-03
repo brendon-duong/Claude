@@ -1,0 +1,46 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="nitidus.css">
+<style>
+  html,body{margin:0;background:var(--bg);overflow:hidden}
+  .s{position:relative;background:var(--surface);overflow:hidden;font-family:var(--font-body);
+     display:flex;flex-direction:column}
+  /* A lift behind the tool. Every attachment is matte black, so on charcoal it
+     vanishes; the wash is what gives the silhouette an edge to sit against. */
+  .lift{position:absolute;inset:0;background:
+     radial-gradient(58% 46% at 50% 40%, rgba(244,241,234,.075), rgba(244,241,234,0) 70%);}
+  .frame{position:relative;flex:1;display:flex;align-items:center;justify-content:center}
+  /* Explicit height, never max-height: these cut-outs are 100-318px tall in
+     the source, so a percentage cap renders them at native size in a large
+     frame. Each tile's height is chosen so no tool is scaled past 2x, which
+     is where the upscale starts to look soft. */
+  .tool{object-fit:contain;filter:drop-shadow(0 26px 46px rgba(0,0,0,.6));
+        transform-origin:50% 60%}
+  .cap{position:relative;padding:0 var(--sp-7) var(--sp-7)}
+  .cap p{margin:0}
+  .k{color:var(--text-faint)}
+  .v{color:var(--text);margin-top:10px!important;max-width:26ch}
+  .rule{position:relative;height:1px;background:var(--hairline);
+        margin:0 var(--sp-7) var(--sp-5)}
+</style></head><body>
+<div class="s" id="stage"></div>
+<script>
+/* th = rendered tool height in px. Native heights: part1 299, part2 318,
+   part4 115, part5 178. Frames are sized around those, not the other way. */
+const S = {
+  footwell:  { w:1200, h:1500, tool:'part1.png', th:590, rot:-14, fs:30,
+               cap:['Footwell','Dry mud along the sill, lifted in one pass'] },
+  childseat: { w:900,  h:900,  tool:'part5.png', th:350, rot:10,  fs:24,
+               cap:['Child seat','Crumbs out of the buckle recess and seam'] },
+  boot:      { w:1024, h:576,  tool:'part4.png', th:228, rot:-6,  fs:22,
+               cap:['Boot','Sand and grit across the full boot floor'] },
+  seatrails: { w:1200, h:1600, tool:'part2.png', th:630, rot:6,   fs:30,
+               cap:['Seat rails','The channel a full-size head cannot reach'] },
+};
+const n = location.hash.slice(1) || 'footwell';
+const s = S[n], st = document.getElementById('stage');
+st.style.width=s.w+'px'; st.style.height=s.h+'px';
+st.innerHTML = `<div class="lift"></div>
+  <div class="frame"><img class="tool" src="${s.tool}" style="height:${s.th}px;transform:rotate(${s.rot}deg)"></div>
+  <div class="rule"></div>
+  <div class="cap"><p class="nit-label k">${s.cap[0]}</p>
+    <p class="v" style="font-size:${s.fs}px">${s.cap[1]}</p></div>`;
+</script></body></html>
