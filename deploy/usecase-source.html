@@ -26,21 +26,18 @@
 /* th = rendered tool height in px. Native heights: part1 299, part2 318,
    part4 115, part5 178. Frames are sized around those, not the other way. */
 const S = {
-  footwell:  { w:1200, h:1500, tool:'part1.png', th:590, rot:-14, fs:30,
+  footwell:  { w:1200, h:1500, tool:'part1.png', th:760, rot:-14, fs:30,
                cap:['Footwell','Dry mud along the sill, lifted in one pass'] },
-  childseat: { w:900,  h:900,  tool:'part5.png', th:350, rot:10,  fs:24,
+  childseat: { w:900,  h:900,  tool:'part5.png', th:470, rot:10,  fs:24,
                cap:['Child seat','Crumbs out of the buckle recess and seam'] },
-  boot:      { w:1024, h:576,  tool:'part4.png', th:228, rot:-6,  fs:22,
+  boot:      { w:1024, h:576,  tool:'part4.png', th:300, rot:-6,  fs:22,
                cap:['Boot','Sand and grit across the full boot floor'] },
-  seatrails: { w:1200, h:1600, tool:'part2.png', th:630, rot:6,   fs:30,
+  seatrails: { w:1200, h:1600, tool:'part2.png', th:820, rot:6,   fs:30,
                cap:['Seat rails','The channel a full-size head cannot reach'] },
 };
 const n = location.hash.slice(1) || 'footwell';
 const s = S[n], st = document.getElementById('stage');
 st.style.width=s.w+'px'; st.style.height=s.h+'px';
 st.innerHTML = `<div class="lift"></div>
-  <div class="frame"><img class="tool" src="${s.tool}" style="height:${s.th}px;transform:rotate(${s.rot}deg)"></div>
-  <div class="rule"></div>
-  <div class="cap"><p class="nit-label k">${s.cap[0]}</p>
-    <p class="v" style="font-size:${s.fs}px">${s.cap[1]}</p></div>`;
+  <div class="frame"><img class="tool" src="${s.tool}" style="height:${s.th}px;transform:rotate(${s.rot}deg)"></div>`;
 </script></body></html>
