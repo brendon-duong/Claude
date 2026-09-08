@@ -60,6 +60,71 @@ def _read_csv(path: Path) -> list[Row]:
         return _normalise(list(csv.DictReader(handle)))
 
 
+def _cell_to_text(value: object) -> str:
+    """One spreadsheet cell to the string the rest of the agent expects.
+
+    Excel hands back real types where CSV hands back text: dates arrive as
+    datetime, and every number as a float, so "8" comes through as "8.0".
+    Normalising here keeps every parser downstream working on one shape.
+    """
+    if value is None:
+        return ""
+    if isinstance(value, datetime):
+        return value.date().isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, float) and value.is_integer():
+        return str(int(value))
+    return str(value).strip()
+
+
+def _read_xlsx(source: SourceConfig, base_dir: Path) -> list[Row]:
+    """Read a worksheet from an .xlsx file.
+
+    Sheets uploaded to Drive rather than converted stay as Excel files, and
+    Google's Sheets API cannot read them — so this path exists.
+    """
+    try:
+        import openpyxl  # type: ignore
+    except ImportError as exc:  # pragma: no cover - depends on optional dep
+        raise RuntimeError(
+            "Reading .xlsx needs openpyxl: pip install -r requirements.txt"
+        ) from exc
+
+    path = Path(source.path)
+    if not path.is_absolute():
+        path = base_dir / path
+    if not path.exists():
+        raise FileNotFoundError(f"no such workbook: {path}")
+
+    workbook = openpyxl.load_workbook(path, data_only=True, read_only=True)
+    try:
+        sheet = workbook[source.tab] if source.tab else workbook[workbook.sheetnames[0]]
+        rows = sheet.iter_rows(values_only=True)
+        try:
+            header = [_cell_to_text(cell) for cell in next(rows)]
+        except StopIteration:
+            return []
+
+        # Worksheets report far more columns than they use, so the header ends
+        # in a run of blanks. Those all normalise to the same empty name, and
+        # zipping them into a dict lets the last one overwrite the first --
+        # which silently wipes the unnamed first column that holds the names.
+        while header and not header[-1]:
+            header.pop()
+
+        records = []
+        for row in rows:
+            record: dict[str, str | None] = {}
+            for name, cell in zip(header, row):
+                if name not in record:  # first column with a given name wins
+                    record[name] = _cell_to_text(cell)
+            records.append(record)
+    finally:
+        workbook.close()
+    return _normalise(records)
+
+
 def _read_gsheet(source: SourceConfig, credentials_path: str) -> list[Row]:
     try:
         import gspread  # type: ignore
@@ -84,6 +149,8 @@ def load_table(source: SourceConfig, config: Config, base_dir: Path) -> list[Row
         if not path.exists():
             raise FileNotFoundError(f"no such CSV: {path}")
         return _read_csv(path)
+    if source.kind == "xlsx":
+        return _read_xlsx(source, base_dir)
     if source.kind == "gsheet":
         return _read_gsheet(source, config.google_credentials_path)
     raise ValueError(f"unknown source kind: {source.kind!r}")

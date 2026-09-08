@@ -10,6 +10,7 @@ from datetime import date
 from pathlib import Path
 
 from business_agent.audit import (
+    AuditRecord,
     load_audits,
     normalise_name,
     parse_breaks,
@@ -178,3 +179,110 @@ class TestLoadAudits(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestLaterVocabulary(unittest.TestCase):
+    """The sheet's wording changed partway through the year.
+
+    Every string here is a real phrasing from the live sheet, reproduced
+    because each one was silently invisible to an earlier version of this
+    parser — 497 rows the reviewer had flagged that scored as clean.
+    """
+
+    def make(self, details: str) -> AuditRecord:
+        (record,) = load_audits(
+            [
+                {"": "March 9, 2026"},
+                {
+                    "": "Ana Reyes",
+                    "numbers of completed surveys in whatsapp": "4",
+                    "numbers of completed surveys in call logs": "4",
+                    "details": details,
+                },
+            ]
+        )
+        return record
+
+    def test_cumulative_total_is_read_as_the_shift_total(self):
+        record = self.make("45 min cumulative off-phone time throughout shift")
+        self.assertEqual(record.cumulative_off_phone_minutes, 45)
+        self.assertEqual(record.off_phone_minutes, 45)
+        self.assertTrue(record.has_any_finding)
+
+    def test_cumulative_total_with_hours(self):
+        record = self.make("1 hour & 5 min cumulative off-phone time throughout shift")
+        self.assertEqual(record.off_phone_minutes, 65)
+
+    def test_a_stated_total_beats_summing_individual_breaks(self):
+        record = self.make(
+            "5 mins off the phone between 6:00 - 6:05\n"
+            "30 min cumulative off-phone time throughout shift"
+        )
+        self.assertEqual(record.off_phone_minutes, 30)
+        self.assertTrue(record.stated_total_only is False)
+
+    def test_break_without_the_words_off_the_phone(self):
+        record = self.make("12 min break between 17:00 - 17:12")
+        self.assertEqual([b.minutes for b in record.breaks], [12])
+        self.assertEqual(record.longest_break_minutes, 12)
+
+    def test_break_with_no_window_given(self):
+        record = self.make("7 min break")
+        self.assertEqual([b.minutes for b in record.breaks], [7])
+        self.assertEqual(record.breaks[0].window, "")
+
+    def test_an_overrun_declared_break_is_not_excused(self):
+        record = self.make(
+            "7 mins off the phone between 20:38:37 - 20:47:03 (Declared Break is only 5 mins)"
+        )
+        self.assertFalse(record.breaks[0].declared)
+        self.assertEqual(record.off_phone_minutes, 7)
+
+    def test_over_break_is_counted(self):
+        record = self.make("3 min & 20 sec over break between 18:00:00 - 18:03:20 after 5 min")
+        self.assertEqual(record.over_break_minutes, 3)
+
+    def test_no_break_declared_is_a_finding(self):
+        record = self.make("No Break Declared")
+        self.assertTrue(record.undeclared_break)
+        self.assertTrue(record.has_any_finding)
+
+    def test_shift_cut_short_in_minutes(self):
+        self.assertEqual(self.make("Short by 21 mins").short_by_minutes, 21)
+
+    def test_shift_cut_short_in_hours(self):
+        self.assertEqual(self.make("Short by 1 and a half hour").short_by_minutes, 90)
+
+    def test_shift_cut_short_written_as_a_clock_duration(self):
+        record = self.make("Time In & Out on Call Log: 1:59 - 4:56 short by 0:21:13")
+        self.assertEqual(record.short_by_minutes, 21)
+
+    def test_time_discrepancy_without_a_colon_after_the_label(self):
+        record = self.make(
+            "Declared Time In & Out 1:30 - 4:30 VS. Time In & Out on Call Log: "
+            "01:31:03 - 04:28:56 Short by 3 mins"
+        )
+        self.assertEqual(len(record.time_discrepancies), 1)
+
+    def test_suspicious_entry_is_an_integrity_failure(self):
+        record = self.make(
+            "Suspicious Entry - For Investigation (caller has been dialing other callers)"
+        )
+        self.assertTrue(record.suspicious)
+        self.assertFalse(record.truthful)
+
+    def test_a_long_call_still_is_not_a_break(self):
+        record = self.make("12 mins off the phone between 17:46 - 18:14 after a 15 mins call")
+        self.assertEqual([b.minutes for b in record.breaks], [12])
+
+    def test_a_name_row_with_no_numbers_is_not_an_audit(self):
+        """An unfilled row must not count as a clean audit."""
+        records = load_audits(
+            [{"": "March 9, 2026"}, {"": "Ana Reyes", "details": ""}]
+        )
+        self.assertEqual(records, [])
+
+
+class TestAuditRecordImport(unittest.TestCase):
+    def test_record_type_is_importable(self):
+        self.assertTrue(AuditRecord)

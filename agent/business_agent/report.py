@@ -9,7 +9,7 @@ from datetime import date
 
 from .audit import AuditRecord
 from .models import Draft, Event, Gap, Person, Shift
-from .performance import StaffPerformance
+from .performance import StaffPerformance, find_possible_duplicates
 
 
 def _day_label(day: date) -> str:
@@ -127,6 +127,26 @@ def build_brief(
             for record in watch:
                 lines.append(f"- **{record.name}** (score {record.score:.2f}) — {record.headline}")
 
+        duplicates = find_possible_duplicates(performance)
+        if duplicates:
+            lines += [
+                "",
+                f"**{len(duplicates)} pair(s) of names look like the same caller twice.** "
+                "Each variant splits that person's audit history, which flatters the half "
+                "without the failures. Nothing is merged automatically — confirm and fix "
+                "the spelling in the sheet:",
+                "",
+            ]
+            for name_a, name_b, why in duplicates[:12]:
+                a = performance.get(name_a.strip().lower())
+                b = performance.get(name_b.strip().lower())
+                counts = (
+                    f" ({a.audits} + {b.audits} audits)" if a and b else ""
+                )
+                lines.append(f"- **{name_a}** / **{name_b}**{counts} — {why}")
+            if len(duplicates) > 12:
+                lines.append(f"- …and {len(duplicates) - 12} more")
+
         disputed = [a for a in audits if a.reviewer_disagrees]
         if disputed:
             lines += [
@@ -144,6 +164,8 @@ def build_brief(
                     )
                 elif record.off_phone_minutes:
                     what = f"{record.off_phone_minutes} min off the phone"
+                elif record.short_by_minutes:
+                    what = f"{record.short_by_minutes} min short of the declared shift"
                 elif record.time_discrepancies:
                     what = "start/finish time mismatch"
                 else:

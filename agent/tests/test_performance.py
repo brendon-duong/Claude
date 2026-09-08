@@ -12,7 +12,9 @@ from datetime import date, timedelta
 from business_agent.audit import AuditRecord, Break
 from business_agent.performance import (
     Thresholds,
+    _one_edit_apart,
     audit_penalty,
+    find_possible_duplicates,
     score_all,
     score_person,
     time_verdict,
@@ -178,3 +180,66 @@ class TestScoreAll(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestFindPossibleDuplicates(unittest.TestCase):
+    """Name variants split one person's history in two, which flatters the
+    half without the failures. These are reported, never merged: wrongly
+    merging two real people would pin one person's dishonesty on another."""
+
+    def build(self, *names):
+        return score_all([record(name=n) for n in names], TODAY, T)
+
+    def pairs(self, *names):
+        return {(a, b) for a, b, _ in find_possible_duplicates(self.build(*names))}
+
+    def test_a_middle_name_added(self):
+        self.assertIn(
+            ("Jane Wary Espanueva", "Jane Wary Rose Espanueva"),
+            self.pairs("Jane Wary Espanueva", "Jane Wary Rose Espanueva"),
+        )
+
+    def test_given_name_typo_with_the_same_surname(self):
+        self.assertIn(
+            ("Kingsly Cajilig", "Kingsy Cajilig"),
+            self.pairs("Kingsly Cajilig", "Kingsy Cajilig"),
+        )
+
+    def test_transposed_letters_in_a_surname(self):
+        self.assertIn(
+            ("Cherry Jean Raagas", "Cherry Jean Ragaas"),
+            self.pairs("Cherry Jean Raagas", "Cherry Jean Ragaas"),
+        )
+
+    def test_case_and_spacing_are_already_one_person(self):
+        people = self.build("Elaine Abugan", "ELAINE  ABUGAN")
+        self.assertEqual(len(people), 1)
+
+    def test_genuinely_different_people_are_left_alone(self):
+        self.assertEqual(self.pairs("Ana Reyes", "Ben Cruz", "Cara Lim"), set())
+
+    def test_siblings_sharing_a_surname_are_not_merged(self):
+        self.assertEqual(self.pairs("Karen Boiser", "Erika Jane Boiser"), set())
+
+    def test_unaudited_people_are_not_reported(self):
+        self.assertEqual(find_possible_duplicates({}), [])
+
+
+class TestOneEditApart(unittest.TestCase):
+    def test_substitution(self):
+        self.assertTrue(_one_edit_apart("leizel", "liezel"))
+
+    def test_deletion(self):
+        self.assertTrue(_one_edit_apart("kingsly", "kingsy"))
+
+    def test_transposition(self):
+        self.assertTrue(_one_edit_apart("raagas", "ragaas"))
+
+    def test_identical_words_are_not_an_edit(self):
+        self.assertFalse(_one_edit_apart("reyes", "reyes"))
+
+    def test_two_edits_is_too_far(self):
+        self.assertFalse(_one_edit_apart("reyes", "royas"))
+
+    def test_very_different_lengths(self):
+        self.assertFalse(_one_edit_apart("ana", "anabelle"))

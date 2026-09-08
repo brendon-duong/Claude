@@ -16,6 +16,9 @@ class SourceConfig:
     """Where a table of data lives.
 
     kind "csv"    -> path is a local file (demo mode, or an exported sheet)
+    kind "xlsx"   -> path is a local .xlsx file, tab is the worksheet name.
+                     Needed for sheets uploaded to Drive rather than converted:
+                     they stay as Excel files and the Sheets API cannot read them.
     kind "gsheet" -> path is the Google Sheet ID, tab is the worksheet name
     """
 

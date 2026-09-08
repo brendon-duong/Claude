@@ -40,6 +40,11 @@ class Thresholds:
     shift_off_phone_serious_minutes: int = 30
     shift_off_phone_severe_minutes: int = 60
 
+    # Working less of the shift than was declared.
+    shortfall_ok_minutes: int = 5
+    shortfall_serious_minutes: int = 30
+    shortfall_severe_minutes: int = 60
+
     # How quickly an old audit stops mattering.
     half_life_days: int = 90
     lookback_days: int = 240
@@ -47,8 +52,13 @@ class Thresholds:
     # Score bands.
     trusted_score: float = 0.75
     do_not_roster_score: float = 0.50
-    # Integrity failures within the lookback that force a do-not-roster call.
-    max_integrity_fails: int = 2
+    # Integrity is judged as a rate as well as a count: four slips in
+    # seventy-nine audits is a different person from four in seven.
+    max_integrity_rate: float = 0.25
+    min_audits_for_rate: int = 3
+    # Repeat failures inside this recent window bar someone regardless of rate.
+    recent_window_days: int = 60
+    max_recent_integrity_fails: int = 2
     # Shifts with an unacceptable amount of time off the phone.
     max_severe_events: int = 2
     # A low average needs more than one audit behind it before it bans anyone.
@@ -57,6 +67,9 @@ class Thresholds:
 
     # Penalties, applied per audit then averaged.
     integrity_penalty: float = 0.45
+    shortfall_severe_penalty: float = 0.25
+    shortfall_serious_penalty: float = 0.14
+    shortfall_minor_penalty: float = 0.04
     integrity_penalty_per_extra: float = 0.15
     severe_time_penalty: float = 0.30
     serious_time_penalty: float = 0.18
@@ -75,7 +88,23 @@ def time_verdict(record: AuditRecord, thresholds: Thresholds) -> TimeVerdict:
         or total >= thresholds.shift_off_phone_serious_minutes
     ):
         return "serious"
-    if longest > thresholds.break_ok_minutes:
+    # Where the sheet gives only a shift total, the longest single absence is
+    # unknown — so judge the total rather than reading the unknown as zero.
+    if longest > thresholds.break_ok_minutes or (
+        record.stated_total_only and total > thresholds.break_ok_minutes
+    ):
+        return "minor"
+    return "clean"
+
+
+def shortfall_verdict(record: AuditRecord, thresholds: Thresholds) -> TimeVerdict:
+    """How much of the declared shift went unworked?"""
+    minutes = record.short_by_minutes
+    if minutes >= thresholds.shortfall_severe_minutes:
+        return "severe"
+    if minutes >= thresholds.shortfall_serious_minutes:
+        return "serious"
+    if minutes > thresholds.shortfall_ok_minutes:
         return "minor"
     return "clean"
 
@@ -88,6 +117,9 @@ def audit_penalty(record: AuditRecord, thresholds: Thresholds) -> tuple[float, l
     if record.no_call_logs:
         penalty += thresholds.integrity_penalty
         notes.append(f"no call logs at all ({record.day:%d %b})")
+    elif record.suspicious:
+        penalty += thresholds.integrity_penalty
+        notes.append(f"flagged for investigation ({record.day:%d %b})")
     elif record.over_declared:
         extra = record.over_declared - 1
         penalty += thresholds.integrity_penalty + extra * thresholds.integrity_penalty_per_extra
@@ -102,11 +134,30 @@ def audit_penalty(record: AuditRecord, thresholds: Thresholds) -> tuple[float, l
         notes.append(f"{record.off_phone_minutes} min off the phone ({record.day:%d %b})")
     elif verdict == "serious":
         penalty += thresholds.serious_time_penalty
+        # Only mention the longest single absence when the sheet listed the
+        # individual breaks; a stated shift total does not tell us that.
+        detail = (
+            f", longest {record.longest_break_minutes} min"
+            if record.longest_break_minutes
+            else ""
+        )
         notes.append(
-            f"{record.off_phone_minutes} min off the phone, longest "
-            f"{record.longest_break_minutes} min ({record.day:%d %b})"
+            f"{record.off_phone_minutes} min off the phone{detail} ({record.day:%d %b})"
         )
     elif verdict == "minor":
+        penalty += thresholds.minor_time_penalty
+
+    shortfall = shortfall_verdict(record, thresholds)
+    if shortfall == "severe":
+        penalty += thresholds.shortfall_severe_penalty
+        notes.append(f"{record.short_by_minutes} min short of the declared shift ({record.day:%d %b})")
+    elif shortfall == "serious":
+        penalty += thresholds.shortfall_serious_penalty
+        notes.append(f"{record.short_by_minutes} min short of the declared shift ({record.day:%d %b})")
+    elif shortfall == "minor":
+        penalty += thresholds.shortfall_minor_penalty
+
+    if record.undeclared_break:
         penalty += thresholds.minor_time_penalty
 
     if record.time_discrepancies:
@@ -129,6 +180,8 @@ class StaffPerformance:
     total_over_declared: int = 0
     severe_events: int = 0
     serious_events: int = 0
+    recent_integrity_fails: int = 0
+    shortfall_events: int = 0
     clean_audits: int = 0
     worst_off_phone_minutes: int = 0
     last_audit: date | None = None
@@ -147,6 +200,8 @@ class StaffPerformance:
             parts.append(f"{self.integrity_fails} integrity failure(s)")
         if self.severe_events:
             parts.append(f"{self.severe_events} shift(s) badly off the phone")
+        if self.shortfall_events:
+            parts.append(f"{self.shortfall_events} shift(s) cut short")
         return ", ".join(parts)
 
 
@@ -184,9 +239,13 @@ def score_person(
         total_weight += weight
         concerns.extend(notes)
 
-        if record.no_call_logs or record.over_declared:
+        if record.no_call_logs or record.over_declared or record.suspicious:
             performance.integrity_fails += 1
             performance.total_over_declared += record.over_declared
+            if (today - record.day).days <= thresholds.recent_window_days:
+                performance.recent_integrity_fails += 1
+        if shortfall_verdict(record, thresholds) in {"serious", "severe"}:
+            performance.shortfall_events += 1
         verdict = time_verdict(record, thresholds)
         if verdict == "severe":
             performance.severe_events += 1
@@ -211,9 +270,22 @@ def score_person(
         performance.score < thresholds.do_not_roster_score
         and performance.audits >= thresholds.min_audits_to_bar_on_score
     )
+    # Integrity as a proportion, not a tally: two slips in forty audits is a
+    # different person from two in four, and a raw count barred the wrong ones.
+    integrity_rate = performance.integrity_fails / performance.audits
+    barred_on_rate = (
+        integrity_rate >= thresholds.max_integrity_rate
+        and performance.audits >= thresholds.min_audits_for_rate
+    )
+    # However often they are audited, repeat failures in the last few weeks
+    # are a live problem rather than history.
+    barred_on_recency = (
+        performance.recent_integrity_fails >= thresholds.max_recent_integrity_fails
+    )
     if (
         barred_on_score
-        or performance.integrity_fails >= thresholds.max_integrity_fails
+        or barred_on_rate
+        or barred_on_recency
         or performance.severe_events >= thresholds.max_severe_events
     ):
         performance.tier = "do_not_roster"
@@ -227,6 +299,77 @@ def score_person(
         performance.tier = "trusted"
 
     return performance
+
+
+def find_possible_duplicates(
+    performances: dict[str, StaffPerformance]
+) -> list[tuple[str, str, str]]:
+    """Names that are probably the same person spelled two ways.
+
+    A hand-kept sheet accumulates these, and every variant splits one person's
+    audit history in two — which flatters the half without the failures. These
+    are *reported*, never merged automatically: wrongly merging two real people
+    would attach one person's integrity failures to another, which is far worse
+    than asking someone to check a list.
+    """
+    names = sorted((p.key, p.name) for p in performances.values() if p.audits)
+    found: list[tuple[str, str, str]] = []
+
+    for index, (key_a, name_a) in enumerate(names):
+        tokens_a = set(key_a.split())
+        for key_b, name_b in names[index + 1 :]:
+            tokens_b = set(key_b.split())
+            if not tokens_a or not tokens_b:
+                continue
+
+            # One name's words are wholly contained in the other's, and they
+            # share a surname: "Jane Wary Espanueva" / "Jane Wary Rose Espanueva".
+            if tokens_a < tokens_b or tokens_b < tokens_a:
+                found.append((name_a, name_b, "one name is contained in the other"))
+                continue
+
+            # Same surname, and the given names differ by a single character:
+            # "Kingsly Cajilig" / "Kingsy Cajilig".
+            surname_a, surname_b = key_a.split()[-1], key_b.split()[-1]
+            first_a, first_b = key_a.split()[0], key_b.split()[0]
+            if surname_a == surname_b and _one_edit_apart(first_a, first_b):
+                found.append((name_a, name_b, "same surname, given name differs by a letter"))
+                continue
+
+            # Same given names, surname differs by a single character:
+            # "Cherry Jean Raagas" / "Cherry Jean Ragaas".
+            if (
+                key_a.split()[:-1] == key_b.split()[:-1]
+                and _one_edit_apart(surname_a, surname_b)
+            ):
+                found.append((name_a, name_b, "same given name, surname differs by a letter"))
+
+    return found
+
+
+def _one_edit_apart(left: str, right: str) -> bool:
+    """True when two words differ by at most one insertion, deletion or swap.
+
+    Deliberately strict: anything looser starts merging siblings.
+    """
+    if left == right:
+        return False
+    if abs(len(left) - len(right)) > 1:
+        return False
+    if len(left) == len(right):
+        diffs = [i for i, (a, b) in enumerate(zip(left, right)) if a != b]
+        if len(diffs) == 1:
+            return True
+        # A transposition, as in "Raagas" / "Ragaas".
+        if len(diffs) == 2 and diffs[1] == diffs[0] + 1:
+            i = diffs[0]
+            return left[i] == right[i + 1] and left[i + 1] == right[i]
+        return False
+    longer, shorter = (left, right) if len(left) > len(right) else (right, left)
+    for index in range(len(longer)):
+        if longer[:index] + longer[index + 1 :] == shorter:
+            return True
+    return False
 
 
 def score_all(

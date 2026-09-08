@@ -159,7 +159,12 @@ cover the shift he had just pulled out of.
 ## The audits — who gets rostered
 
 `Audit - PL` is what decides who the agent will offer a shift to. Set it as the
-`audit` source and it is read every cycle. It judges two separate things, kept
+`audit` source and it is read every cycle.
+
+It is an **.xlsx file uploaded to Drive**, not a native Google Sheet, so the
+Sheets API cannot read it — use `"kind": "xlsx"` with the `Audit` tab. (The
+workbook's second tab, `Report`, is a per-date summary; the agent works from
+`Audit`, which is the source.) It judges two separate things, kept
 separate on purpose.
 
 ### Integrity
@@ -191,12 +196,50 @@ twenty minutes now and then is tolerated. An hour is not. So:
 `"9 mins off the phone between 18:18:26 - 18:27:39 (Declared Break)"` scores as
 clean — and one declared break in a list does not excuse the others.
 
+### The details column speaks several dialects
+
+The wording in `Details` changed over the year, and each new phrasing was
+invisible to an earlier version of this parser — **497 rows the reviewer had
+flagged were scoring as clean**. All of these are now read:
+
+| Phrasing | Read as |
+|---|---|
+| `10 mins off the phone between 6:33 - 6:42` | a break, with its window |
+| `5 mins between 6:12 - 6:17` | a break (shorthand, after another) |
+| `12 min break` / `12 min break between …` | a break |
+| `45 min cumulative off-phone time throughout shift` | the shift total, which **wins** over summing breaks |
+| `1 hour & 5 min cumulative off-phone…` | 65 minutes |
+| `Short by 21 mins` / `Short by 1 and a half hour` / `short by 0:21:13` | shift cut short |
+| `Declared Time In & Out 1:30 - 4:30 VS. …` | start/finish mismatch (note: **no colon** after the label) |
+| `3 min & 20 sec over break` | break overrun |
+| `No Break Declared` | undeclared break |
+| `Suspicious Entry - For Investigation` | integrity failure |
+
+Two subtleties that were bugs first:
+
+- **`(Declared Break is only 5 mins)` is not an excuse.** A 7-minute absence
+  against a 5-minute declared break is an overrun. The parser used to see
+  "Declared Break" and forgive the whole thing.
+- **A name with no numbers beside it is not a clean audit.** 96 rows have a
+  caller but no figures — a shift nobody has audited yet. Counting those as
+  clean quietly inflated those people's scores.
+
+After all of it, 5 rows remain flagged where the numbers show nothing, and all
+five are fair: a correctly-excused declared break, and power or internet
+outages that were not the caller's fault.
+
 ### From audits to a roster decision
 
 Each audit gets a penalty; penalties are **averaged, not summed**, so being
 audited often never makes someone look worse than someone barely checked. Recent
 audits count for more — influence halves every 90 days — because the question is
 who to roster this week, not who ever slipped up.
+
+Integrity is judged as a **rate as well as a count**, because on the real
+sheet a raw count barred the wrong people: four slips in seventy-nine audits is
+a different person from four in seven. Someone is barred when their integrity
+failure rate is high (with at least a few audits behind it), *or* they have
+failed twice in the last two months however often they are audited.
 
 Three tiers come out:
 
@@ -219,6 +262,20 @@ low score only bars someone once there are at least two audits behind it.
 
 Everything is in `performance` in the config, so you can move any line without
 touching code.
+
+### Names that are the same person twice
+
+A hand-kept sheet accumulates spelling variants, and the live one has **43
+pairs** of them: `Jane Wary Espanueva` / `Jane Wary Rose Espanueva`,
+`Kingsly Cajilig` / `KINGSY CAJILIG`, `Cherry Jean Raagas` / `Cherry Jean
+Ragaas`, `John Dexter Dado` / `John Dexter Porciuncula Dado`.
+
+Every variant splits one person's audit history in two, which flatters the half
+without the failures. The brief lists them, and the agent **never merges them
+automatically** — some are genuinely ambiguous (`Trisha` matches both
+`Trisha Marie Del Rosario` and `Trisha Marie Villacura`), and wrongly merging
+two real people would pin one person's dishonesty on another. Fix the spelling
+in the sheet and the histories join up on their own.
 
 ### Bootstrapping your caller list from it
 
@@ -444,5 +501,5 @@ business_agent/
   ingest/whatsapp_cloud.py   signed webhook receiver for the official API
 demo/            fake business, regenerated relative to today
 ops/             launchd job + installer for a Mac mini
-tests/           146 tests, standard library only
+tests/           175 tests, standard library only
 ```

@@ -35,19 +35,70 @@ _DETAILS = "details"
 
 _SECTION_DATE_FORMATS = ("%B %d, %Y", "%b %d, %Y", "%d %B %Y", "%Y-%m-%d", "%d/%m/%Y")
 
-# "10 mins off the phone between 6:33 - 6:42", and the shorthand
-# "5 mins between 6:12 - 6:17" that appears when it follows another break.
+_TIME = r"\d{1,2}:\d{2}(?::\d{2})?"
+
+# The sheet writes a break several ways, and gained new phrasings over time:
+#   "10 mins off the phone between 6:33 - 6:42"
+#   "5 mins between 6:12 - 6:17"        (shorthand, following another break)
+#   "12 min break between 17:00 - 17:12"
+#   "7 min break"                       (no window given)
+# One of "off the phone", "break" or "between" must be present, so that
+# "after a 15 mins call" is never mistaken for time away from the phone.
 _BREAK = re.compile(
-    r"(?P<minutes>\d{1,3})\s*min(?:ute)?s?\s+(?:off\s+the\s+phone\s+)?between\s+"
-    r"(?P<start>\d{1,2}:\d{2}(?::\d{2})?)\s*-\s*(?P<end>\d{1,2}:\d{2}(?::\d{2})?)",
+    rf"(?P<minutes>\d{{1,3}})\s*min(?:ute)?s?\s+"
+    rf"(?:"
+    rf"(?:off\s+the\s+phone|break)"
+    rf"(?:\s+between\s+(?P<start1>{_TIME})\s*-\s*(?P<end1>{_TIME}))?"
+    rf"|between\s+(?P<start2>{_TIME})\s*-\s*(?P<end2>{_TIME})"
+    rf")",
     re.IGNORECASE,
 )
+
+# "45 min cumulative off-phone time throughout shift"
+# "1 hour & 5 min cumulative off-phone time throughout shift"
+# When the sheet states a total directly it is authoritative — it is the
+# reviewer's own sum, and beats adding up the individual breaks.
+_CUMULATIVE = re.compile(
+    r"(?:(?P<hours>\d{1,2})\s*hours?\s*&\s*)?(?P<minutes>\d{1,3})\s*min(?:ute)?s?\s+"
+    r"cumulative\s+off[-\s]?phone",
+    re.IGNORECASE,
+)
+
+# "3 min & 20 sec over break", "2 mins over break"
+_OVER_BREAK = re.compile(
+    r"(?P<minutes>\d{1,3})\s*min(?:ute)?s?(?:\s*&\s*\d{1,2}\s*sec)?\s+over\s+break",
+    re.IGNORECASE,
+)
+
+# The caller took a break without declaring it.
+_NO_BREAK_DECLARED = re.compile(r"no\s+break\s+declared", re.IGNORECASE)
+
+# "short by 0:21:13" — a shortfall written as a duration.
+_SHORT_BY_CLOCK = re.compile(
+    r"short\s+by\s+(?P<h>\d{1,2}):(?P<m>\d{2})(?::(?P<s>\d{2}))?", re.IGNORECASE
+)
+# "Declared Time In & Out 1:30 - 4:30 VS. Time In & Out on Call Log: ..."
+# The colon after the label is optional -- the sheet writes it both ways -- but
+# the "VS." is what makes it a discrepancy rather than a plain statement.
 _TIME_DISCREPANCY = re.compile(
-    r"Declared\s+(?:Start\s+Time|Time\s+In\s*&\s*Out|Time\s+In|Time\s+Out|End\s+Time)\s*:[^\n]*",
+    r"Declared\s+(?:Start\s+Time|End\s+Time|Time\s+In\s*&?\s*Out|Time\s+In|Time\s+Out|Break)"
+    r"\s*:?[^\n]*?\bVS\.?[^\n]*",
     re.IGNORECASE,
 )
 _NO_CALL_LOGS = re.compile(r"no\s+call\s+logs", re.IGNORECASE)
 _DECLARED_BREAK = re.compile(r"declared\s+break", re.IGNORECASE)
+# "(Declared Break is only 5 mins)" -- the break was declared but overrun, so
+# it is NOT excused. Without this the overrun is silently forgiven.
+_DECLARED_BREAK_OVERRUN = re.compile(r"declared\s+break\s+is\s+only", re.IGNORECASE)
+# "Suspicious Entry - For Investigation (caller has been dialing other callers)"
+_SUSPICIOUS = re.compile(
+    r"suspicious\s+entry|for\s+investigation|dial(?:l)?ing\s+other\s+callers", re.IGNORECASE
+)
+# "Short by 21 mins", "Short by 1 and a half hour", "Short by 1 minute & 40 sec"
+_SHORT_BY = re.compile(
+    r"short\s+by\s+(?P<value>\d+)\s*(?P<half>and\s+a\s+half\s+)?(?P<unit>hour|hr|min)",
+    re.IGNORECASE,
+)
 
 
 def normalise_name(name: str) -> str:
@@ -57,6 +108,37 @@ def normalise_name(name: str) -> str:
     score as two people with half the audit history each.
     """
     return re.sub(r"\s+", " ", (name or "")).strip().lower()
+
+
+def parse_short_by(details: str) -> int:
+    """Minutes the caller fell short of the shift they declared.
+
+    The sheet writes this as "Short by 21 mins", "Short by 1 and a half hour"
+    and "Short by 1 minute & 40 sec". The largest figure mentioned wins, since
+    a row can list a shortfall per leg of the shift.
+    """
+    minutes = 0
+    for match in _SHORT_BY_CLOCK.finditer(details or ""):
+        minutes = max(minutes, int(match.group("h")) * 60 + int(match.group("m")))
+    for match in _SHORT_BY.finditer(details or ""):
+        value = int(match.group("value"))
+        if match.group("unit").lower() in {"hour", "hr"}:
+            value *= 60
+            if match.group("half"):
+                value += 30
+        minutes = max(minutes, value)
+    return minutes
+
+
+def parse_cumulative(details: str) -> int | None:
+    """The shift's stated total time off the phone, if the sheet gives one."""
+    total: int | None = None
+    for match in _CUMULATIVE.finditer(details or ""):
+        minutes = int(match.group("minutes"))
+        if match.group("hours"):
+            minutes += int(match.group("hours")) * 60
+        total = minutes if total is None else max(total, minutes)
+    return total
 
 
 def parse_section_date(value: str) -> date | None:
@@ -105,6 +187,12 @@ class AuditRecord:
     breaks: list[Break] = field(default_factory=list)
     time_discrepancies: list[str] = field(default_factory=list)
     no_call_logs: bool = False
+    suspicious: bool = False
+    short_by_minutes: int = 0
+    # The reviewer's own total for the shift, when they stated one.
+    cumulative_off_phone_minutes: int | None = None
+    over_break_minutes: int = 0
+    undeclared_break: bool = False
 
     @property
     def person_key(self) -> str:
@@ -122,7 +210,7 @@ class AuditRecord:
     @property
     def truthful(self) -> bool:
         """True when the logs back up the claim -- equal counts, or more."""
-        if self.no_call_logs:
+        if self.no_call_logs or self.suspicious:
             return False
         return self.over_declared == 0
 
@@ -134,17 +222,36 @@ class AuditRecord:
 
     @property
     def off_phone_minutes(self) -> int:
-        return sum(b.minutes for b in self.unexcused_breaks)
+        """Total time away from the phone this shift.
+
+        A stated cumulative total wins over adding up individual breaks: it is
+        the reviewer's own sum for the whole shift, and later rows give only
+        that total rather than listing each break.
+        """
+        if self.cumulative_off_phone_minutes is not None:
+            return self.cumulative_off_phone_minutes
+        return sum(b.minutes for b in self.unexcused_breaks) + self.over_break_minutes
 
     @property
     def longest_break_minutes(self) -> int:
         return max((b.minutes for b in self.unexcused_breaks), default=0)
 
     @property
+    def stated_total_only(self) -> bool:
+        """A cumulative total with no individual breaks listed — so the
+        longest single absence is unknown and must not be read as zero."""
+        return self.cumulative_off_phone_minutes is not None and not self.breaks
+
+    @property
     def has_any_finding(self) -> bool:
         return bool(
             self.over_declared
             or self.no_call_logs
+            or self.suspicious
+            or self.short_by_minutes
+            or self.over_break_minutes
+            or self.undeclared_break
+            or self.off_phone_minutes
             or self.unexcused_breaks
             or self.time_discrepancies
         )
@@ -173,11 +280,16 @@ def parse_breaks(details: str) -> list[Break]:
     for index, match in enumerate(matches):
         tail_end = matches[index + 1].start() if index + 1 < len(matches) else len(details)
         trailing = details[match.end() : tail_end]
+        declared = bool(_DECLARED_BREAK.search(trailing)) and not _DECLARED_BREAK_OVERRUN.search(
+            trailing
+        )
+        start = match.group("start1") or match.group("start2")
+        end = match.group("end1") or match.group("end2")
         breaks.append(
             Break(
                 minutes=int(match.group("minutes")),
-                window=f"{match.group('start')} - {match.group('end')}",
-                declared=bool(_DECLARED_BREAK.search(trailing)),
+                window=f"{start} - {end}" if start and end else "",
+                declared=declared,
             )
         )
     return breaks
@@ -207,13 +319,21 @@ def load_audits(rows: list[Row]) -> list[AuditRecord]:
         if not name or current_day is None:
             continue
 
+        declared = to_int(row.get(_DECLARED_COMPLETES, ""))
+        actual = to_int(row.get(_ACTUAL_COMPLETES, ""))
+        if declared is None and actual is None:
+            # A name with no numbers beside it is a shift nobody has audited
+            # yet. Counting it as a clean audit would quietly inflate that
+            # person's score — the exact opposite of what the sheet means.
+            continue
+
         details = row.get(_DETAILS, "")
         records.append(
             AuditRecord(
                 day=current_day,
                 name=name,
-                declared_completes=to_int(row.get(_DECLARED_COMPLETES, "")),
-                actual_completes=to_int(row.get(_ACTUAL_COMPLETES, "")),
+                declared_completes=declared,
+                actual_completes=actual,
                 declared_calls=to_int(row.get(_DECLARED_CALLS, "")),
                 actual_calls=to_int(row.get(_ACTUAL_CALLS, "")),
                 reviewer_flagged=parse_reviewer_flag(row.get(_REVIEWER_FLAG, "")),
@@ -221,6 +341,13 @@ def load_audits(rows: list[Row]) -> list[AuditRecord]:
                 breaks=parse_breaks(details),
                 time_discrepancies=[m.group(0).strip() for m in _TIME_DISCREPANCY.finditer(details)],
                 no_call_logs=bool(_NO_CALL_LOGS.search(details)),
+                suspicious=bool(_SUSPICIOUS.search(details)),
+                short_by_minutes=parse_short_by(details),
+                cumulative_off_phone_minutes=parse_cumulative(details),
+                over_break_minutes=sum(
+                    int(m.group("minutes")) for m in _OVER_BREAK.finditer(details)
+                ),
+                undeclared_break=bool(_NO_BREAK_DECLARED.search(details)),
             )
         )
     return records

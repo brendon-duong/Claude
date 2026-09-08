@@ -2,3 +2,6 @@
 # logic run on the standard library alone.
 gspread>=6.0.0
 google-auth>=2.30.0
+
+# Reading .xlsx sources (sheets uploaded to Drive rather than converted).
+openpyxl>=3.1.0
