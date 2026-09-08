@@ -1,0 +1,4 @@
+# Only needed when a source has "kind": "gsheet". The demo and all the core
+# logic run on the standard library alone.
+gspread>=6.0.0
+google-auth>=2.30.0

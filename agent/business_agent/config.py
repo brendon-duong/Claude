@@ -1,0 +1,73 @@
+"""Configuration loading.
+
+One JSON file drives the whole agent so you can change how your business works
+without touching code. See config.example.json.
+"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass, field
+from pathlib import Path
+
+
+@dataclass
+class SourceConfig:
+    """Where a table of data lives.
+
+    kind "csv"    -> path is a local file (demo mode, or an exported sheet)
+    kind "gsheet" -> path is the Google Sheet ID, tab is the worksheet name
+    """
+
+    kind: str = "csv"
+    path: str = ""
+    tab: str = ""
+
+
+@dataclass
+class Config:
+    business_name: str = "My Business"
+    timezone: str = "Australia/Sydney"
+
+    # How many calls one person handles in a shift. Used to turn "I need 40
+    # calls on Tuesday" into "I need 4 people on Tuesday".
+    calls_per_person: int = 10
+
+    # How many days ahead to plan. Dropouts next week matter more than today's.
+    horizon_days: int = 14
+
+    # Skills a shift needs, keyed by shift name. Empty means anyone can do it.
+    shift_skills: dict[str, list[str]] = field(default_factory=dict)
+
+    team: SourceConfig = field(default_factory=SourceConfig)
+    roster: SourceConfig = field(default_factory=SourceConfig)
+    demand: SourceConfig = field(default_factory=SourceConfig)
+
+    # Where inbound messages are read from.
+    messages_dir: str = "inbox"
+
+    # Where the agent writes its output. Nothing is ever sent from here.
+    out_dir: str = "out"
+
+    # Use the Claude CLI to triage messy messages. Falls back to rules if the
+    # CLI is missing or errors, so the agent never hard-fails on this.
+    use_claude_triage: bool = True
+    claude_command: str = "claude"
+    claude_timeout_seconds: int = 120
+
+    # Google service-account JSON, for kind="gsheet" sources.
+    google_credentials_path: str = ""
+
+    @classmethod
+    def load(cls, path: str | Path) -> "Config":
+        raw = json.loads(Path(path).read_text())
+        sources = {
+            key: SourceConfig(**raw.pop(key))
+            for key in ("team", "roster", "demand")
+            if key in raw
+        }
+        known = {f for f in cls.__dataclass_fields__}
+        unknown = set(raw) - known
+        if unknown:
+            raise ValueError(f"unknown config key(s): {', '.join(sorted(unknown))}")
+        return cls(**raw, **sources)

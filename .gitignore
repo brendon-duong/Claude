@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Agent runtime output and state — regenerated every cycle, never committed.
+agent/out/
+agent/logs/
+
+# Real messages from your team and clients. Private by default.
+# demo/inbox/ is deliberately not covered by this and stays in the repo.
+agent/inbox/
+
+# Local configuration and credentials. config.example.json is the template.
+agent/config.json
+service-account*.json
+*credentials*.json
+.env

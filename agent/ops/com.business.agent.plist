@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  launchd job for the roster agent.
+
+  __AGENT_DIR__ is filled in by ops/install_mac.sh. Install by hand with:
+    cp com.business.agent.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.business.agent.plist
+
+  launchd, not cron: cron on macOS is deprecated, and launchd will run a job
+  it missed while the machine was asleep instead of silently skipping it.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.business.agent</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>__AGENT_DIR__/ops/run_cycle.sh</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>__AGENT_DIR__</string>
+
+    <!-- 7am, midday and 5pm. Add or remove dicts to change the cadence. -->
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key><integer>7</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+        <dict>
+            <key>Hour</key><integer>12</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+        <dict>
+            <key>Hour</key><integer>17</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+    </array>
+
+    <!-- Catch up on a run missed while the Mac was asleep. -->
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>__AGENT_DIR__/logs/launchd.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>__AGENT_DIR__/logs/launchd.err.log</string>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+</dict>
+</plist>

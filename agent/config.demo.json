@@ -1,0 +1,16 @@
+{
+  "business_name": "Personalised Finance",
+  "timezone": "Australia/Sydney",
+  "calls_per_person": 10,
+  "horizon_days": 14,
+  "shift_skills": {
+    "morning": ["calls"],
+    "afternoon": ["calls"]
+  },
+  "team":   { "kind": "csv", "path": "demo/team.csv" },
+  "roster": { "kind": "csv", "path": "demo/roster.csv" },
+  "demand": { "kind": "csv", "path": "demo/demand.csv" },
+  "messages_dir": "demo/inbox",
+  "out_dir": "out",
+  "use_claude_triage": false
+}

@@ -1,0 +1,20 @@
+{
+  "business_name": "Personalised Finance",
+  "timezone": "Australia/Sydney",
+  "calls_per_person": 10,
+  "horizon_days": 14,
+  "shift_skills": {
+    "morning": ["calls"],
+    "afternoon": ["calls"],
+    "compliance": ["calls", "compliance"]
+  },
+  "team":   { "kind": "gsheet", "path": "PUT_YOUR_GOOGLE_SHEET_ID_HERE", "tab": "Team" },
+  "roster": { "kind": "gsheet", "path": "PUT_YOUR_GOOGLE_SHEET_ID_HERE", "tab": "Roster" },
+  "demand": { "kind": "gsheet", "path": "PUT_YOUR_GOOGLE_SHEET_ID_HERE", "tab": "Demand" },
+  "messages_dir": "inbox",
+  "out_dir": "out",
+  "use_claude_triage": true,
+  "claude_command": "claude",
+  "claude_timeout_seconds": 120,
+  "google_credentials_path": "/Users/you/.config/business-agent/service-account.json"
+}
