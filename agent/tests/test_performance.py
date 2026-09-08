@@ -82,10 +82,30 @@ class TestAuditPenalty(unittest.TestCase):
         self.assertGreaterEqual(penalty, T.integrity_penalty)
         self.assertTrue(any("no call logs" in n for n in notes))
 
-    def test_integrity_outweighs_time_off_the_phone(self):
-        dishonest, _ = audit_penalty(record(declared=6, actual=5), T)
+    def test_a_big_over_declaration_outweighs_time_off_the_phone(self):
+        dishonest, _ = audit_penalty(record(declared=6, actual=2), T)
         absent, _ = audit_penalty(record(breaks=[(60, False)]), T)
         self.assertGreater(dishonest, absent)
+
+    def test_penalty_scales_with_the_proportion_inflated(self):
+        """Declaring six and having two is much worse than being short one."""
+        short_by_one, _ = audit_penalty(record(declared=6, actual=5), T)
+        short_by_four, _ = audit_penalty(record(declared=6, actual=2), T)
+        self.assertGreater(short_by_four, short_by_one * 1.5)
+
+    def test_being_short_by_one_still_counts_for_something(self):
+        penalty, _ = audit_penalty(record(declared=6, actual=5), T)
+        self.assertGreater(penalty, 0)
+
+    def test_declaring_everything_falsely_is_the_full_penalty(self):
+        penalty, _ = audit_penalty(record(declared=3, actual=0), T)
+        self.assertAlmostEqual(penalty, T.integrity_penalty, places=6)
+
+    def test_the_same_gap_matters_less_on_a_bigger_number(self):
+        """One short out of twelve is a smaller lie than one out of two."""
+        small, _ = audit_penalty(record(declared=2, actual=1), T)
+        large, _ = audit_penalty(record(declared=12, actual=11), T)
+        self.assertGreater(small, large)
 
 
 class TestScorePerson(unittest.TestCase):
@@ -123,7 +143,7 @@ class TestScorePerson(unittest.TestCase):
         self.assertEqual(performance.tier, "do_not_roster")
 
     def test_one_bad_audit_is_a_conversation_not_a_ban(self):
-        performance = score_person([record(declared=3, actual=2, breaks=[(38, False)])], TODAY, T)
+        performance = score_person([record(declared=6, actual=1, breaks=[(70, False)])], TODAY, T)
         self.assertLess(performance.score, T.do_not_roster_score)
         self.assertEqual(performance.tier, "watch")
 
@@ -243,3 +263,47 @@ class TestOneEditApart(unittest.TestCase):
 
     def test_very_different_lengths(self):
         self.assertFalse(_one_edit_apart("ana", "anabelle"))
+
+
+class TestProductivity(unittest.TestCase):
+    """Completing surveys is the job, so volume has to count for something.
+    It is measured from the call logs, never from what was declared."""
+
+    def team(self, **completes):
+        records = []
+        for name, values in completes.items():
+            for value in values:
+                records.append(record(name=name, declared=value, actual=value))
+        return score_all(records, TODAY, T)
+
+    def test_completes_are_averaged_per_person(self):
+        people = self.team(ana=[8, 8, 8], ben=[4, 4, 4])
+        self.assertAlmostEqual(people["ana"].avg_completes, 8.0, places=1)
+        self.assertAlmostEqual(people["ben"].avg_completes, 4.0, places=1)
+
+    def test_productivity_is_relative_to_the_team(self):
+        people = self.team(ana=[8, 8, 8], ben=[4, 4, 4], cara=[6, 6, 6])
+        self.assertGreater(people["ana"].productivity, people["cara"].productivity)
+        self.assertGreater(people["cara"].productivity, people["ben"].productivity)
+
+    def test_productivity_comes_from_the_call_logs_not_the_declaration(self):
+        """Inflating your declared figure must not raise your productivity."""
+        honest = AuditRecord(day=TODAY, name="Ana", declared_completes=8, actual_completes=8)
+        liar = AuditRecord(day=TODAY, name="Ben", declared_completes=20, actual_completes=8)
+        people = score_all([honest, liar], TODAY, T)
+        self.assertEqual(people["ana"].avg_completes, people["ben"].avg_completes)
+
+    def test_ranking_blends_productivity_and_trust(self):
+        people = self.team(ana=[8, 8, 8], ben=[8, 8, 8])
+        people["ben"].score = 0.5
+        self.assertGreater(people["ana"].ranking_score, people["ben"].ranking_score)
+
+    def test_too_few_audits_to_benchmark_is_not_an_error(self):
+        people = score_all([record(name="Ana Reyes", actual=9)], TODAY, T)
+        self.assertGreaterEqual(people["ana reyes"].productivity, 0.0)
+
+    def test_very_short_names_are_left_for_a_human(self):
+        """A single edit is most of a two-letter name, so "Ai"/"Al" would
+        match. Short tokens are never fuzzy-matched."""
+        self.assertFalse(_one_edit_apart("ai", "al"))
+        self.assertFalse(_one_edit_apart("jay", "kay"))

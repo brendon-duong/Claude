@@ -64,13 +64,18 @@ class Thresholds:
     # A low average needs more than one audit behind it before it bans anyone.
     # One bad day is a conversation, not a verdict.
     min_audits_to_bar_on_score: int = 2
+    # Below this, an average completes figure is too noisy to benchmark on.
+    min_audits_for_productivity: int = 3
 
     # Penalties, applied per audit then averaged.
     integrity_penalty: float = 0.45
     shortfall_severe_penalty: float = 0.25
     shortfall_serious_penalty: float = 0.14
     shortfall_minor_penalty: float = 0.04
-    integrity_penalty_per_extra: float = 0.15
+    # Being short by one is not the same as claiming six and having two.
+    # The penalty scales with the proportion inflated, never dropping below
+    # this fraction of the full penalty — any over-declaration still counts.
+    integrity_floor: float = 0.30
     severe_time_penalty: float = 0.30
     serious_time_penalty: float = 0.18
     minor_time_penalty: float = 0.05
@@ -121,11 +126,13 @@ def audit_penalty(record: AuditRecord, thresholds: Thresholds) -> tuple[float, l
         penalty += thresholds.integrity_penalty
         notes.append(f"flagged for investigation ({record.day:%d %b})")
     elif record.over_declared:
-        extra = record.over_declared - 1
-        penalty += thresholds.integrity_penalty + extra * thresholds.integrity_penalty_per_extra
+        declared = record.declared_completes or record.over_declared
+        inflation = record.over_declared / declared
+        severity = thresholds.integrity_floor + (1 - thresholds.integrity_floor) * inflation
+        penalty += thresholds.integrity_penalty * severity
         notes.append(
             f"declared {record.declared_completes} completes, logs show "
-            f"{record.actual_completes} ({record.day:%d %b})"
+            f"{record.actual_completes} ({inflation:.0%} inflated, {record.day:%d %b})"
         )
 
     verdict = time_verdict(record, thresholds)
@@ -182,6 +189,11 @@ class StaffPerformance:
     serious_events: int = 0
     recent_integrity_fails: int = 0
     shortfall_events: int = 0
+    # Completed surveys per shift, from the call logs — never from what was
+    # declared, so productivity cannot be inflated by claiming more.
+    avg_completes: float = 0.0
+    # That average against the rest of the team: 1.0 is a strong performer.
+    productivity: float = 0.0
     clean_audits: int = 0
     worst_off_phone_minutes: int = 0
     last_audit: date | None = None
@@ -190,6 +202,16 @@ class StaffPerformance:
     @property
     def rosterable(self) -> bool:
         return self.tier != "do_not_roster"
+
+    @property
+    def ranking_score(self) -> float:
+        """How much you want this person on a shift.
+
+        Productivity leads, because completing surveys is the job. Trust is
+        the other half — and it is a gate as well as a weight, since anyone
+        untrustworthy has already been excluded by their tier.
+        """
+        return round(0.6 * self.productivity + 0.4 * self.score, 3)
 
     @property
     def headline(self) -> str:
@@ -230,6 +252,8 @@ def score_person(
 
     weighted_penalty = 0.0
     total_weight = 0.0
+    completes_total = 0.0
+    completes_weight = 0.0
     concerns: list[str] = []
 
     for record in in_scope:
@@ -256,9 +280,14 @@ def score_person(
         performance.worst_off_phone_minutes = max(
             performance.worst_off_phone_minutes, record.off_phone_minutes
         )
+        if record.actual_completes is not None:
+            completes_weight += weight
+            completes_total += weight * record.actual_completes
 
     performance.audits = len(in_scope)
     performance.last_audit = max(r.day for r in in_scope)
+    if completes_weight:
+        performance.avg_completes = round(completes_total / completes_weight, 2)
     performance.score = round(max(0.0, 1.0 - weighted_penalty / total_weight), 3)
     performance.concerns = concerns[:6]
 
@@ -347,12 +376,19 @@ def find_possible_duplicates(
     return found
 
 
+# Below this length a single edit is most of the word, so "Ai"/"Al" and
+# "Jay"/"Kay" would match. Short names are left to a human to reconcile.
+MIN_FUZZY_TOKEN = 4
+
+
 def _one_edit_apart(left: str, right: str) -> bool:
     """True when two words differ by at most one insertion, deletion or swap.
 
     Deliberately strict: anything looser starts merging siblings.
     """
     if left == right:
+        return False
+    if min(len(left), len(right)) < MIN_FUZZY_TOKEN:
         return False
     if abs(len(left) - len(right)) > 1:
         return False
@@ -380,4 +416,18 @@ def score_all(
     grouped: dict[str, list[AuditRecord]] = {}
     for record in records:
         grouped.setdefault(record.person_key, []).append(record)
-    return {key: score_person(rows, today, thresholds) for key, rows in grouped.items()}
+    people = {key: score_person(rows, today, thresholds) for key, rows in grouped.items()}
+
+    # Productivity only means something relative to the rest of the team, so
+    # scale each average against a strong-but-attainable benchmark: the 75th
+    # percentile of everyone with enough audits to have a stable average.
+    sample = sorted(
+        p.avg_completes
+        for p in people.values()
+        if p.audits >= thresholds.min_audits_for_productivity and p.avg_completes
+    )
+    if sample:
+        benchmark = sample[min(len(sample) - 1, int(len(sample) * 0.75))] or 1.0
+        for person in people.values():
+            person.productivity = round(min(person.avg_completes / benchmark, 1.25), 3)
+    return people
