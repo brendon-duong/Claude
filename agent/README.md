@@ -50,6 +50,20 @@ existing number and existing group. Every feature in this repo works this way.
 Both the iOS and Android export layouts are handled, including multi-line
 messages.
 
+**An export does not update itself.** It is a snapshot of the chat at the moment
+you tapped Export, and it never refreshes — so a fresh one has to be dropped in
+each day. Two consequences, both handled:
+
+- **Every export contains the whole chat**, not just what is new, so exports
+  overlap almost entirely. Messages are de-duplicated across files, so dropping
+  in a new export never turns one dropout into three.
+- **That history goes back months.** `message_lookback_days` (default 7) means
+  an "I can't make Thursday" from March is never acted on as though it were
+  today's.
+
+So you can drop in `chat-mon.txt`, `chat-tue.txt` and so on without cleaning up,
+or just overwrite the same file. Either works.
+
 ### 2. A shared inbox the agent watches — a good middle ground
 
 Point an Apple Shortcut or a Zapier/Make automation at a folder or a Gmail
@@ -501,5 +515,5 @@ business_agent/
   ingest/whatsapp_cloud.py   signed webhook receiver for the official API
 demo/            fake business, regenerated relative to today
 ops/             launchd job + installer for a Mac mini
-tests/           175 tests, standard library only
+tests/           179 tests, standard library only
 ```

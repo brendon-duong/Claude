@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 from .models import Message
@@ -147,8 +147,35 @@ def parse_jsonl(text: str, chat: str = "") -> list[Message]:
     return messages
 
 
-def load_inbox(inbox_dir: Path) -> list[Message]:
-    """Read every message file in the inbox, oldest first."""
+def deduplicate(messages: list[Message]) -> list[Message]:
+    """Drop messages already seen.
+
+    A WhatsApp export is a snapshot of the *entire* chat, so two exports taken
+    on different days overlap almost completely. Without this, every message in
+    the overlap is read again and one dropout becomes several.
+    """
+    seen: set[tuple] = set()
+    unique: list[Message] = []
+    for message in messages:
+        fingerprint = (
+            message.message_id
+            if message.message_id
+            else (message.channel, message.sender, message.sent_at, message.text)
+        )
+        if fingerprint in seen:
+            continue
+        seen.add(fingerprint)
+        unique.append(message)
+    return unique
+
+
+def load_inbox(inbox_dir: Path, since: date | None = None) -> list[Message]:
+    """Read every message file in the inbox, oldest first, without repeats.
+
+    `since` drops anything older than that date. An export carries months of
+    history, and a dropout from March must not be acted on as though it were
+    today's news.
+    """
     if not inbox_dir.exists():
         return []
     messages: list[Message] = []
@@ -157,5 +184,7 @@ def load_inbox(inbox_dir: Path) -> list[Message]:
             messages.extend(parse_whatsapp_export(path.read_text(encoding="utf-8"), path.stem))
         elif path.suffix.lower() == ".jsonl":
             messages.extend(parse_jsonl(path.read_text(encoding="utf-8"), path.stem))
+    if since is not None:
+        messages = [m for m in messages if m.sent_at.date() >= since]
     messages.sort(key=lambda m: m.sent_at)
-    return messages
+    return deduplicate(messages)

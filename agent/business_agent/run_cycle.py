@@ -15,7 +15,7 @@ import json
 import sys
 import traceback
 from dataclasses import asdict
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from .audit import load_audits
@@ -51,7 +51,10 @@ def run(config_path: Path, today: date, quiet: bool = False) -> Path:
     )
     performance = score_all(audits, today, Thresholds(**config.performance))
 
-    messages = load_inbox(_resolve(base_dir, config.messages_dir))
+    messages = load_inbox(
+        _resolve(base_dir, config.messages_dir),
+        since=today - timedelta(days=config.message_lookback_days),
+    )
     events = triage(messages, people, today, config)
     shifts, demand, unresolved = apply_events(shifts, demand, events)
     gaps = build_gaps(people, shifts, demand, events, config, today, performance)

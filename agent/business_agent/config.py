@@ -72,6 +72,11 @@ class Config:
     # Where inbound messages are read from.
     messages_dir: str = "inbox"
 
+    # How far back to read them. A WhatsApp export contains the whole chat
+    # history, so without a window the agent would act on a dropout from
+    # months ago every time you drop in a fresh export.
+    message_lookback_days: int = 7
+
     # Where the agent writes its output. Nothing is ever sent from here.
     out_dir: str = "out"
 
