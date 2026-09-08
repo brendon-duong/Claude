@@ -14,6 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 
+from .availability import Availability
 from .curia import PollDay
 from .performance import StaffPerformance, find_possible_duplicates
 
@@ -54,6 +55,14 @@ class PollShift:
     poll: str
     needed: int
     assigned: list[Assignment] = field(default_factory=list)
+    # How many people put their hand up for this day, when a poll was run.
+    volunteers: int | None = None
+    # Volunteers who were available but did not make the cut.
+    passed_over: list[StaffPerformance] = field(default_factory=list)
+
+    @property
+    def from_poll(self) -> bool:
+        return self.volunteers is not None
 
     @property
     def filled(self) -> int:
@@ -104,6 +113,13 @@ class RosterPlan:
     # Name variants that would have been double-booked had they been treated
     # as different people.
     duplicate_conflicts: list[tuple[date, str, str]] = field(default_factory=list)
+    # Days that were scheduled but that the poll said nothing about.
+    days_without_a_poll: list[date] = field(default_factory=list)
+    # People who volunteered but whose audit history bars them. Worth naming:
+    # they are expecting a shift and will ask why they did not get one.
+    volunteered_but_barred: list[tuple[date, StaffPerformance]] = field(default_factory=list)
+    # Names in the poll that match nobody in the audit history.
+    unmatched_names: list[tuple[date, str]] = field(default_factory=list)
 
     @property
     def total_needed(self) -> int:
@@ -158,6 +174,7 @@ def build_roster(
     active_within_days: int = 45,
     fairness_weight: float = 0.06,
     week_starts: str = "sunday",
+    availability: Availability | None = None,
 ) -> RosterPlan:
     """Assign named callers to every poll in the date range."""
     allowed = {d.strip().lower() for d in working_days}
@@ -172,6 +189,12 @@ def build_roster(
 
     available, plan.excluded = eligible_pool(performance, today, active_within_days)
     groups = group_duplicates(performance)
+    if availability is not None:
+        plan.unmatched_names = list(availability.unmatched)
+        barred_keys = {p.key for p in plan.excluded}
+        for day, keys in availability.by_day.items():
+            for key in sorted(keys & barred_keys):
+                plan.volunteered_but_barred.append((day, performance[key]))
 
     week_counts: dict[tuple[str, date], int] = {}
     assigned_on_day: dict[date, dict[str, str]] = {}
@@ -181,8 +204,21 @@ def build_roster(
         week = business_week_start(poll.day, week_starts)
         taken = assigned_on_day.setdefault(poll.day, {})
 
+        # When a poll was run for this day, only the people who put their hand
+        # up are candidates. A day the poll said nothing about falls back to
+        # the whole pool, and is flagged rather than silently treated as
+        # "nobody is available".
+        volunteers = availability.on(poll.day) if availability is not None else None
+        if volunteers is None:
+            if availability is not None and poll.day not in plan.days_without_a_poll:
+                plan.days_without_a_poll.append(poll.day)
+            pool = available
+        else:
+            shift.volunteers = len(volunteers)
+            pool = [p for p in available if p.key in volunteers]
+
         candidates = []
-        for person in available:
+        for person in pool:
             group = groups.get(person.key, person.key)
             # Anyone already on a poll today is left in the candidate list on
             # purpose: the assignment loop is the single place that skips them
@@ -220,6 +256,13 @@ def build_roster(
             )
             taken[group] = person.name
             week_counts[(group, week)] = week_counts.get((group, week), 0) + 1
+
+        if volunteers is not None:
+            chosen = {a.person.key for a in shift.assigned}
+            shift.passed_over = sorted(
+                (p for p in pool if p.key not in chosen),
+                key=lambda p: -p.ranking_score,
+            )
 
         plan.shifts.append(shift)
 

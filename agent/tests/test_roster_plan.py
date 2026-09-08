@@ -4,6 +4,7 @@ import unittest
 from datetime import date, timedelta
 
 from business_agent.audit import AuditRecord
+from business_agent.availability import parse_availability
 from business_agent.curia import PollDay
 from business_agent.performance import Thresholds, score_all
 from business_agent.roster_plan import build_roster, business_week_start, group_duplicates
@@ -187,3 +188,111 @@ class TestDuplicateNamesInScheduling(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRosteringFromAPoll(unittest.TestCase):
+    """With a poll, the pool for a day is the people who said they can work
+    it — not everyone on the books."""
+
+    def setUp(self):
+        self.records = (
+            audits_for("Ana Reyes", completes=9)
+            + audits_for("Ben Cruz", completes=7)
+            + audits_for("Cara Lim", completes=5)
+            + audits_for("Dan Silva", completes=3)
+        )
+        self.people = score_all(self.records, TODAY, Thresholds())
+        self.known = {p.key: p.name for p in self.people.values()}
+
+    def plan(self, poll_text, polls, **kwargs):
+        availability = parse_availability(poll_text, self.known, TODAY)
+        return build_roster(
+            polls,
+            self.people,
+            start=SUNDAY,
+            end=date(2026, 9, 17),
+            today=TODAY,
+            working_days=WORKING,
+            availability=availability,
+            **kwargs,
+        )
+
+    def test_only_volunteers_are_rostered(self):
+        plan = self.plan(
+            "Sunday 13 Sep\nCara Lim\nDan Silva", [poll(SUNDAY, needed=2)]
+        )
+        self.assertEqual(
+            {a.name for a in plan.shifts[0].assigned}, {"Cara Lim", "Dan Silva"}
+        )
+
+    def test_the_best_of_the_volunteers_is_picked_not_the_best_overall(self):
+        plan = self.plan("Sunday 13 Sep\nCara Lim\nDan Silva", [poll(SUNDAY, needed=1)])
+        self.assertEqual(plan.shifts[0].assigned[0].name, "Cara Lim")
+        self.assertNotIn("Ana Reyes", [a.name for a in plan.shifts[0].assigned])
+
+    def test_volunteers_who_missed_out_are_listed(self):
+        plan = self.plan(
+            "Sunday 13 Sep\nAna Reyes\nBen Cruz\nCara Lim", [poll(SUNDAY, needed=1)]
+        )
+        self.assertEqual(
+            [p.name for p in plan.shifts[0].passed_over], ["Ben Cruz", "Cara Lim"]
+        )
+
+    def test_the_volunteer_count_is_recorded(self):
+        plan = self.plan("Sunday 13 Sep\nAna Reyes\nBen Cruz", [poll(SUNDAY, needed=1)])
+        self.assertEqual(plan.shifts[0].volunteers, 2)
+        self.assertTrue(plan.shifts[0].from_poll)
+
+    def test_too_few_volunteers_leaves_the_shift_short(self):
+        plan = self.plan("Sunday 13 Sep\nAna Reyes", [poll(SUNDAY, needed=4)])
+        self.assertEqual(plan.shifts[0].filled, 1)
+        self.assertEqual(plan.shifts[0].shortfall, 3)
+
+    def test_a_day_the_poll_did_not_cover_falls_back_and_is_flagged(self):
+        """Silently treating an uncovered day as "nobody available" would
+        empty a shift that simply was not polled."""
+        plan = self.plan(
+            "Sunday 13 Sep\nAna Reyes",
+            [poll(SUNDAY, needed=1), poll(date(2026, 9, 14), needed=2)],
+        )
+        self.assertEqual(plan.shifts[1].filled, 2)
+        self.assertEqual(plan.days_without_a_poll, [date(2026, 9, 14)])
+
+    def test_a_polled_day_with_no_votes_stays_empty(self):
+        plan = self.plan(
+            "Sunday 13 Sep\n\nMonday 14 Sep\nAna Reyes",
+            [poll(SUNDAY, needed=2), poll(date(2026, 9, 14), needed=1)],
+        )
+        self.assertEqual(plan.shifts[0].filled, 0)
+        self.assertEqual(plan.shifts[0].shortfall, 2)
+
+    def test_a_barred_volunteer_is_named_rather_than_silently_skipped(self):
+        records = self.records + audits_for("Liar Jones", count=4, completes=2, declared=9)
+        people = score_all(records, TODAY, Thresholds())
+        known = {p.key: p.name for p in people.values()}
+        availability = parse_availability(
+            "Sunday 13 Sep\nLiar Jones\nAna Reyes", known, TODAY
+        )
+        plan = build_roster(
+            [poll(SUNDAY, needed=2)],
+            people,
+            start=SUNDAY,
+            end=date(2026, 9, 17),
+            today=TODAY,
+            working_days=WORKING,
+            availability=availability,
+        )
+        self.assertNotIn("Liar Jones", [a.name for a in plan.shifts[0].assigned])
+        self.assertIn("Liar Jones", [p.name for _, p in plan.volunteered_but_barred])
+
+    def test_unknown_poll_names_reach_the_plan(self):
+        plan = self.plan(
+            "Sunday 13 Sep\nAna Reyes\nSomebody Unknown", [poll(SUNDAY, needed=1)]
+        )
+        self.assertEqual(plan.unmatched_names, [(SUNDAY, "Somebody Unknown")])
+
+    def test_weekly_caps_still_apply_to_volunteers(self):
+        days = [SUNDAY + timedelta(days=offset) for offset in range(4)]
+        text = "\n".join(f"{d:%d %b}\nAna Reyes\nBen Cruz" for d in days)
+        plan = self.plan(text, [poll(d, needed=1) for d in days], max_shifts_per_week=2)
+        self.assertTrue(all(c <= 2 for c in plan.shifts_per_person().values()))

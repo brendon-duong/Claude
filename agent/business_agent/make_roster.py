@@ -1,0 +1,118 @@
+"""Build a week's roster page.
+
+    python3 -m business_agent.make_roster --config config.json \
+        --start 2026-09-13 --end 2026-09-17 --poll poll.txt
+
+Reads the schedule and the audit history, picks the callers, and writes an
+HTML page. With --poll it picks from the people who put their hand up in the
+WhatsApp poll; without it, from everyone still active.
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from datetime import date, datetime
+from pathlib import Path
+
+from .audit import load_audits
+from .availability import Availability, parse_availability
+from .config import Config
+from .curia import load_schedule
+from .loaders import load_demand_rows  # noqa: F401  (kept for config validation)
+from .page import render_roster_page
+from .performance import Thresholds, find_possible_duplicates, score_all
+from .roster_plan import build_roster
+from .sheets import load_table
+
+
+def _day(value: str) -> date:
+    return datetime.strptime(value, "%Y-%m-%d").date()
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Build a roster page for one week.")
+    parser.add_argument("--config", default="config.json")
+    parser.add_argument("--start", required=True, help="first day, YYYY-MM-DD")
+    parser.add_argument("--end", required=True, help="last day, YYYY-MM-DD")
+    parser.add_argument("--poll", default="", help="file of pasted poll results")
+    parser.add_argument("--today", default="", help="override today's date")
+    parser.add_argument("--max-shifts", type=int, default=5, help="cap per person per week")
+    parser.add_argument("--out", default="", help="where to write the page")
+    args = parser.parse_args(argv)
+
+    config_path = Path(args.config).resolve()
+    if not config_path.exists():
+        print(f"config not found: {config_path}", file=sys.stderr)
+        return 2
+    base_dir = config_path.parent
+    config = Config.load(config_path)
+
+    if not config.audit.path:
+        print("no audit source configured — nothing to rank callers on", file=sys.stderr)
+        return 2
+
+    today = _day(args.today) if args.today else date.today()
+    start, end = _day(args.start), _day(args.end)
+
+    audits = load_audits(load_table(config.audit, config, base_dir))
+    if not audits:
+        print("the audit sheet produced no records", file=sys.stderr)
+        return 1
+    polls, _non_polls = load_schedule(load_table(config.demand, config, base_dir))
+    people = score_all(audits, today, Thresholds(**config.performance))
+
+    availability: Availability | None = None
+    if args.poll:
+        poll_path = Path(args.poll)
+        if not poll_path.is_absolute():
+            poll_path = base_dir / poll_path
+        known = {p.key: p.name for p in people.values() if p.audits}
+        availability = parse_availability(
+            poll_path.read_text(encoding="utf-8"), known, today
+        )
+
+    plan = build_roster(
+        polls,
+        people,
+        start=start,
+        end=end,
+        today=today,
+        working_days=config.working_days,
+        max_shifts_per_week=args.max_shifts,
+        availability=availability,
+    )
+
+    duplicates = find_possible_duplicates(people)
+    page = render_roster_page(
+        plan,
+        business_name=config.business_name,
+        audit_count=len(audits),
+        audit_from=min(a.day for a in audits),
+        audit_to=max(a.day for a in audits),
+        duplicates=duplicates[:8],
+        duplicate_total=len(duplicates),
+    )
+
+    out_dir = base_dir / config.out_dir
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = Path(args.out) if args.out else out_dir / f"roster_{start:%Y-%m-%d}.html"
+    out_path.write_text(page, encoding="utf-8")
+
+    print(
+        f"{plan.total_filled}/{plan.total_needed} slots filled across {len(plan.shifts)} poll(s), "
+        f"{len(plan.shifts_per_person())} callers used, {len(plan.excluded)} barred -> {out_path}"
+    )
+    for day in plan.days_without_a_poll:
+        print(f"  note: the poll said nothing about {day:%a %d %b}; picked from everyone active")
+    for day, person in plan.volunteered_but_barred:
+        print(f"  note: {person.name} volunteered for {day:%a %d %b} but is barred")
+    for day, name in plan.unmatched_names:
+        print(f"  note: '{name}' ({day:%a %d %b}) matches nobody in the audit history")
+    if plan.total_shortfall:
+        print(f"  {plan.total_shortfall} slot(s) could not be filled")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

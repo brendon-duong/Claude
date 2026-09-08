@@ -170,6 +170,72 @@ nothing to flip — so dropout *messages* are tracked separately and block that
 person from covering that day on their own. Without it the agent asked Dan to
 cover the shift he had just pulled out of.
 
+## Making the week's roster
+
+```bash
+python3 -m business_agent.make_roster --config config.json \
+    --start 2026-09-13 --end 2026-09-17 --poll poll.txt
+```
+
+Writes an HTML page you can open, read and share. Without `--poll` it picks
+from everyone still active; with it, from the people who actually said they
+can work.
+
+### The poll is the point
+
+Run a poll in the team WhatsApp group — "which days can you work next week?" —
+then tap through to see who voted and paste it into a file:
+
+```
+Sunday 13 Sep
+Lia Villapaz
+Kharen Ybas
+
+Monday 14 Sep
+1. Jasmine Magdayao
+- Mary Joy Villacura
+```
+
+A day, then the names under it. Bullets, numbering and `(12 votes)` are all
+tolerated, and dates can be `Sunday 13 Sep`, `13 September 2026` or `13/9`.
+Names are matched to the audit history, tolerating a shortened name or a
+single-letter typo.
+
+Then each day is filled from that day's volunteers, best first. Three things
+are reported back rather than swallowed:
+
+- **A name matching nobody on the books.** A new starter and a typo look
+  identical here, and dropping either loses a caller expecting a shift.
+- **Someone who volunteered but is barred.** They will ask why they didn't get
+  a shift, so the answer is on the page.
+- **A day the poll never covered.** That falls back to the whole pool and says
+  so, rather than being read as "nobody is available" and emptying the shift.
+
+### How callers are ranked
+
+Productivity leads, because completing surveys is the job. It is measured as
+**completed surveys per shift from the call logs** — never from what was
+declared — so a caller cannot climb the roster by over-declaring. There is a
+test for exactly that.
+
+Trust is the other half of the score, and a gate as well as a weight: anyone
+barred by their audit history is never offered a shift, however many surveys
+they complete.
+
+### One person, one place
+
+Scoring keeps probable name variants apart, deliberately. Scheduling cannot
+afford to: the first run of the planner rostered `Loraine Sabroso` and
+`Lorraine Sabroso` onto the same Tuesday, and put `Mary Joy Villacura` and
+`Mary Villacura` on two polls the same Wednesday. Each would have sent a shift
+out a caller short. Variants are now grouped for scheduling only — one person,
+one shift a day, one weekly cap — while their scores stay separate until you
+fix the spelling.
+
+The business week starts on **Sunday**, so it straddles two ISO weeks. Weekly
+caps count from Sunday; using ISO weeks would split Sunday off from the rest
+of the roster and let people quietly exceed their cap.
+
 ## The audits — who gets rostered
 
 `Audit - PL` is what decides who the agent will offer a shift to. Set it as the
@@ -506,6 +572,10 @@ business_agent/
   curia.py       the Curia 2026 Schedule: polls, continuation rows, holidays
   audit.py       the Audit - PL sheet: declared vs actual, breaks, integrity
   performance.py audit history -> a trusted / watch / do-not-roster call
+  availability.py WhatsApp poll results -> who volunteered for which day
+  roster_plan.py  schedule + performance + poll -> a named roster
+  page.py         the roster as a page you can read and share
+  make_roster.py  build one week's roster page
   messages.py    WhatsApp export + JSONL parsing
   triage.py      messages -> events (rules, then Claude for the unclear ones)
   roster.py      demand vs cover, gaps, candidate ranking
@@ -515,5 +585,5 @@ business_agent/
   ingest/whatsapp_cloud.py   signed webhook receiver for the official API
 demo/            fake business, regenerated relative to today
 ops/             launchd job + installer for a Mac mini
-tests/           179 tests, standard library only
+tests/           251 tests, standard library only
 ```
