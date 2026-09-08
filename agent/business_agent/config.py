@@ -40,8 +40,17 @@ class Config:
     shift_skills: dict[str, list[str]] = field(default_factory=dict)
 
     team: SourceConfig = field(default_factory=SourceConfig)
+    # The roster is optional: while it lives in WhatsApp there is no sheet to
+    # read, and every confirmed slot is simply unfilled until messages say
+    # otherwise. Leave path empty to run without one.
     roster: SourceConfig = field(default_factory=SourceConfig)
     demand: SourceConfig = field(default_factory=SourceConfig)
+
+    # "curia"  -> the Curia schedule layout: one row per poll, continuation
+    #             rows for a second poll the same day, PL Staff Confirmed as
+    #             the headcount.
+    # "simple" -> the plain date/shift/calls_required layout.
+    demand_format: str = "simple"
 
     # Where inbound messages are read from.
     messages_dir: str = "inbox"

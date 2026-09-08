@@ -93,6 +93,69 @@ messages; it doesn't know or care how they got there.
 
 ---
 
+## The Curia 2026 Schedule
+
+This is the demand side of the business, and the agent reads it directly.
+`"demand_format": "curia"` in your config selects this parser — see
+`config.curia.example.json`.
+
+What it takes from each row: the **Date**, the **Poll**, and **PL Staff
+Confirmed** — the number of callers PL is on the hook for that day. Where
+**Extra PL Staff Required Day of Shift** is filled in, that is added to the
+need, because it is the sheet's own record of coming up short.
+
+The sheet is maintained by hand across several years, so the parser is built
+around what is actually in it rather than an idealised version:
+
+- **A second poll on the same day sits on a continuation row with the Date cell
+  blank.** 7 Sep runs both `NZNP 500` and `Māori 1000`. The date carries down,
+  and each poll becomes its own staffing slot.
+- **Holidays** put a label in the Poll column with no numbers — "Good Friday",
+  "ANZAC Day", "No poll as long weekend". These are separated out, never
+  treated as an unstaffed poll.
+- **Empty days** (weekends, gaps) produce nothing at all.
+- **`#DIV/0!` and friends** in the computed columns are read as "no number",
+  not as zero.
+- **A blank `PL Staff Confirmed` is not zero.** It is currently treated as "no
+  PL callers needed" and the poll is skipped — which is right if Curia staffs
+  those alone, and wrong if it just means nobody has filled the cell in yet.
+  Worth confirming before you trust it.
+
+Verified against the real sheet: 810 poll entries from Apr 2022 to Dec 2026,
+187 holiday/label rows correctly separated, every multi-poll day resolved.
+
+`tests/fixtures/curia_schedule_sample.csv` reproduces all of these quirks with
+invented data, so the tests never depend on client information being in the
+repository.
+
+### Getting the agent access to it
+
+The schedule is owned by someone else and shared with you. A service account is
+a *separate identity* — being able to open the sheet yourself does not give the
+agent access. Two ways round it:
+
+1. **Mirror it into your own Drive** (recommended). New sheet you own, one
+   formula: `=IMPORTRANGE("<schedule url>", "Sheet1!A:O")`. Share that with the
+   service account. No permission to ask anyone for, and you control it.
+2. **Ask the owner** to share the original with your service account's
+   `client_email` as a Viewer.
+
+The agent only ever reads this sheet. It never writes to it.
+
+## The roster
+
+Your roster lives in WhatsApp, so there is no sheet to read yet — and the agent
+handles that honestly rather than pretending. Leave `roster.path` empty and
+every confirmed slot shows as unfilled until messages say otherwise, so the
+brief shows the full need.
+
+One consequence worth knowing, because it took a bug to find: normally a
+dropout is applied by flipping that person's roster row to "dropped", which is
+also what stops the agent asking them to cover it. With no roster rows, there is
+nothing to flip — so dropout *messages* are tracked separately and block that
+person from covering that day on their own. Without it the agent asked Dan to
+cover the shift he had just pulled out of.
+
 ## Connecting your Google Sheets
 
 ```bash
@@ -292,6 +355,7 @@ business_agent/
   config.py      one JSON file drives the whole agent
   sheets.py      CSV and Google Sheets adapters (same output shape)
   loaders.py     rows -> objects, tolerant of how humans fill in sheets
+  curia.py       the Curia 2026 Schedule: polls, continuation rows, holidays
   messages.py    WhatsApp export + JSONL parsing
   triage.py      messages -> events (rules, then Claude for the unclear ones)
   roster.py      demand vs cover, gaps, candidate ranking
@@ -301,5 +365,5 @@ business_agent/
   ingest/whatsapp_cloud.py   signed webhook receiver for the official API
 demo/            fake business, regenerated relative to today
 ops/             launchd job + installer for a Mac mini
-tests/           63 tests, standard library only
+tests/           90 tests, standard library only
 ```

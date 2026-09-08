@@ -1,0 +1,14 @@
+{
+  "business_name": "Pacific Link Global",
+  "timezone": "Pacific/Auckland",
+  "horizon_days": 14,
+  "team":   { "kind": "gsheet", "path": "YOUR_OWN_SHEET_ID", "tab": "Team" },
+  "roster": { "kind": "csv", "path": "" },
+  "demand": { "kind": "gsheet", "path": "1klLUYXNLTk-AaqVf-FdsHMto-6q83kuzbjdlz5ucwGk", "tab": "Sheet1" },
+  "demand_format": "curia",
+  "messages_dir": "inbox",
+  "out_dir": "out",
+  "use_claude_triage": true,
+  "claude_command": "claude",
+  "google_credentials_path": "/Users/you/.config/business-agent/service-account.json"
+}

@@ -11,6 +11,7 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
+from . import curia
 from .config import Config
 from .models import Demand, Person, Shift
 from .sheets import Row, load_table, parse_date
@@ -122,10 +123,27 @@ def load_demand(rows: list[Row]) -> list[Demand]:
     return demand
 
 
+def load_demand_rows(config: Config, base_dir: Path) -> list[Demand]:
+    """Load demand in whichever layout this business keeps it in."""
+    rows = load_table(config.demand, config, base_dir)
+    if config.demand_format == "curia":
+        polls, _non_polls = curia.load_schedule(rows)
+        return curia.to_demand(polls)
+    if config.demand_format == "simple":
+        return load_demand(rows)
+    raise ValueError(f"unknown demand_format: {config.demand_format!r}")
+
+
 def load_all(
     config: Config, base_dir: Path
 ) -> tuple[dict[str, Person], list[Shift], list[Demand]]:
     people = load_people(load_table(config.team, config, base_dir))
-    shifts = load_shifts(load_table(config.roster, config, base_dir), people)
-    demand = load_demand(load_table(config.demand, config, base_dir))
+    # No roster sheet configured means nothing is confirmed yet -- correct
+    # while the roster is still being agreed in WhatsApp.
+    shifts = (
+        load_shifts(load_table(config.roster, config, base_dir), people)
+        if config.roster.path
+        else []
+    )
+    demand = load_demand_rows(config, base_dir)
     return people, shifts, demand

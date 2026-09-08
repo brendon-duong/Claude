@@ -91,6 +91,22 @@ def offers_by_person(events: list[Event]) -> dict[tuple[str, date], Event]:
     }
 
 
+def declines_by_person(events: list[Event]) -> dict[tuple[str, date], Event]:
+    """Dropouts keyed by person and day.
+
+    Needed separately from the roster because a dropout only becomes a
+    "dropped" shift if that person had a roster row to drop. While the roster
+    lives in a chat rather than a sheet, the message is the only record that
+    they said no -- and without this the agent asks them to cover the very day
+    they just pulled out of.
+    """
+    return {
+        (event.person_id, event.day): event
+        for event in events
+        if event.kind == "dropout" and event.person_id and event.day
+    }
+
+
 def _shifts_in_week(shifts: list[Shift], person_id: str, day: date) -> int:
     target = week_key(day)
     return sum(
@@ -109,6 +125,7 @@ def rank_candidates(
     shifts: list[Shift],
     offers: dict[tuple[str, date], Event],
     required_skills: frozenset[str],
+    declines: dict[tuple[str, date], Event] | None = None,
 ) -> list[Candidate]:
     """Score everyone for one open slot. Blocked people are kept, with reasons.
 
@@ -141,6 +158,10 @@ def rank_candidates(
 
         if person.person_id in dropped_that_day:
             blockers.append("dropped out of this day")
+
+        decline = (declines or {}).get((person.person_id, day))
+        if decline:
+            blockers.append(f"said they can't work ({decline.message.sent_at:%d %b})")
 
         this_week = _shifts_in_week(shifts, person.person_id, day)
         if this_week >= person.max_shifts_per_week:
@@ -183,6 +204,7 @@ def build_gaps(
     """Every under-staffed slot in the planning horizon, worst first."""
     horizon_end = today + timedelta(days=config.horizon_days)
     offers = offers_by_person(events)
+    declines = declines_by_person(events)
 
     by_slot: dict[tuple[date, str], list[Shift]] = defaultdict(list)
     for shift in shifts:
@@ -209,7 +231,7 @@ def build_gaps(
                 covered=covered,
                 dropouts=[s for s in slot if s.status == "dropped"],
                 candidates=rank_candidates(
-                    item.day, item.shift, people, shifts, offers, required_skills
+                    item.day, item.shift, people, shifts, offers, required_skills, declines
                 ),
             )
         )

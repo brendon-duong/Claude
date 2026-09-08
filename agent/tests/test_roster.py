@@ -3,7 +3,13 @@ from datetime import date, datetime
 
 from business_agent.config import Config
 from business_agent.models import Demand, Event, Message, Person, Shift
-from business_agent.roster import apply_events, build_gaps, rank_candidates, week_key
+from business_agent.roster import (
+    apply_events,
+    build_gaps,
+    declines_by_person,
+    rank_candidates,
+    week_key,
+)
 
 MON = date(2024, 3, 11)
 TUE = date(2024, 3, 12)
@@ -92,10 +98,12 @@ class TestApplyEvents(unittest.TestCase):
 
 
 class TestRankCandidates(unittest.TestCase):
-    def rank(self, shifts, offers=None, skills=frozenset({"calls"})):
+    def rank(self, shifts, offers=None, skills=frozenset({"calls"}), declines=None):
         return {
             c.person.person_id: c
-            for c in rank_candidates(TUE, "morning", TEAM, shifts, offers or {}, skills)
+            for c in rank_candidates(
+                TUE, "morning", TEAM, shifts, offers or {}, skills, declines
+            )
         }
 
     def test_person_who_dropped_this_day_is_never_asked(self):
@@ -126,6 +134,25 @@ class TestRankCandidates(unittest.TestCase):
         offers = {("dan", TUE): Event(kind="offer", message=message(), person_id="dan", day=TUE)}
         ranked = self.rank([], offers=offers)
         self.assertGreater(ranked["dan"].score, ranked["sarah"].score)
+
+    def test_a_dropout_message_blocks_them_even_with_no_roster_row(self):
+        """The roster lives in WhatsApp, so a message is the only record."""
+        declines = {
+            ("dan", TUE): Event(
+                kind="dropout", message=message("can't make Tuesday"), person_id="dan", day=TUE
+            )
+        }
+        candidate = self.rank([], declines=declines)["dan"]
+        self.assertFalse(candidate.eligible)
+        self.assertTrue(any("said they can't work" in b for b in candidate.blockers))
+
+    def test_a_dropout_on_another_day_does_not_block_them(self):
+        declines = {
+            ("dan", MON): Event(
+                kind="dropout", message=message("can't make Monday"), person_id="dan", day=MON
+            )
+        }
+        self.assertTrue(self.rank([], declines=declines)["dan"].eligible)
 
     def test_eligible_people_sort_above_blocked_ones(self):
         ordered = rank_candidates(TUE, "morning", TEAM, [], {}, frozenset({"calls"}))
@@ -175,3 +202,18 @@ class TestBuildGaps(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestDeclinesByPerson(unittest.TestCase):
+    def test_indexes_dropouts_by_person_and_day(self):
+        event = Event(kind="dropout", message=message(), person_id="dan", day=TUE)
+        self.assertEqual(declines_by_person([event]), {("dan", TUE): event})
+
+    def test_ignores_dropouts_missing_a_person_or_a_date(self):
+        vague = Event(kind="dropout", message=message(), person_id="dan")
+        anon = Event(kind="dropout", message=message(), day=TUE)
+        self.assertEqual(declines_by_person([vague, anon]), {})
+
+    def test_ignores_offers(self):
+        offer = Event(kind="offer", message=message(), person_id="dan", day=TUE)
+        self.assertEqual(declines_by_person([offer]), {})
