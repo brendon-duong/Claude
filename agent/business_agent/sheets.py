@@ -8,6 +8,7 @@ develop against CSVs and flip to Google Sheets by editing config.json.
 from __future__ import annotations
 
 import csv
+import re
 from datetime import date, datetime
 from pathlib import Path
 
@@ -31,11 +32,21 @@ def parse_date(value: str) -> date:
     raise ValueError(f"unrecognised date: {value!r}")
 
 
+def _clean_header(name: str | None) -> str:
+    """Normalise a column name.
+
+    Internal whitespace is collapsed because real sheets wrap header text, and
+    a cell reading "Numbers of Completed\nSurveys in WhatsApp" must match the
+    same column name as one written on a single line.
+    """
+    return re.sub(r"\s+", " ", (name or "")).strip().lower()
+
+
 def _normalise(rows: list[dict[str, str | None]]) -> list[Row]:
     out: list[Row] = []
     for row in rows:
         clean = {
-            (k or "").strip().lower(): (v or "").strip()
+            _clean_header(k): (v or "").strip()
             for k, v in row.items()
             if k is not None
         }

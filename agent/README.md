@@ -156,6 +156,83 @@ nothing to flip — so dropout *messages* are tracked separately and block that
 person from covering that day on their own. Without it the agent asked Dan to
 cover the shift he had just pulled out of.
 
+## The audits — who gets rostered
+
+`Audit - PL` is what decides who the agent will offer a shift to. Set it as the
+`audit` source and it is read every cycle. It judges two separate things, kept
+separate on purpose.
+
+### Integrity
+
+If the call logs show **at least as many** completed surveys as the person
+declared, they were truthful — six declared and six or more found is fine, and
+so is six declared with seven found. Six declared with three found is not.
+
+This is judged from the numbers, never from the sheet's own
+`Discrepancy Identified? Y/N` column. That column is filled in by hand and it is
+wrong in both directions, so the agent computes its own verdict and reports
+every row where the two disagree. On the current sheet that is **6 rows out of
+118**, including one caller who declared 8 completes against 4 in the call logs
+and was marked "N".
+
+### Time on the phone
+
+The standing ask is no more than **5 minutes** away at a stretch. Fifteen or
+twenty minutes now and then is tolerated. An hour is not. So:
+
+| | Verdict |
+|---|---|
+| Longest break ≤ 5 min | clean |
+| Longest break ≤ 20 min, under 30 min total | minor |
+| Longest break > 20 min, or 30+ min total | serious |
+| 60+ min total across the shift | unacceptable |
+
+**Breaks the caller declared are excused**, and don't count toward any of it.
+`"9 mins off the phone between 18:18:26 - 18:27:39 (Declared Break)"` scores as
+clean — and one declared break in a list does not excuse the others.
+
+### From audits to a roster decision
+
+Each audit gets a penalty; penalties are **averaged, not summed**, so being
+audited often never makes someone look worse than someone barely checked. Recent
+audits count for more — influence halves every 90 days — because the question is
+who to roster this week, not who ever slipped up.
+
+Three tiers come out:
+
+- **trusted** — offered shifts, ranked above the rest.
+- **watch** — still rosterable, flagged in the brief.
+- **do not roster** — the agent will not offer them a shift, and says why.
+
+Tiering is deliberately *not* just the score, because averaging buries two
+things that must not be buried:
+
+- **A single unacceptable shift.** One caller was 104 minutes off the phone on
+  one day out of six audits. Averaged, that is a 0.95 and "trusted". It is now
+  **watch**, because you asked for people who are not away for extended periods.
+- **A pattern of small lies.** Another over-declared by exactly one complete on
+  three separate days. Each barely moves an average — the score stays 0.81 — but
+  three integrity failures is **do not roster** regardless of score.
+
+And the opposite guard: **one bad audit is a conversation, not a verdict.** A
+low score only bars someone once there are at least two audits behind it.
+
+Everything is in `performance` in the config, so you can move any line without
+touching code.
+
+### Bootstrapping your caller list from it
+
+You don't have a Team sheet yet, and you don't need to invent one — the audit
+sheet already names everyone who calls. 33 callers on the current sheet. Build
+`team.csv` from those names, then add phone numbers and any caps or
+restrictions as you go.
+
+## The working week
+
+Sunday to Thursday, set in `working_days`. Anything scheduled outside it is
+surfaced in the brief as an anomaly rather than quietly rostered — a Friday poll
+appearing in the schedule is much more likely to be a mistake than a plan.
+
 ## Connecting your Google Sheets
 
 ```bash
@@ -356,6 +433,8 @@ business_agent/
   sheets.py      CSV and Google Sheets adapters (same output shape)
   loaders.py     rows -> objects, tolerant of how humans fill in sheets
   curia.py       the Curia 2026 Schedule: polls, continuation rows, holidays
+  audit.py       the Audit - PL sheet: declared vs actual, breaks, integrity
+  performance.py audit history -> a trusted / watch / do-not-roster call
   messages.py    WhatsApp export + JSONL parsing
   triage.py      messages -> events (rules, then Claude for the unclear ones)
   roster.py      demand vs cover, gaps, candidate ranking
@@ -365,5 +444,5 @@ business_agent/
   ingest/whatsapp_cloud.py   signed webhook receiver for the official API
 demo/            fake business, regenerated relative to today
 ops/             launchd job + installer for a Mac mini
-tests/           90 tests, standard library only
+tests/           146 tests, standard library only
 ```

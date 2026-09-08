@@ -7,7 +7,9 @@ from __future__ import annotations
 
 from datetime import date
 
+from .audit import AuditRecord
 from .models import Draft, Event, Gap, Person, Shift
+from .performance import StaffPerformance
 
 
 def _day_label(day: date) -> str:
@@ -24,6 +26,9 @@ def build_brief(
     unresolved: list[Event],
     people: dict[str, Person],
     shifts: list[Shift],
+    performance: dict[str, StaffPerformance] | None = None,
+    audits: list[AuditRecord] | None = None,
+    working_days: list[str] | None = None,
 ) -> str:
     dropouts = [e for e in events if e.kind == "dropout"]
     offers = [e for e in events if e.kind == "offer"]
@@ -64,6 +69,15 @@ def build_brief(
                 f"- {len(partial)} shift(s) **cannot be fully filled** even if everyone says yes."
             )
 
+    if working_days:
+        allowed = {day.strip().lower() for day in working_days}
+        outside = sorted({g.day for g in gaps if f"{g.day:%A}".lower() not in allowed})
+        if outside:
+            lines.append(
+                "- ⚠️ Work scheduled outside the Sunday–Thursday week: "
+                + ", ".join(_day_label(d) for d in outside)
+            )
+
     lines += ["", "## What changed since the last run"]
     if not (dropouts or offers or requests):
         lines.append("- No roster-relevant messages.")
@@ -80,6 +94,63 @@ def build_brief(
         lines.append(
             f"- 🔵 **Client request** from {event.message.sender} — +{event.calls} calls, {when}"
         )
+
+    performance = performance or {}
+    audits = audits or []
+    scored = [p for p in performance.values() if p.audits]
+    if scored:
+        barred = sorted(
+            (p for p in scored if not p.rosterable), key=lambda p: p.score
+        )
+        watch = sorted(
+            (p for p in scored if p.rosterable and p.tier == "watch"), key=lambda p: p.score
+        )
+        trusted = [p for p in scored if p.tier == "trusted"]
+
+        lines += [
+            "",
+            "## What the audits say",
+            "",
+            f"_{len(audits)} audits across {len(scored)} callers. "
+            f"{len(trusted)} trusted, {len(watch)} to watch, {len(barred)} not to roster._",
+        ]
+
+        if barred:
+            lines.append("\n**Do not roster** — the agent will not offer these people a shift:\n")
+            for record in barred:
+                lines.append(f"- **{record.name}** (score {record.score:.2f}) — {record.headline}")
+                for concern in record.concerns[:3]:
+                    lines.append(f"  - {concern}")
+
+        if watch:
+            lines.append("\n**Watch** — rosterable, but keep an eye on them:\n")
+            for record in watch:
+                lines.append(f"- **{record.name}** (score {record.score:.2f}) — {record.headline}")
+
+        disputed = [a for a in audits if a.reviewer_disagrees]
+        if disputed:
+            lines += [
+                "",
+                f"**{len(disputed)} audit row(s) where the Y/N column disagrees with the "
+                "numbers** — worth a look, in both directions:",
+                "",
+            ]
+            for record in disputed[:10]:
+                said = "Y" if record.reviewer_flagged else "N"
+                if record.over_declared:
+                    what = (
+                        f"declared {record.declared_completes}, logs show "
+                        f"{record.actual_completes}"
+                    )
+                elif record.off_phone_minutes:
+                    what = f"{record.off_phone_minutes} min off the phone"
+                elif record.time_discrepancies:
+                    what = "start/finish time mismatch"
+                else:
+                    what = "nothing found in the numbers"
+                lines.append(
+                    f"- {_day_label(record.day)} **{record.name}** — marked *{said}*, but {what}"
+                )
 
     lines += ["", "## Gaps and who to ask"]
     if not gaps:

@@ -52,6 +52,20 @@ class Config:
     # "simple" -> the plain date/shift/calls_required layout.
     demand_format: str = "simple"
 
+    # The Audit - PL sheet. Optional: without it everyone is treated as
+    # unaudited rather than as untrustworthy.
+    audit: SourceConfig = field(default_factory=SourceConfig)
+
+    # Overrides for performance.Thresholds — the rules about off-phone time,
+    # integrity failures and how quickly old audits stop counting.
+    performance: dict[str, float] = field(default_factory=dict)
+
+    # The business runs Sunday to Thursday. Work scheduled outside these days
+    # is surfaced as an anomaly rather than silently rostered.
+    working_days: list[str] = field(
+        default_factory=lambda: ["sunday", "monday", "tuesday", "wednesday", "thursday"]
+    )
+
     # Where inbound messages are read from.
     messages_dir: str = "inbox"
 
@@ -72,7 +86,7 @@ class Config:
         raw = json.loads(Path(path).read_text())
         sources = {
             key: SourceConfig(**raw.pop(key))
-            for key in ("team", "roster", "demand")
+            for key in ("team", "roster", "demand", "audit")
             if key in raw
         }
         known = {f for f in cls.__dataclass_fields__}

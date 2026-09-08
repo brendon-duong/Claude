@@ -11,8 +11,10 @@ from collections import defaultdict
 from dataclasses import replace
 from datetime import date, timedelta
 
+from .audit import normalise_name
 from .config import Config
 from .models import Candidate, Demand, Event, Gap, Person, Shift
+from .performance import StaffPerformance
 
 
 def week_key(day: date) -> tuple[int, int]:
@@ -126,6 +128,7 @@ def rank_candidates(
     offers: dict[tuple[str, date], Event],
     required_skills: frozenset[str],
     declines: dict[tuple[str, date], Event] | None = None,
+    performance: dict[str, StaffPerformance] | None = None,
 ) -> list[Candidate]:
     """Score everyone for one open slot. Blocked people are kept, with reasons.
 
@@ -167,14 +170,28 @@ def rank_candidates(
         if this_week >= person.max_shifts_per_week:
             blockers.append(f"at weekly cap ({this_week}/{person.max_shifts_per_week})")
 
+        # Audit history, where we have it, is a better answer to "can I trust
+        # this person on a shift" than a hand-typed reliability figure.
+        record = (performance or {}).get(normalise_name(person.name)) or (
+            performance or {}
+        ).get(normalise_name(person.person_id))
+        if record and record.audits:
+            if not record.rosterable:
+                blockers.append(f"audits: {record.headline}")
+            elif record.tier == "watch":
+                reasons.append(f"watch: {record.headline}")
+            else:
+                reasons.append(f"audits clean ({record.clean_audits}/{record.audits})")
+
         offer = offers.get((person.person_id, day))
         if offer:
             score += 3.0
             reasons.append(f"offered to cover ({offer.message.sent_at:%d %b})")
 
-        score += 1.5 * person.reliability
-        if person.reliability >= 0.9:
-            reasons.append(f"reliable ({person.reliability:.0%} turn-up)")
+        trust = record.score if (record and record.audits) else person.reliability
+        score += 2.5 * trust
+        if not record or not record.audits:
+            reasons.append("no audit history")
 
         if shift_name in person.preferred_shifts:
             score += 1.0
@@ -200,6 +217,7 @@ def build_gaps(
     events: list[Event],
     config: Config,
     today: date,
+    performance: dict[str, StaffPerformance] | None = None,
 ) -> list[Gap]:
     """Every under-staffed slot in the planning horizon, worst first."""
     horizon_end = today + timedelta(days=config.horizon_days)
@@ -231,7 +249,14 @@ def build_gaps(
                 covered=covered,
                 dropouts=[s for s in slot if s.status == "dropped"],
                 candidates=rank_candidates(
-                    item.day, item.shift, people, shifts, offers, required_skills, declines
+                    item.day,
+                    item.shift,
+                    people,
+                    shifts,
+                    offers,
+                    required_skills,
+                    declines,
+                    performance,
                 ),
             )
         )

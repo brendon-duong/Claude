@@ -18,12 +18,15 @@ from dataclasses import asdict
 from datetime import date, datetime
 from pathlib import Path
 
+from .audit import load_audits
 from .config import Config
 from .drafts import build_drafts
 from .loaders import load_all
+from .performance import Thresholds, score_all
 from .messages import load_inbox
 from .report import build_brief
 from .roster import apply_events, build_gaps
+from .sheets import load_table
 from .triage import triage
 
 
@@ -38,10 +41,20 @@ def run(config_path: Path, today: date, quiet: bool = False) -> Path:
     config = Config.load(config_path)
 
     people, shifts, demand = load_all(config, base_dir)
+
+    # Audit history, when configured. Without it nobody is penalised — being
+    # unaudited is not the same as being untrustworthy.
+    audits = (
+        load_audits(load_table(config.audit, config, base_dir))
+        if config.audit.path
+        else []
+    )
+    performance = score_all(audits, today, Thresholds(**config.performance))
+
     messages = load_inbox(_resolve(base_dir, config.messages_dir))
     events = triage(messages, people, today, config)
     shifts, demand, unresolved = apply_events(shifts, demand, events)
-    gaps = build_gaps(people, shifts, demand, events, config, today)
+    gaps = build_gaps(people, shifts, demand, events, config, today, performance)
     drafts = build_drafts(gaps, config.business_name)
 
     brief = build_brief(
@@ -53,6 +66,9 @@ def run(config_path: Path, today: date, quiet: bool = False) -> Path:
         unresolved=unresolved,
         people=people,
         shifts=shifts,
+        performance=performance,
+        audits=audits,
+        working_days=config.working_days,
     )
 
     out_dir = _resolve(base_dir, config.out_dir)
@@ -71,7 +87,9 @@ def run(config_path: Path, today: date, quiet: bool = False) -> Path:
 
     if not quiet:
         short = sum(gap.short_by for gap in gaps)
-        print(f"[{stamp}] {len(messages)} messages, {len(gaps)} gaps, {short} slots short, "
+        barred = sum(1 for p in performance.values() if not p.rosterable)
+        print(f"[{stamp}] {len(messages)} messages, {len(audits)} audits "
+              f"({barred} barred), {len(gaps)} gaps, {short} slots short, "
               f"{len(drafts)} drafts -> {brief_path}")
     return brief_path
 
