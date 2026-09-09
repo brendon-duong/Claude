@@ -16,307 +16,358 @@ import html
 import json
 from pathlib import Path
 
-# Validated against the light (#ffffff) and dark (#161b22) chart surfaces:
+# Validated against the light (#ffffff) and dark (#131a22) chart surfaces:
 # chroma above the grey floor and contrast >= 3:1 in both.
 CHART_HUE_LIGHT = "#0a8f86"
 CHART_HUE_DARK = "#4fc3b8"
-
-TIER_WORD = {"trusted": "clean", "watch": "watch", "do_not_roster": "barred"}
 
 
 def _esc(value: object) -> str:
     return html.escape(str(value), quote=True)
 
 
-def _bar_chart(
-    rows: list[tuple[str, float]],
-    *,
-    reference: float | None = None,
-    reference_label: str = "",
-    value_suffix: str = "",
-) -> str:
-    """A horizontal bar chart. Rows are (label, value), highest value sets the scale."""
+def _bar_chart(rows, *, reference=None, reference_label="", value_suffix=""):
+    """Horizontal bars. Rows are (label, value); the largest sets the scale."""
     if not rows:
         return ""
-    top = max(max(value for _, value in rows), reference or 0) * 1.08 or 1
-    bar_height, gap = 34, 12
-    label_width, right_pad = 96, 54
-    height = len(rows) * (bar_height + gap) - gap
-    width = 640
-    plot_width = width - label_width - right_pad
-
+    top = max(max(v for _, v in rows), reference or 0) * 1.06 or 1
+    bar_h, gap, label_w, right_pad = 44, 14, 104, 62
+    height = len(rows) * (bar_h + gap) - gap
+    width = 700
+    plot_w = width - label_w - right_pad
     parts = [
-        f'<svg viewBox="0 0 {width} {height + 26}" role="img" '
-        f'class="chart" preserveAspectRatio="xMinYMin meet">'
+        f'<svg viewBox="0 0 {width} {height + 30}" role="img" class="chart" '
+        f'preserveAspectRatio="xMinYMin meet">'
     ]
-
     if reference is not None:
-        x = label_width + plot_width * (reference / top)
+        x = label_w + plot_w * (reference / top)
         parts.append(
-            f'<line x1="{x:.1f}" y1="0" x2="{x:.1f}" y2="{height}" '
-            f'class="ref-line" stroke-dasharray="4 4" stroke-width="2"/>'
-            f'<text x="{x:.1f}" y="{height + 18}" class="ref-label" '
-            f'text-anchor="middle">{_esc(reference_label)}</text>'
+            f'<line x1="{x:.1f}" y1="-4" x2="{x:.1f}" y2="{height + 2}" class="ref-line" '
+            f'stroke-dasharray="3 5" stroke-width="2"/>'
+            f'<text x="{x:.1f}" y="{height + 22}" class="ref-label" text-anchor="middle">'
+            f"{_esc(reference_label)}</text>"
         )
-
-    for index, (label, value) in enumerate(rows):
-        y = index * (bar_height + gap)
-        bar_width = max(2.0, plot_width * (value / top))
+    for i, (label, value) in enumerate(rows):
+        y = i * (bar_h + gap)
+        w = max(3.0, plot_w * (value / top))
         parts.append(
-            f'<text x="{label_width - 12}" y="{y + bar_height / 2 + 5}" '
-            f'class="bar-label" text-anchor="end">{_esc(label)}</text>'
-            f'<rect x="{label_width}" y="{y}" width="{bar_width:.1f}" '
-            f'height="{bar_height}" rx="4" class="bar"><title>'
-            f'{_esc(label)}: {_esc(value)}{_esc(value_suffix)}</title></rect>'
-            f'<text x="{label_width + bar_width + 10:.1f}" y="{y + bar_height / 2 + 5}" '
-            f'class="bar-value">{_esc(value)}</text>'
+            f'<text x="{label_w - 14}" y="{y + bar_h / 2 + 5}" class="bar-label" '
+            f'text-anchor="end">{_esc(label)}</text>'
+            f'<rect x="{label_w}" y="{y}" width="{w:.1f}" height="{bar_h}" rx="4" '
+            f'class="bar"><title>{_esc(label)}: {_esc(value)}{_esc(value_suffix)}</title></rect>'
+            f'<text x="{label_w + w + 12:.1f}" y="{y + bar_h / 2 + 6}" class="bar-value">'
+            f"{_esc(value)}</text>"
         )
     parts.append("</svg>")
     return "".join(parts)
 
 
-def _column_chart(rows: list[tuple[str, int]], *, marker_index: int | None, marker_label: str) -> str:
+def _column_chart(rows, *, marker_index, marker_label):
     """A distribution. Columns are (bucket label, count)."""
     if not rows:
         return ""
-    top = max(count for _, count in rows) or 1
-    width, height = 640, 200
+    top = max(c for _, c in rows) or 1
+    width, height = 700, 210
     slot = width / len(rows)
-    bar_width = slot * 0.62
-
-    parts = [f'<svg viewBox="0 0 {width} {height + 46}" role="img" class="chart" preserveAspectRatio="xMinYMin meet">']
-    for index, (label, count) in enumerate(rows):
-        bar_height = (count / top) * height
-        x = index * slot + (slot - bar_width) / 2
-        y = height - bar_height
+    bar_w = slot * 0.58
+    parts = [
+        f'<svg viewBox="0 0 {width} {height + 54}" role="img" class="chart" '
+        f'preserveAspectRatio="xMinYMin meet">'
+    ]
+    for i, (label, count) in enumerate(rows):
+        h = (count / top) * height
+        x = i * slot + (slot - bar_w) / 2
+        y = height - h
         if count:
             parts.append(
-                f'<rect x="{x:.1f}" y="{y:.1f}" width="{bar_width:.1f}" '
-                f'height="{bar_height:.1f}" rx="4" class="bar"><title>'
-                f'{_esc(count)} caller(s) at {_esc(label)} completes/shift</title></rect>'
-                f'<text x="{x + bar_width / 2:.1f}" y="{y - 7:.1f}" class="bar-value" '
+                f'<rect x="{x:.1f}" y="{y:.1f}" width="{bar_w:.1f}" height="{h:.1f}" '
+                f'rx="4" class="bar"><title>{_esc(count)} caller(s) at '
+                f'{_esc(label)} completes/shift</title></rect>'
+                f'<text x="{x + bar_w / 2:.1f}" y="{y - 8:.1f}" class="bar-value" '
                 f'text-anchor="middle">{count}</text>'
             )
         parts.append(
-            f'<text x="{x + bar_width / 2:.1f}" y="{height + 20}" class="bar-label" '
+            f'<text x="{x + bar_w / 2:.1f}" y="{height + 20}" class="bar-label" '
             f'text-anchor="middle">{_esc(label)}</text>'
         )
     if marker_index is not None:
-        # Marked under the axis rather than as a line through the columns: a
-        # vertical rule crossed the value label on the tallest bar it passed.
+        # Marked under the axis rather than as a rule through the columns: a
+        # vertical line crossed the value label on the tallest bar it passed.
         x = marker_index * slot + slot / 2
         parts.append(
-            f'<path d="M{x - 5:.1f} {height + 30} L{x:.1f} {height + 25} '
-            f'L{x + 5:.1f} {height + 30}" class="ref-line" fill="none" stroke-width="2"/>'
-            f'<text x="{x:.1f}" y="{height + 43}" class="ref-label" text-anchor="middle">'
+            f'<path d="M{x - 6:.1f} {height + 36} L{x:.1f} {height + 30} '
+            f'L{x + 6:.1f} {height + 36}" class="ref-line" fill="none" stroke-width="2"/>'
+            f'<text x="{x:.1f}" y="{height + 50}" class="ref-label" text-anchor="middle">'
             f"{_esc(marker_label)}</text>"
         )
     parts.append("</svg>")
     return "".join(parts)
 
 
-def _figure(value: object, label: str, note: str = "", tone: str = "") -> str:
-    tone_class = f" figure-{tone}" if tone else ""
-    note_html = f'<span class="figure-note">{_esc(note)}</span>' if note else ""
+def _day_strip(days: list[dict]) -> str:
+    """The week's shape, Sunday to Thursday — the rhythm this business runs on."""
+    if not days:
+        return ""
+    top = max(d["slots"] for d in days) or 1
+    cells = []
+    for day in days:
+        name, _, rest = day["day"].partition(" ")
+        share = day["slots"] / top
+        polls = "".join(f"<span>{_esc(p)}</span>" for p in day["polls"])
+        cells.append(
+            f'<div class="strip-cell">'
+            f'<span class="strip-day">{_esc(name)}</span>'
+            f'<span class="strip-date">{_esc(rest)}</span>'
+            f'<div class="strip-track"><div class="strip-fill" '
+            f'style="height:{share * 100:.0f}%"></div></div>'
+            f'<span class="strip-slots">{day["slots"]}</span>'
+            f'<div class="strip-polls">{polls}</div>'
+            f"</div>"
+        )
+    return f'<div class="strip">{"".join(cells)}</div>'
+
+
+def _figure(value, label, note=""):
+    note_html = f'<span class="fig-note">{_esc(note)}</span>' if note else ""
     return (
-        f'<div class="figure{tone_class}"><span class="figure-value">{_esc(value)}</span>'
-        f'<span class="figure-label">{_esc(label)}</span>{note_html}</div>'
+        f'<div class="fig"><span class="fig-value">{_esc(value)}</span>'
+        f'<span class="fig-label">{_esc(label)}</span>{note_html}</div>'
     )
 
 
 def render_dashboard(data: dict, *, business_name: str = "Pacific Link Global") -> str:
-    week = data["week"]
-    cap = data["capacity"]
-    tiers = data["tiers"]
-    prod = data["productivity"]
-    audits = data["audits"]
-    quality = data["dataQuality"]
+    week, cap = data["week"], data["capacity"]
+    prod, audits, quality = data["productivity"], data["audits"], data["dataQuality"]
 
-    weeks = data["weeks"]
-    demand_rows = [(w["start"], w["slots"]) for w in weeks]
-    peak = max(w["slots"] for w in weeks)
-    over_capacity = peak > cap["weeklyCapacity"]
-
+    demand_rows = [(w["start"], w["slots"]) for w in data["weeks"]]
+    peak = max(w["slots"] for w in data["weeks"])
     hist_rows = [(h["bucket"], h["count"]) for h in prod["hist"]]
-    median_bucket = int(prod["median"])
+    top_caller = data.get("topCaller", {})
 
-    # Roster, grouped by day.
+    capacity_note = (
+        f"Peak week needs {peak}; {cap['rosterable']} rosterable callers cover "
+        f"{cap['weeklyCapacity']} at {cap['maxPerWeek']} shifts each."
+        if peak <= cap["weeklyCapacity"]
+        else f"Peak week needs {peak} — {peak - cap['weeklyCapacity']} beyond capacity."
+    )
+
     days: dict[str, list] = {}
     for shift in data["roster"]:
         days.setdefault(shift["day"], []).append(shift)
-    roster_html = []
+    cards = []
     for day, shifts in days.items():
+        name, _, rest = day.partition(" ")
         blocks = []
         for shift in shifts:
-            names = "".join(
-                f'<li><span class="caller">{_esc(c["name"])}</span>'
-                f'<span class="metric">{c["completes"]:.1f}</span>'
-                f'<span class="metric quiet">{_esc(c["clean"])}</span>'
+            rows = "".join(
+                f'<li><span class="rank">{i}</span>'
+                f'<span class="who">{_esc(c["name"])}</span>'
+                f'<span class="num">{c["completes"]:.1f}</span>'
+                f'<span class="num dim">{_esc(c["clean"])}</span>'
                 + (
-                    f'<span class="pill pill-watch">watch</span>'
+                    '<span class="tag tag-watch">watch</span>'
                     if c["tier"] == "watch"
-                    else '<span class="pill-gap"></span>'
+                    else '<span class="tag-gap"></span>'
                 )
                 + "</li>"
-                for c in shift["callers"]
+                for i, c in enumerate(shift["callers"], 1)
             )
             blocks.append(
                 f'<div class="poll"><h4>{_esc(shift["poll"])}'
-                f'<span class="poll-need">{len(shift["callers"])} of {shift["needed"]}</span></h4>'
-                f'<ul class="callers"><li class="head"><span>Caller</span>'
-                f'<span class="metric">Comp<br>/shift</span>'
-                f'<span class="metric">Clean<br>audits</span><span></span></li>{names}</ul></div>'
+                f'<span class="poll-count">{len(shift["callers"])}/{shift["needed"]}</span></h4>'
+                f'<ul class="callers"><li class="head"><span></span><span>Caller</span>'
+                f'<span class="num">Comp</span><span class="num">Clean</span>'
+                f"<span></span></li>{rows}</ul></div>"
             )
-        roster_html.append(
-            f'<article class="day"><h3>{_esc(day)}</h3>{"".join(blocks)}</article>'
+        cards.append(
+            f'<article class="day-card"><header><span class="day-name">{_esc(name)}</span>'
+            f'<span class="day-date">{_esc(rest)}</span></header>{"".join(blocks)}</article>'
         )
 
-    barred_html = "".join(
-        f'<li><span class="barred-name">{_esc(b["name"])}</span>'
-        f'<span class="barred-why">{_esc(b["headline"])}</span></li>'
+    barred = "".join(
+        f'<li><span class="b-name">{_esc(b["name"])}</span>'
+        f'<span class="b-why">{_esc(b["headline"])}</span></li>'
         for b in data["barred"]
     )
-
-    capacity_note = (
-        f"Peak week needs {peak}; capacity is {cap['weeklyCapacity']}"
-        if not over_capacity
-        else f"Peak week needs {peak} — {peak - cap['weeklyCapacity']} beyond capacity"
-    )
+    audit_tone = "ok" if audits["daysSinceLast"] <= 7 else "warn"
 
     return f"""<title>Pacific Link Roster Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root {{
-  --paper:#eef1f4; --surface:#fff; --surface-2:#f7f9fa;
-  --ink:#151a21; --ink-soft:#3d4854; --muted:#67737f; --line:#d7dee4;
-  --accent:{CHART_HUE_LIGHT};
+  --ground:#e9eef0; --panel:#fff; --panel-2:#f4f7f8; --band:#101820;
+  --band-ink:#eef4f6; --band-muted:#93a6b3;
+  --ink:#0e141a; --ink-2:#3a4652; --muted:#6b7986; --line:#d3dce1;
+  --accent:{CHART_HUE_LIGHT}; --accent-soft:#dcefed;
   --ok:#2a6a48; --ok-soft:#e2efe7;
-  --watch:#8a5a0b; --watch-soft:#f6eddc;
-  --barred:#9a3227; --barred-soft:#f7e6e3;
-  --display:'Archivo',system-ui,sans-serif;
+  --warn:#8a5a0b; --warn-soft:#f6eddc;
+  --bad:#9a3227; --bad-soft:#f7e6e3;
+  --display:'Bricolage Grotesque',system-ui,sans-serif;
   --body:'Public Sans',system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,monospace;
 }}
-@media (prefers-color-scheme: dark) {{
+@media (prefers-color-scheme:dark) {{
   :root:not([data-theme="light"]) {{
-    --paper:#0e1217; --surface:#161b22; --surface-2:#1c222a;
-    --ink:#e9edf2; --ink-soft:#c2cbd5; --muted:#8d99a6; --line:#2a323c;
-    --accent:{CHART_HUE_DARK};
+    --ground:#0b0f14; --panel:#131a22; --panel-2:#182029; --band:#060a0e;
+    --band-ink:#eef4f6; --band-muted:#7d8b99;
+    --ink:#eaf0f6; --ink-2:#c0ccd6; --muted:#7d8b99; --line:#232e3a;
+    --accent:{CHART_HUE_DARK}; --accent-soft:#12312e;
     --ok:#6fbf92; --ok-soft:#16301f;
-    --watch:#d6a54e; --watch-soft:#33280f;
-    --barred:#e0796c; --barred-soft:#341a17;
+    --warn:#d6a54e; --warn-soft:#33280f;
+    --bad:#e8796b; --bad-soft:#341a17;
   }}
 }}
 :root[data-theme="dark"] {{
-  --paper:#0e1217; --surface:#161b22; --surface-2:#1c222a;
-  --ink:#e9edf2; --ink-soft:#c2cbd5; --muted:#8d99a6; --line:#2a323c;
-  --accent:{CHART_HUE_DARK};
+  --ground:#0b0f14; --panel:#131a22; --panel-2:#182029; --band:#060a0e;
+  --band-ink:#eef4f6; --band-muted:#7d8b99;
+  --ink:#eaf0f6; --ink-2:#c0ccd6; --muted:#7d8b99; --line:#232e3a;
+  --accent:{CHART_HUE_DARK}; --accent-soft:#12312e;
   --ok:#6fbf92; --ok-soft:#16301f;
-  --watch:#d6a54e; --watch-soft:#33280f;
-  --barred:#e0796c; --barred-soft:#341a17;
+  --warn:#d6a54e; --warn-soft:#33280f;
+  --bad:#e8796b; --bad-soft:#341a17;
 }}
 *,*::before,*::after {{ box-sizing:border-box; }}
-body {{ background:var(--paper); color:var(--ink); font-family:var(--body);
+body {{ background:var(--ground); color:var(--ink); font-family:var(--body);
   font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased; }}
-.wrap {{ max-width:60rem; margin:0 auto; padding:2.25rem 1.25rem 4rem; }}
-h1,h2,h3,h4 {{ font-family:var(--display); margin:0; text-wrap:balance; }}
+h1,h2,h3,h4 {{ font-family:var(--display); margin:0; text-wrap:balance;
+  letter-spacing:-.02em; }}
+.wrap {{ max-width:62rem; margin:0 auto; padding:0 1.25rem 4rem; }}
 
-.masthead {{ display:flex; flex-direction:column; gap:.4rem;
-  padding-bottom:1.25rem; border-bottom:2px solid var(--ink); }}
-.eyebrow {{ font-family:var(--mono); font-size:.72rem; letter-spacing:.14em;
-  text-transform:uppercase; color:var(--accent); }}
-.masthead h1 {{ font-size:clamp(1.8rem,4.5vw,2.5rem); font-weight:700; letter-spacing:-.02em; }}
-.masthead p {{ margin:0; color:var(--ink-soft); }}
+/* ── Hero band ─────────────────────────────────────────── */
+.band {{ background:var(--band); color:var(--band-ink); margin:0 0 2.5rem;
+  padding:2.5rem 0 0; }}
+.band-in {{ max-width:62rem; margin:0 auto; padding:0 1.25rem 2rem; }}
+.eyebrow {{ font-family:var(--mono); font-size:.72rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--accent); display:block; margin-bottom:.6rem; }}
+.band h1 {{ font-size:clamp(2rem,5.5vw,3.4rem); font-weight:800; line-height:1.02;
+  margin-bottom:.5rem; }}
+.band .dates {{ color:var(--band-muted); font-size:1.02rem; margin:0 0 1.75rem; }}
+.headline {{ display:flex; flex-wrap:wrap; align-items:flex-end; gap:2.5rem;
+  padding-bottom:1.75rem; border-bottom:1px solid rgba(255,255,255,.12); }}
+.headline .big {{ font-family:var(--display); font-size:clamp(3rem,9vw,4.75rem);
+  font-weight:800; line-height:.9; font-variant-numeric:tabular-nums; }}
+.headline .big span {{ color:var(--accent); }}
+.headline .big-label {{ display:block; font-family:var(--body); font-size:.85rem;
+  font-weight:400; color:var(--band-muted); letter-spacing:0; margin-top:.5rem; }}
+.trio {{ display:flex; gap:2.25rem; flex-wrap:wrap; }}
+.trio div {{ display:flex; flex-direction:column; }}
+.trio b {{ font-family:var(--display); font-size:1.6rem; font-weight:700;
+  font-variant-numeric:tabular-nums; }}
+.trio span {{ font-size:.8rem; color:var(--band-muted); }}
 
-.figures {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));
-  gap:1px; background:var(--line); border:1px solid var(--line); margin:1.5rem 0 2.25rem; }}
-.figure {{ background:var(--surface); padding:1rem 1.1rem; display:flex;
-  flex-direction:column; gap:.1rem; }}
-.figure-value {{ font-family:var(--display); font-size:1.8rem; font-weight:700;
-  line-height:1.1; font-variant-numeric:tabular-nums; }}
-.figure-label {{ font-size:.82rem; color:var(--muted); }}
-.figure-note {{ font-family:var(--mono); font-size:.7rem; color:var(--muted); margin-top:.15rem; }}
-.figure-warn .figure-value {{ color:var(--watch); }}
-.figure-bad .figure-value {{ color:var(--barred); }}
+/* ── Day strip ─────────────────────────────────────────── */
+.strip {{ display:grid; grid-template-columns:repeat(5,1fr); gap:1px;
+  margin-top:1.75rem; }}
+.strip-cell {{ display:flex; flex-direction:column; align-items:flex-start;
+  gap:.3rem; padding-right:1rem; }}
+.strip-day {{ font-family:var(--display); font-weight:700; font-size:1rem; }}
+.strip-date {{ font-family:var(--mono); font-size:.7rem; color:var(--band-muted); }}
+.strip-track {{ width:100%; height:52px; display:flex; align-items:flex-end;
+  background:rgba(255,255,255,.05); border-radius:3px; margin:.35rem 0 .1rem; }}
+.strip-fill {{ width:100%; background:var(--accent); border-radius:3px; min-height:4px; }}
+.strip-slots {{ font-family:var(--mono); font-size:.95rem; font-weight:500; }}
+.strip-polls {{ display:flex; flex-direction:column; gap:.05rem; }}
+.strip-polls span {{ font-size:.68rem; color:var(--band-muted); line-height:1.35; }}
 
-section {{ margin-bottom:2.25rem; }}
-section > h2 {{ font-size:1.25rem; font-weight:600; margin-bottom:.3rem; }}
-.lede {{ color:var(--ink-soft); margin:0 0 1rem; max-width:62ch; }}
-
-.panel {{ background:var(--surface); border:1px solid var(--line); padding:1.25rem 1.4rem; }}
+/* ── Sections ──────────────────────────────────────────── */
+section {{ margin-bottom:3rem; }}
+.sec-head {{ display:flex; align-items:baseline; gap:.75rem; margin-bottom:.35rem; }}
+.sec-head h2 {{ font-size:1.5rem; font-weight:700; }}
+.sec-num {{ font-family:var(--mono); font-size:.7rem; color:var(--accent);
+  letter-spacing:.1em; }}
+.lede {{ color:var(--ink-2); margin:0 0 1.25rem; max-width:60ch; }}
+.panel {{ background:var(--panel); border:1px solid var(--line); border-radius:2px;
+  padding:1.5rem 1.6rem; }}
 .chart {{ width:100%; height:auto; display:block; overflow:visible; }}
 .bar {{ fill:var(--accent); }}
-.bar:hover {{ opacity:.82; }}
-.bar-label {{ fill:var(--muted); font-family:var(--mono); font-size:12px; }}
-.bar-value {{ fill:var(--ink); font-family:var(--mono); font-size:12px;
-  font-variant-numeric:tabular-nums; }}
+.bar:hover {{ opacity:.8; }}
+.bar-label {{ fill:var(--muted); font-family:var(--mono); font-size:13px; }}
+.bar-value {{ fill:var(--ink); font-family:var(--mono); font-size:13px;
+  font-weight:500; font-variant-numeric:tabular-nums; }}
 .ref-line {{ stroke:var(--muted); }}
 .ref-label {{ fill:var(--muted); font-family:var(--mono); font-size:11px; }}
 
-.day {{ background:var(--surface); border:1px solid var(--line); margin-bottom:1rem; }}
-.day h3 {{ font-size:1.05rem; font-weight:600; padding:.8rem 1.1rem;
-  border-bottom:1px solid var(--line); background:var(--surface-2); }}
-.poll {{ padding:.9rem 1.1rem; border-bottom:1px solid var(--line); }}
+/* ── Roster ────────────────────────────────────────────── */
+.days {{ display:grid; gap:1rem; align-items:start;
+  grid-template-columns:repeat(auto-fit,minmax(25rem,1fr)); }}
+.day-card {{ background:var(--panel); border:1px solid var(--line); border-radius:2px;
+  overflow:hidden; }}
+.day-card > header {{ display:flex; align-items:baseline; gap:.5rem;
+  padding:.85rem 1.1rem; background:var(--panel-2); border-bottom:1px solid var(--line); }}
+.day-name {{ font-family:var(--display); font-weight:700; font-size:1.05rem; }}
+.day-date {{ font-family:var(--mono); font-size:.75rem; color:var(--muted); }}
+.poll {{ padding:.85rem 1.1rem; border-bottom:1px solid var(--line); }}
 .poll:last-child {{ border-bottom:none; }}
-.poll h4 {{ font-size:.92rem; font-weight:600; display:flex; gap:.6rem;
+.poll h4 {{ font-size:.9rem; font-weight:700; display:flex; gap:.5rem;
   align-items:baseline; margin-bottom:.5rem; }}
-.poll-need {{ font-family:var(--mono); font-size:.75rem; color:var(--accent); }}
+.poll-count {{ font-family:var(--mono); font-size:.72rem; color:var(--accent);
+  font-weight:400; letter-spacing:0; }}
 .callers {{ list-style:none; margin:0; padding:0; }}
-.callers li {{ display:grid; grid-template-columns:1fr 4.5rem 4.5rem 4rem;
-  gap:.5rem; align-items:center; padding:.28rem 0; border-bottom:1px solid var(--line); }}
-.callers li:last-child {{ border-bottom:none; }}
-.callers li.head {{ font-family:var(--mono); font-size:.65rem; letter-spacing:.06em;
-  text-transform:uppercase; color:var(--muted); padding-bottom:.4rem; }}
-.caller {{ font-weight:500; font-size:.92rem; }}
-.metric {{ font-family:var(--mono); font-size:.82rem; text-align:right;
+.callers li {{ display:grid; grid-template-columns:1.3rem minmax(0,1fr) 2.4rem 2.8rem auto;
+  gap:.45rem; align-items:center; padding:.24rem 0; }}
+.callers li + li {{ border-top:1px solid var(--line); }}
+.callers li.head {{ font-family:var(--mono); font-size:.62rem; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--muted); border:none; padding-bottom:.35rem; }}
+.rank {{ font-family:var(--mono); font-size:.7rem; color:var(--muted); }}
+.who {{ font-size:.86rem; font-weight:500; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis; }}
+.num {{ font-family:var(--mono); font-size:.78rem; text-align:right;
   font-variant-numeric:tabular-nums; }}
-.quiet {{ color:var(--muted); }}
-.pill {{ font-family:var(--mono); font-size:.64rem; padding:.1rem .4rem;
+.dim {{ color:var(--muted); }}
+.tag {{ font-family:var(--mono); font-size:.6rem; padding:.08rem .35rem;
   border-radius:2px; text-align:center; }}
-.pill-watch {{ background:var(--watch-soft); color:var(--watch); }}
+.tag-watch {{ background:var(--warn-soft); color:var(--warn); }}
 
-.risk {{ display:grid; gap:1px; background:var(--line); border:1px solid var(--line); }}
-.risk-item {{ background:var(--surface); padding:.9rem 1.1rem; display:flex;
-  flex-wrap:wrap; gap:.5rem; align-items:baseline; }}
-.risk-item strong {{ font-family:var(--display); }}
-.risk-tag {{ font-family:var(--mono); font-size:.65rem; padding:.12rem .45rem;
-  border-radius:2px; text-transform:uppercase; letter-spacing:.05em; }}
-.tag-watch {{ background:var(--watch-soft); color:var(--watch); }}
-.tag-bad {{ background:var(--barred-soft); color:var(--barred); }}
-.tag-ok {{ background:var(--ok-soft); color:var(--ok); }}
-.risk-note {{ color:var(--ink-soft); font-size:.9rem; flex-basis:100%; margin:0; }}
+/* ── Decisions ─────────────────────────────────────────── */
+.decisions {{ display:grid; gap:1px; background:var(--line);
+  border:1px solid var(--line); border-radius:2px; }}
+.dec {{ background:var(--panel); padding:1.15rem 1.4rem; }}
+.dec-top {{ display:flex; flex-wrap:wrap; gap:.6rem; align-items:baseline; }}
+.dec h3 {{ font-size:1.02rem; font-weight:700; }}
+.dec p {{ margin:.4rem 0 0; color:var(--ink-2); font-size:.92rem; max-width:64ch; }}
+.chip {{ font-family:var(--mono); font-size:.62rem; padding:.14rem .5rem;
+  border-radius:2px; text-transform:uppercase; letter-spacing:.07em; }}
+.chip-bad {{ background:var(--bad-soft); color:var(--bad); }}
+.chip-warn {{ background:var(--warn-soft); color:var(--warn); }}
+.chip-ok {{ background:var(--ok-soft); color:var(--ok); }}
+.b-list {{ list-style:none; margin:.7rem 0 0; padding:0; display:grid; gap:.5rem; }}
+.b-list li {{ display:grid; gap:.02rem; }}
+.b-name {{ font-weight:600; font-size:.92rem; }}
+.b-why {{ font-family:var(--mono); font-size:.74rem; color:var(--bad); }}
 
-.barred-list {{ list-style:none; margin:.75rem 0 0; padding:0; display:grid; gap:.55rem; }}
-.barred-list li {{ display:grid; gap:.05rem; }}
-.barred-name {{ font-weight:600; }}
-.barred-why {{ font-family:var(--mono); font-size:.78rem; color:var(--barred); }}
-
-footer {{ margin-top:2rem; padding-top:1.1rem; border-top:1px solid var(--line);
-  font-size:.85rem; color:var(--muted); }}
+footer {{ margin-top:2.5rem; padding-top:1.2rem; border-top:1px solid var(--line);
+  font-size:.85rem; color:var(--muted); max-width:66ch; }}
 </style>
 
-<div class="wrap">
-  <header class="masthead">
-    <span class="eyebrow">Draft · nothing sent</span>
-    <h1>{_esc(business_name)} roster dashboard</h1>
-    <p>Week of {_esc(week["start"])} — built {_esc(data["generatedFor"])} from
-       {audits["total"]:,} audits and the Curia schedule.</p>
-  </header>
+<div class="band">
+  <div class="band-in">
+    <span class="eyebrow">Draft roster · nothing sent</span>
+    <h1>{_esc(business_name)}<br>roster dashboard</h1>
+    <p class="dates">Week of {_esc(week["start"])} — built {_esc(data["generatedFor"])}
+       from {audits["total"]:,} audits and the Curia schedule</p>
 
-  <div class="figures">
-    {_figure(f'{week["filled"]}/{week["needed"]}', "Slots filled next week", f'{week["polls"]} polls')}
-    {_figure(week["used"], "Callers rostered", f'{week["bench"]} on the bench')}
-    {_figure(cap["rosterable"], "Rosterable right now", f'{cap["barredActive"]} active but barred')}
-    {_figure(prod["median"], "Median completes/shift", f'best {prod["max"]}')}
+    <div class="headline">
+      <div class="big"><span>{week["filled"]}</span>/{week["needed"]}
+        <span class="big-label">caller-slots filled across {week["polls"]} polls</span></div>
+      <div class="trio">
+        <div><b>{week["used"]}</b><span>callers rostered</span></div>
+        <div><b>{week["bench"]}</b><span>on the bench</span></div>
+        <div><b>{cap["rosterable"]}</b><span>rosterable now</span></div>
+        <div><b>{prod["median"]}</b><span>median completes/shift</span></div>
+      </div>
+    </div>
+
+    {_day_strip(data.get("rosterDays", []))}
   </div>
+</div>
 
+<div class="wrap">
   <section>
-    <h2>Can you staff what's coming?</h2>
-    <p class="lede">Caller-slots per business week (Sunday–Thursday), against what
-      {cap["rosterable"]} rosterable callers can cover at {cap["maxPerWeek"]} shifts each.
-      {_esc(capacity_note)}.</p>
+    <div class="sec-head"><span class="sec-num">01</span>
+      <h2>Can you staff what's coming?</h2></div>
+    <p class="lede">Caller-slots per business week, Sunday to Thursday. {_esc(capacity_note)}</p>
     <div class="panel">
       {_bar_chart(demand_rows, reference=cap["weeklyCapacity"],
                   reference_label=f'capacity {cap["weeklyCapacity"]}', value_suffix=" slots")}
@@ -324,62 +375,55 @@ footer {{ margin-top:2rem; padding-top:1.1rem; border-top:1px solid var(--line);
   </section>
 
   <section>
-    <h2>How the team is performing</h2>
-    <p class="lede">Completed surveys per shift, from the call logs rather than what
-      was declared. {prod["n"]} active callers.</p>
+    <div class="sec-head"><span class="sec-num">02</span>
+      <h2>How the team is performing</h2></div>
+    <p class="lede">Completed surveys per shift across {prod["n"]} active callers, taken from
+      the call logs rather than what was declared — so nobody can climb this by over-declaring.
+      Best on the books is {_esc(top_caller.get("name", "—"))} at {top_caller.get("completes", 0):.1f}.</p>
     <div class="panel">
-      {_column_chart(hist_rows, marker_index=median_bucket, marker_label=f'median {prod["median"]}')}
+      {_column_chart(hist_rows, marker_index=int(prod["median"]),
+                     marker_label=f'median {prod["median"]}')}
     </div>
   </section>
 
   <section>
-    <h2>Who's working</h2>
-    <p class="lede">Ranked by completes per shift, with anyone barred by their audit
-      history excluded before ranking.</p>
-    {"".join(roster_html)}
+    <div class="sec-head"><span class="sec-num">03</span><h2>Who's working</h2></div>
+    <p class="lede">Ranked by completes per shift, with anyone barred by their audit history
+      excluded before ranking rather than after.</p>
+    <div class="days">{"".join(cards)}</div>
   </section>
 
   <section>
-    <h2>What needs a decision</h2>
-    <div class="risk">
-      <div class="risk-item">
-        <span class="risk-tag tag-bad">integrity</span>
-        <strong>{audits["missedOverDeclarations"]} over-declarations marked “N”</strong>
-        <p class="risk-note">Rows where the caller declared more completed surveys than the
-          call logs support, but the reviewer's Y/N column says no discrepancy. Worth asking
-          whoever fills that column.</p>
-      </div>
-      <div class="risk-item">
-        <span class="risk-tag tag-watch">data</span>
-        <strong>{quality["duplicatePairs"]} names look like the same person twice</strong>
-        <p class="risk-note">Each variant splits that caller's audit history, which flatters
-          the half without the failures. Fixing the spellings is the single highest-value
-          cleanup available.</p>
-      </div>
-      <div class="risk-item">
-        <span class="risk-tag {"tag-ok" if audits["daysSinceLast"] <= 7 else "tag-watch"}">audits</span>
-        <strong>Last audit {audits["daysSinceLast"]} day(s) ago</strong>
-        <p class="risk-note">Rankings track recent performance — an audit's influence halves
-          every 90 days. If auditing stops, the roster slowly reverts to who was good months ago.</p>
-      </div>
-      <div class="risk-item">
-        <span class="risk-tag tag-watch">roster</span>
-        <strong>{len(data["barred"])} active callers barred from shifts</strong>
-        <ul class="barred-list">{barred_html}</ul>
-      </div>
+    <div class="sec-head"><span class="sec-num">04</span><h2>What needs a decision</h2></div>
+    <div class="decisions">
+      <div class="dec"><div class="dec-top"><span class="chip chip-bad">integrity</span>
+        <h3>{audits["missedOverDeclarations"]} over-declarations marked &ldquo;N&rdquo;</h3></div>
+        <p>Rows where a caller declared more completed surveys than the call logs support,
+        but the reviewer's Y/N column records no discrepancy. Worth raising with whoever
+        fills that column.</p></div>
+      <div class="dec"><div class="dec-top"><span class="chip chip-warn">data</span>
+        <h3>{quality["duplicatePairs"]} names look like the same person twice</h3></div>
+        <p>Each spelling splits that caller's audit history, which flatters the half without
+        the failures. Fixing the spellings is the highest-value cleanup available.</p></div>
+      <div class="dec"><div class="dec-top">
+        <span class="chip chip-{audit_tone}">audits</span>
+        <h3>Last audit {audits["daysSinceLast"]} day(s) ago</h3></div>
+        <p>Rankings track recent performance — an audit's influence halves every 90 days.
+        If auditing stops, the roster slowly reverts to who was good months ago.</p></div>
+      <div class="dec"><div class="dec-top"><span class="chip chip-bad">roster</span>
+        <h3>{len(data["barred"])} active callers barred from shifts</h3></div>
+        <ul class="b-list">{barred}</ul></div>
     </div>
   </section>
 
-  <footer>
-    Nothing here has been sent to anyone. Callers are ranked on completed surveys
-    taken from the call logs, so nobody can climb this list by over-declaring, and
-    audit history gates the list before productivity is considered.
-  </footer>
+  <footer>Nothing here has been sent to anyone. Callers are ranked on completed surveys
+    taken from the call logs, and audit history gates the list before productivity is
+    considered — so volume never buys a place.</footer>
 </div>
 """
 
 
-def build(data_path: str | Path, out_path: str | Path, *, business_name: str = "Pacific Link Global") -> Path:
+def build(data_path, out_path, *, business_name: str = "Pacific Link Global") -> Path:
     data = json.loads(Path(data_path).read_text(encoding="utf-8"))
     out = Path(out_path)
     out.write_text(render_dashboard(data, business_name=business_name), encoding="utf-8")
