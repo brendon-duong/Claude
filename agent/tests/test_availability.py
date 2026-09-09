@@ -5,14 +5,17 @@ bullets, numbering, vote counts and inconsistent date formats.
 """
 
 import unittest
-from datetime import date
+from datetime import date, datetime
 
 from business_agent.availability import (
+    from_chat_replies,
     from_form_responses,
     match_caller,
     parse_availability,
     parse_heading_date,
+    parse_reply_days,
 )
+from business_agent.models import Message
 
 REFERENCE = date(2026, 9, 8)
 KNOWN = {
@@ -212,3 +215,204 @@ class TestFromFormResponses(unittest.TestCase):
 
     def test_no_responses_yet_is_not_an_error(self):
         self.assertEqual(from_form_responses([], KNOWN, REFERENCE).by_day, {})
+
+
+class TestParseReplyDays(unittest.TestCase):
+    """The words people actually type when asked which days they can work."""
+
+    WEEK = [date(2026, 9, 13), date(2026, 9, 14), date(2026, 9, 15),
+            date(2026, 9, 16), date(2026, 9, 17)]
+
+    def days(self, text):
+        return parse_reply_days(text, self.WEEK)
+
+    def test_day_numbers(self):
+        self.assertEqual(
+            self.days("13,14,15"),
+            {date(2026, 9, 13), date(2026, 9, 14), date(2026, 9, 15)},
+        )
+
+    def test_day_numbers_separated_by_spaces(self):
+        self.assertEqual(self.days("13 15 17"),
+                         {date(2026, 9, 13), date(2026, 9, 15), date(2026, 9, 17)})
+
+    def test_short_weekday_names(self):
+        self.assertEqual(self.days("Sun Mon Tue"),
+                         {date(2026, 9, 13), date(2026, 9, 14), date(2026, 9, 15)})
+
+    def test_full_weekday_names_in_a_sentence(self):
+        self.assertEqual(
+            self.days("Hi po, I can work Sunday and Wednesday"),
+            {date(2026, 9, 13), date(2026, 9, 16)},
+        )
+
+    def test_a_range_of_weekdays(self):
+        self.assertEqual(self.days("Mon-Thu"),
+                         {date(2026, 9, 14), date(2026, 9, 15),
+                          date(2026, 9, 16), date(2026, 9, 17)})
+
+    def test_a_written_out_range(self):
+        self.assertEqual(len(self.days("Sunday to Thursday")), 5)
+
+    def test_a_range_of_numbers(self):
+        self.assertEqual(self.days("13-15"),
+                         {date(2026, 9, 13), date(2026, 9, 14), date(2026, 9, 15)})
+
+    def test_a_backwards_range_still_reads_as_the_span(self):
+        self.assertEqual(self.days("17 to 15"),
+                         {date(2026, 9, 15), date(2026, 9, 16), date(2026, 9, 17)})
+
+    def test_all_week(self):
+        for phrasing in ("all week", "I can work everyday", "any day",
+                         "whole week po", "available all days"):
+            with self.subTest(phrasing=phrasing):
+                self.assertEqual(len(self.days(phrasing)), 5)
+
+    def test_an_exception_is_subtracted(self):
+        self.assertEqual(
+            self.days("Mon Tue Wed but not Wed"),
+            {date(2026, 9, 14), date(2026, 9, 15)},
+        )
+
+    def test_all_week_except_one_day(self):
+        self.assertEqual(
+            self.days("all week except Thursday"),
+            {date(2026, 9, 13), date(2026, 9, 14),
+             date(2026, 9, 15), date(2026, 9, 16)},
+        )
+
+    def test_not_available_is_an_answer_of_no_days(self):
+        for phrasing in ("Not available this week", "I can't work sorry",
+                         "unavailable po", "none"):
+            with self.subTest(phrasing=phrasing):
+                self.assertEqual(self.days(phrasing), set())
+
+    def test_chat_noise_is_not_an_answer_at_all(self):
+        # None, not an empty set: an empty set would mark somebody down as
+        # having said they cannot work when they only said good morning.
+        for noise in ("Good morning everyone", "Thank you po", "", "   ",
+                      "Ok noted"):
+            with self.subTest(noise=noise):
+                self.assertIsNone(self.days(noise))
+
+    def test_a_day_outside_the_week_being_asked_about_is_ignored(self):
+        # "20" is not one of the days on offer, so it contributes nothing.
+        self.assertIsNone(self.days("20"))
+        self.assertEqual(self.days("13 and 20"), {date(2026, 9, 13)})
+
+    def test_saturday_is_ignored_when_it_is_not_on_offer(self):
+        self.assertEqual(self.days("Sat and Sun"), {date(2026, 9, 13)})
+
+    def test_no_days_offered_reads_nothing(self):
+        self.assertIsNone(parse_reply_days("13 14 15", []))
+
+
+class TestFromChatReplies(unittest.TestCase):
+    """Reading availability straight out of the group chat."""
+
+    WEEK = [date(2026, 9, 13), date(2026, 9, 14), date(2026, 9, 15),
+            date(2026, 9, 16), date(2026, 9, 17)]
+    KNOWN = {
+        "lia villapaz": "Lia Villapaz",
+        "kharen ybas": "Kharen Ybas",
+        "leizel chun": "Leizel Chun",
+        "tristan bustamante": "Tristan Bustamante",
+    }
+
+    def message(self, sender, text, minute=0):
+        return Message(
+            sent_at=datetime(2026, 9, 11, 10, minute),
+            sender=sender,
+            text=text,
+            chat="Pacific Link Global",
+        )
+
+    def test_each_reply_lands_on_its_sender(self):
+        # Nobody types their own name, which is the whole point: the sender is
+        # already known, so the spelling of the name cannot go wrong.
+        availability, replies, unreadable = from_chat_replies(
+            [
+                self.message("Lia Villapaz", "13 14 15"),
+                self.message("Kharen", "all week"),
+            ],
+            self.KNOWN,
+            self.WEEK,
+        )
+        self.assertEqual(availability.on(date(2026, 9, 13)),
+                         {"lia villapaz", "kharen ybas"})
+        self.assertEqual(availability.on(date(2026, 9, 17)), {"kharen ybas"})
+        self.assertEqual(len(replies), 2)
+        self.assertEqual(unreadable, [])
+
+    def test_chat_noise_is_skipped_silently(self):
+        availability, replies, unreadable = from_chat_replies(
+            [
+                self.message("Lia Villapaz", "Good morning po"),
+                self.message("Kharen", "13"),
+            ],
+            self.KNOWN,
+            self.WEEK,
+        )
+        self.assertEqual(len(replies), 1)
+        self.assertEqual(unreadable, [])
+
+    def test_the_last_answer_wins(self):
+        availability, replies, _ = from_chat_replies(
+            [
+                self.message("Leizel", "13 14", minute=1),
+                self.message("Leizel", "sorry, 16 17 only", minute=9),
+            ],
+            self.KNOWN,
+            self.WEEK,
+        )
+        self.assertEqual(availability.on(date(2026, 9, 13)), set())
+        self.assertEqual(availability.on(date(2026, 9, 17)), {"leizel chun"})
+        self.assertEqual(len(replies), 1)
+
+    def test_a_day_nobody_offered_is_empty_not_missing(self):
+        availability, _, _ = from_chat_replies(
+            [self.message("Kharen", "13")], self.KNOWN, self.WEEK
+        )
+        # Asked about, nobody available: an unstaffed shift, and it has to be
+        # distinguishable from a day the question never covered.
+        self.assertEqual(availability.on(date(2026, 9, 17)), set())
+        self.assertIsNone(availability.on(date(2026, 9, 20)))
+
+    def test_a_reply_from_someone_unknown_is_surfaced_not_dropped(self):
+        _, replies, unreadable = from_chat_replies(
+            [self.message("Someone New", "13 14")], self.KNOWN, self.WEEK
+        )
+        self.assertEqual(replies, [])
+        self.assertEqual(len(unreadable), 1)
+        self.assertEqual(unreadable[0].sender, "Someone New")
+
+    def test_a_refusal_is_recorded_as_a_reply_with_no_days(self):
+        availability, replies, _ = from_chat_replies(
+            [self.message("Tristan Bustamante", "not available this week")],
+            self.KNOWN,
+            self.WEEK,
+        )
+        self.assertEqual(len(replies), 1)
+        self.assertEqual(replies[0].days, set())
+        for day in self.WEEK:
+            self.assertNotIn("tristan bustamante", availability.on(day))
+
+    def test_replies_keep_their_original_wording(self):
+        # So a person reviewing the draft can see what was actually said
+        # rather than trusting the parser.
+        _, replies, _ = from_chat_replies(
+            [self.message("Kharen", "  Mon-Thu po  ")], self.KNOWN, self.WEEK
+        )
+        self.assertEqual(replies[0].text, "Mon-Thu po")
+
+    def test_the_sender_resolver_can_be_replaced(self):
+        # In the real chat the sender is a phone number, resolved through the
+        # WhatsApp directory rather than by name.
+        by_number = {"639260813435": "kharen ybas"}
+        availability, _, _ = from_chat_replies(
+            [self.message("639260813435", "13")],
+            self.KNOWN,
+            self.WEEK,
+            sender_key=lambda m: by_number.get(m.sender),
+        )
+        self.assertEqual(availability.on(date(2026, 9, 13)), {"kharen ybas"})

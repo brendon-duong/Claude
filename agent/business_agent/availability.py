@@ -310,3 +310,204 @@ def from_form_responses(
             result.display_names.setdefault(key, known.get(key, raw_name))
 
     return result
+
+
+# ---------------------------------------------------------------------------
+# WhatsApp replies
+# ---------------------------------------------------------------------------
+#
+# The sustainable version of "who can work next week" is not a poll and not a
+# form. It is: post the question in the group, let people answer in their own
+# words, and read the answers.
+#
+# Two things make that work where reading a poll does not. WhatsApp will not
+# tell an API who voted in a poll — only that a poll exists — but it will hand
+# over every text reply. And a reply already carries its sender, so nobody has
+# to type their own name, which is where the "Loraine / Lorraine" problem was
+# being created in the first place.
+#
+# What people actually write:
+#
+#   "Sun Mon Tue"            "13,14,15"          "Mon-Thu"
+#   "I can work all week"    "Sunday to Thursday"
+#   "Mon Tue Wed but not Thu"                    "Not available this week"
+#
+# All of it resolves against the days the question offered, so "13" is only a
+# date if the 13th is one of the days being asked about.
+
+_DAY_WORDS = {
+    "sun": 6, "sunday": 6,
+    "mon": 0, "monday": 0,
+    "tue": 1, "tues": 1, "tuesday": 1,
+    "wed": 2, "weds": 2, "wednesday": 2,
+    "thu": 3, "thur": 3, "thurs": 3, "thursday": 3,
+    "fri": 4, "friday": 4,
+    "sat": 5, "saturday": 5,
+}
+# "all week", "any day", "everyday", "whole week", "buong linggo".
+_EVERY_DAY = re.compile(
+    r"\b(?:all|any|every|whole|buong)\s*(?:the\s+)?(?:day|days|week|linggo)\b"
+    r"|\beveryday\b|\banytime\b|\ball\s+of\s+them\b",
+    re.IGNORECASE,
+)
+# A reply that is a refusal for the whole week rather than a list of days.
+_NOT_AVAILABLE = re.compile(
+    r"\b(?:not|non|un)[\s-]*available\b|\bcan'?t\s+work\b|\bcannot\s+work\b"
+    r"|\bnot\s+able\s+to\s+work\b|\bno\s+(?:available\s+)?days?\b|\bwala\s+ako\b"
+    r"|\bunavailable\b|\bnone\b|\bskip\s+me\b|\bpass\s+this\s+week\b",
+    re.IGNORECASE,
+)
+# Everything after one of these is a day the person is ruling *out*.
+_EXCEPT = re.compile(
+    r"\b(?:but\s+not|except(?:\s+for)?|apart\s+from|not\s+on|aside\s+from|no\s+to)\b",
+    re.IGNORECASE,
+)
+# "Mon-Thu", "Monday to Thursday", "13-17", "13 to 17".
+_RANGE = re.compile(
+    r"\b(?P<from>[a-z]{3,9}|\d{1,2})\s*(?:-|–|—|to|till|until|through|thru)\s*"
+    r"(?P<to>[a-z]{3,9}|\d{1,2})\b",
+    re.IGNORECASE,
+)
+_TOKEN = re.compile(r"[a-z]{3,9}|\d{1,2}", re.IGNORECASE)
+
+
+def _resolve_token(token: str, offered: list[date]) -> date | None:
+    """One word or number from a reply, as one of the days on offer."""
+    text = token.strip().lower()
+    if not text:
+        return None
+    if text.isdigit():
+        number = int(text)
+        for day in offered:
+            if day.day == number:
+                return day
+        return None
+    weekday = _DAY_WORDS.get(text)
+    if weekday is None:
+        return None
+    for day in offered:
+        if day.weekday() == weekday:
+            return day
+    return None
+
+
+def _days_in(text: str, offered: list[date]) -> set[date]:
+    """Every offered day named in a fragment of a reply."""
+    found: set[date] = set()
+    remaining = text
+
+    # Ranges first, and the matched text is removed so "Mon-Thu" does not also
+    # register as the two separate days Mon and Thu — which would be the same
+    # answer here, but would not be for a range written the other way round.
+    for match in _RANGE.finditer(text):
+        start = _resolve_token(match.group("from"), offered)
+        end = _resolve_token(match.group("to"), offered)
+        if start is None or end is None:
+            continue
+        low, high = sorted((start, end))
+        found.update(day for day in offered if low <= day <= high)
+        remaining = remaining.replace(match.group(0), " ")
+
+    for token in _TOKEN.findall(remaining):
+        day = _resolve_token(token, offered)
+        if day is not None:
+            found.add(day)
+    return found
+
+
+def parse_reply_days(text: str, offered: Iterable[date]) -> set[date] | None:
+    """The days a single reply commits to.
+
+    An empty set means "this person answered, and the answer is none of them",
+    which is a real and useful answer. None means the message said nothing
+    about availability at all — chat noise, or a reply that needs a human.
+    """
+    offered_days = sorted(offered)
+    if not offered_days or not (text or "").strip():
+        return None
+
+    body = text.strip()
+    negative = _NOT_AVAILABLE.search(body)
+
+    split = _EXCEPT.split(body, maxsplit=1)
+    included = _days_in(split[0], offered_days)
+    excluded = _days_in(split[1], offered_days) if len(split) > 1 else set()
+
+    if _EVERY_DAY.search(split[0]) and not negative:
+        included = set(offered_days)
+
+    if negative and not included:
+        return set()
+    if not included:
+        return None
+    return included - excluded
+
+
+@dataclass
+class Reply:
+    """One person's answer, kept so the draft can show its own working."""
+
+    key: str
+    display_name: str
+    text: str
+    days: set[date]
+    sender: str = ""
+
+
+def from_chat_replies(
+    messages: Iterable[object],
+    known: dict[str, str],
+    offered_days: Iterable[date],
+    *,
+    sender_key=None,
+) -> tuple[Availability, list[Reply], list[object]]:
+    """Read a group chat's replies into per-day volunteer lists.
+
+    Returns the availability, the replies it was built from, and the messages
+    that could not be read as an answer. That third list is the point: a reply
+    the parser did not understand is a caller who thinks they have volunteered
+    and is about to be left off the roster, so it goes in front of a human
+    rather than into a silence.
+
+    Later messages win. People change their minds, and the last thing someone
+    said is what they meant.
+    """
+    days = sorted(offered_days)
+    result = Availability()
+    # Seed every day asked about, so "nobody offered Thursday" reads as an
+    # unstaffed shift rather than as a day the question never covered.
+    for day in days:
+        result.by_day.setdefault(day, set())
+
+    def default_sender_key(message) -> str | None:
+        return match_caller(getattr(message, "sender", ""), known)
+
+    resolve = sender_key or default_sender_key
+
+    latest: dict[str, Reply] = {}
+    unreadable: list[object] = []
+    for message in messages:
+        text = getattr(message, "text", "") or ""
+        answer = parse_reply_days(text, days)
+        if answer is None:
+            continue  # not about availability at all
+
+        key = resolve(message)
+        if key is None:
+            unreadable.append(message)
+            continue
+
+        latest[key] = Reply(
+            key=key,
+            display_name=known.get(key, getattr(message, "sender", "") or key),
+            text=text.strip(),
+            days=answer,
+            sender=getattr(message, "sender", "") or "",
+        )
+
+    for reply in latest.values():
+        result.display_names.setdefault(reply.key, reply.display_name)
+        for day in reply.days:
+            result.by_day[day].add(reply.key)
+
+    return result, list(latest.values()), unreadable

@@ -6,6 +6,9 @@
 Reads the schedule and the audit history, picks the callers, and writes an
 HTML page. With --poll it picks from the people who put their hand up in the
 WhatsApp poll; without it, from everyone still active.
+
+With --announce it also writes the WhatsApp messages for the week, with every
+rostered caller @-tagged. Those are drafts. Nothing here sends anything.
 """
 
 from __future__ import annotations
@@ -15,10 +18,12 @@ import sys
 from datetime import date, datetime
 from pathlib import Path
 
+from .announce import render_roster_announcement
 from .audit import load_audits
 from .availability import Availability, from_form_responses, parse_availability
 from .config import Config
 from .curia import load_schedule
+from .directory import Directory
 from .loaders import load_demand_rows  # noqa: F401  (kept for config validation)
 from .page import render_roster_page
 from .performance import Thresholds, find_possible_duplicates, score_all
@@ -41,6 +46,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--today", default="", help="override today's date")
     parser.add_argument("--max-shifts", type=int, default=5, help="cap per person per week")
     parser.add_argument("--out", default="", help="where to write the page")
+    parser.add_argument(
+        "--announce",
+        default="",
+        help="WhatsApp group snapshot; writes the tagged roster messages alongside the page",
+    )
     args = parser.parse_args(argv)
 
     config_path = Path(args.config).resolve()
@@ -112,6 +122,9 @@ def main(argv: list[str] | None = None) -> int:
     out_path = Path(args.out) if args.out else out_dir / f"roster_{start:%Y-%m-%d}.html"
     out_path.write_text(page, encoding="utf-8")
 
+    if args.announce:
+        _write_announcements(plan, Path(args.announce), out_path)
+
     print(
         f"{plan.total_filled}/{plan.total_needed} slots filled across {len(plan.shifts)} poll(s), "
         f"{len(plan.shifts_per_person())} callers used, {len(plan.excluded)} barred -> {out_path}"
@@ -130,6 +143,42 @@ def main(argv: list[str] | None = None) -> int:
     if plan.total_shortfall:
         print(f"  {plan.total_shortfall} slot(s) could not be filled")
     return 0
+
+
+def _write_announcements(plan, snapshot: Path, page_path: Path) -> None:
+    """Write the week's WhatsApp messages next to the page.
+
+    Two files: the bodies as they would be sent, phone numbers and all, and a
+    preview with names written back in. The preview is the one to read; the
+    other is only readable by WhatsApp.
+    """
+    directory = Directory.load(snapshot)
+    sendable: list[str] = []
+    preview: list[str] = []
+    untagged: set[str] = set()
+
+    for shift in plan.shifts:
+        names = [person.name for person in shift.assigned]
+        if not names:
+            continue
+        message = render_roster_announcement(
+            shift.day, names, directory, poll=shift.poll
+        )
+        untagged |= set(message.untagged)
+        sendable.append(message.text)
+        preview.append(
+            f"--- {shift.day:%a %d %b} · {shift.poll} · "
+            f"{len(message.mentions)}/{len(names)} tagged ---\n{message.preview}"
+        )
+
+    stem = page_path.with_suffix("")
+    Path(f"{stem}_messages.txt").write_text("\n\n".join(sendable) + "\n", encoding="utf-8")
+    Path(f"{stem}_messages_preview.txt").write_text(
+        "\n\n".join(preview) + "\n", encoding="utf-8"
+    )
+    print(f"  drafted {len(sendable)} WhatsApp message(s) -> {stem}_messages_preview.txt")
+    for name in sorted(untagged):
+        print(f"  note: {name} has no WhatsApp match and will not be notified")
 
 
 if __name__ == "__main__":
