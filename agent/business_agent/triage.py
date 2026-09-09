@@ -23,17 +23,40 @@ from datetime import date, datetime, timedelta
 from .config import Config
 from .models import Event, Message, Person
 
+# These patterns are tuned to how the Pacific Link team actually writes, taken
+# from the group chat rather than invented. Two lessons are baked in:
+#
+#   "I can work" is the commonest way anyone offers a shift, and an earlier
+#   version matched only "I can cover" — missing most of the group.
+#
+#   "not able to work" is the commonest dropout, and reads as an offer to
+#   anything scanning for "able to work". Dropouts are therefore tested first,
+#   and every pattern is anchored on the first person, so a supervisor asking
+#   "Can you 4 work today please" is never mistaken for a volunteer.
 _DROPOUT = re.compile(
-    r"\b(can'?t\s+(?:make|do|work|come|cover)|cannot\s+(?:make|do|work)|won'?t\s+be\s+able"
-    r"|not\s+going\s+to\s+make|need\s+to\s+(?:pull\s+out|drop|cancel)|pulling\s+out"
-    r"|have\s+to\s+cancel|calling\s+in\s+sick|i'?m\s+sick|off\s+sick|unwell"
-    r"|double[- ]booked|can'?t\s+anymore|no\s+longer\s+available)\b",
+    r"\b("
+    r"(?:i\s+am|i'?m|am)\s+not\s+able\s+to\s+(?:work|make|come|cover|attend)"
+    r"|not\s+able\s+to\s+(?:work|make|come|cover|attend)"
+    r"|un(?:able|available)\s+to\s+(?:work|make|come|attend)"
+    r"|can'?t\s+(?:make|do|work|come|cover|attend)|cannot\s+(?:make|do|work|come|attend)"
+    r"|won'?t\s+be\s+able|not\s+going\s+to\s+make"
+    r"|need\s+to\s+(?:pull\s+out|drop|cancel)|pulling\s+out|have\s+to\s+cancel"
+    r"|calling\s+in\s+sick|i'?m\s+sick|off\s+sick|unwell"
+    r"|double[- ]booked|can'?t\s+anymore|no\s+longer\s+available"
+    r")\b",
     re.IGNORECASE,
 )
 _OFFER = re.compile(
-    r"\b(i'?m\s+(?:free|available|around)|i\s+can\s+(?:cover|take|do|help)|happy\s+to\s+(?:cover|take|help)"
-    r"|put\s+me\s+down|count\s+me\s+in|available\s+(?:on|for|this|next)|can\s+pick\s+(?:it|that)\s+up"
-    r"|i'?ll\s+take\s+it)\b",
+    r"\b("
+    # "I can work", "i can cover", "I can also work today", "I could do it"
+    r"(?:i|i'?m)\s+(?:can|could|am\s+able\s+to|will\s+be\s+able\s+to)\s+(?:also\s+)?"
+    r"(?:work|cover|take|do|help|come\s+in|call)"
+    r"|i'?m\s+(?:free|available|around)|i\s+am\s+(?:free|available|around)"
+    r"|happy\s+to\s+(?:cover|work|take|help)"
+    r"|put\s+me\s+down|count\s+me\s+in|sign\s+me\s+up"
+    r"|available\s+(?:on|for|this|next|today|tomorrow)"
+    r"|can\s+pick\s+(?:it|that)\s+up|i'?ll\s+(?:take|cover|do)\s+it"
+    r")\b",
     re.IGNORECASE,
 )
 _CLIENT_CALLS = re.compile(

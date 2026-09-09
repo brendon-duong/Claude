@@ -93,3 +93,59 @@ class TestClaudeFallback(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRealGroupChatLanguage(unittest.TestCase):
+    """Phrasings taken from the Pacific Link Global group.
+
+    Every offer here was missed by an earlier version that only knew
+    "I can cover", and the dropout read as an offer because "not able to
+    work" contains "able to work". The supervisor lines are here because
+    they must never be mistaken for volunteers.
+    """
+
+    def kind(self, text: str) -> str:
+        (event,) = triage_rules([message(text)], PEOPLE, MONDAY)
+        return event.kind
+
+    def test_the_commonest_offer(self):
+        self.assertEqual(self.kind("I can work"), "offer")
+
+    def test_offer_variants_the_team_actually_uses(self):
+        for text in (
+            "I can cover",
+            "i can cover",
+            "I can cover too",
+            "I can work too",
+            "I can also work today if needed",
+            "Yes sure I can cover. Thank you.",
+            "Do we have the final roster for Wednesday? I can work too",
+        ):
+            self.assertEqual(self.kind(text), "offer", text)
+
+    def test_not_able_to_work_is_a_dropout_not_an_offer(self):
+        text = (
+            "Unfortunately i am not able to work for today due an event at my "
+            "Kids school, nilyn can cover for me."
+        )
+        self.assertEqual(self.kind(text), "dropout")
+
+    def test_a_supervisor_asking_people_to_work_is_not_an_offer(self):
+        """"Can you 4 work today please" is a request, not a volunteer."""
+        self.assertEqual(self.kind("Can you 4 work today please"), "noise")
+
+    def test_closing_the_roster_is_not_an_offer(self):
+        """This one contains the word "work" and must still be noise."""
+        self.assertEqual(
+            self.kind("Roster is full no need for anyone else to work"), "noise"
+        )
+
+    def test_stating_how_many_are_needed_is_not_an_offer(self):
+        self.assertEqual(
+            self.kind("We are only needing 3 callers tonight actually"), "noise"
+        )
+
+    def test_a_bare_acknowledgement_is_too_vague_to_count(self):
+        """"Likewise here" only means anything with the message above it, so
+        it is left for a human rather than guessed at."""
+        self.assertEqual(self.kind("Likewise here"), "noise")
