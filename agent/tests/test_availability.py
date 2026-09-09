@@ -8,6 +8,7 @@ import unittest
 from datetime import date
 
 from business_agent.availability import (
+    from_form_responses,
     match_caller,
     parse_availability,
     parse_heading_date,
@@ -131,3 +132,83 @@ class TestParseAvailability(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestFromFormResponses(unittest.TestCase):
+    """Google Form responses. The name is a dropdown, so callers pick
+    themselves off a list rather than typing — which is the point."""
+
+    def rows(self, *entries):
+        return [
+            {
+                "timestamp": "09/09/2026 14:02:11",
+                "your name": name,
+                "which days can you work next week?": days,
+            }
+            for name, days in entries
+        ]
+
+    def parse(self, *entries, **kwargs):
+        return from_form_responses(self.rows(*entries), KNOWN, REFERENCE, **kwargs)
+
+    def test_one_response_with_several_days(self):
+        result = self.parse(("Lia Villapaz", "Sunday 13 Sep, Monday 14 Sep"))
+        self.assertEqual(result.on(date(2026, 9, 13)), {"lia villapaz"})
+        self.assertEqual(result.on(date(2026, 9, 14)), {"lia villapaz"})
+
+    def test_several_people_on_one_day(self):
+        result = self.parse(
+            ("Lia Villapaz", "Sunday 13 Sep"), ("Kharen Ybas", "Sunday 13 Sep")
+        )
+        self.assertEqual(result.on(date(2026, 9, 13)), {"lia villapaz", "kharen ybas"})
+
+    def test_a_resubmission_replaces_the_earlier_answer(self):
+        """People change their minds; the last answer is the one they meant."""
+        result = self.parse(
+            ("Lia Villapaz", "Sunday 13 Sep, Monday 14 Sep"),
+            ("Lia Villapaz", "Monday 14 Sep"),
+        )
+        self.assertEqual(result.on(date(2026, 9, 13)), set())
+        self.assertEqual(result.on(date(2026, 9, 14)), {"lia villapaz"})
+
+    def test_semicolon_and_newline_separators_work_too(self):
+        result = self.parse(("Lia Villapaz", "Sunday 13 Sep; Monday 14 Sep"))
+        self.assertEqual(len(result.days), 2)
+
+    def test_a_day_the_form_offered_that_nobody_ticked_stays_empty(self):
+        result = self.parse(
+            ("Lia Villapaz", "Monday 14 Sep"),
+            offered_days=[date(2026, 9, 13), date(2026, 9, 14)],
+        )
+        self.assertEqual(result.on(date(2026, 9, 13)), set())
+
+    def test_a_day_the_form_never_asked_about_is_none(self):
+        result = self.parse(
+            ("Lia Villapaz", "Monday 14 Sep"), offered_days=[date(2026, 9, 14)]
+        )
+        self.assertIsNone(result.on(date(2026, 9, 17)))
+
+    def test_an_unknown_respondent_is_reported(self):
+        result = self.parse(("Brand New Starter", "Sunday 13 Sep"))
+        self.assertEqual(result.on(date(2026, 9, 13)), set())
+        self.assertEqual(result.unmatched, [(date(2026, 9, 13), "Brand New Starter")])
+
+    def test_blank_names_are_skipped(self):
+        result = self.parse(("", "Sunday 13 Sep"), ("Lia Villapaz", "Sunday 13 Sep"))
+        self.assertEqual(result.on(date(2026, 9, 13)), {"lia villapaz"})
+
+    def test_someone_who_ticked_nothing_volunteers_for_nothing(self):
+        result = self.parse(("Lia Villapaz", ""))
+        self.assertEqual(result.by_day, {})
+
+    def test_columns_are_found_by_meaning_not_exact_wording(self):
+        rows = [{"timestamp": "x", "full name": "Lia Villapaz", "available shifts": "Sunday 13 Sep"}]
+        result = from_form_responses(rows, KNOWN, REFERENCE)
+        self.assertEqual(result.on(date(2026, 9, 13)), {"lia villapaz"})
+
+    def test_a_missing_column_fails_loudly(self):
+        with self.assertRaises(ValueError):
+            from_form_responses([{"timestamp": "x", "notes": "y"}], KNOWN, REFERENCE)
+
+    def test_no_responses_yet_is_not_an_error(self):
+        self.assertEqual(from_form_responses([], KNOWN, REFERENCE).by_day, {})

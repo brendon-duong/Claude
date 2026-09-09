@@ -16,7 +16,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from .audit import load_audits
-from .availability import Availability, parse_availability
+from .availability import Availability, from_form_responses, parse_availability
 from .config import Config
 from .curia import load_schedule
 from .loaders import load_demand_rows  # noqa: F401  (kept for config validation)
@@ -35,7 +35,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--config", default="config.json")
     parser.add_argument("--start", required=True, help="first day, YYYY-MM-DD")
     parser.add_argument("--end", required=True, help="last day, YYYY-MM-DD")
-    parser.add_argument("--poll", default="", help="file of pasted poll results")
+    parser.add_argument(
+        "--poll", default="", help="file of pasted poll results (overrides the form sheet)"
+    )
     parser.add_argument("--today", default="", help="override today's date")
     parser.add_argument("--max-shifts", type=int, default=5, help="cap per person per week")
     parser.add_argument("--out", default="", help="where to write the page")
@@ -62,14 +64,25 @@ def main(argv: list[str] | None = None) -> int:
     polls, _non_polls = load_schedule(load_table(config.demand, config, base_dir))
     people = score_all(audits, today, Thresholds(**config.performance))
 
+    known = {p.key: p.name for p in people.values() if p.audits}
+    # Days the roster covers, so the form can tell "nobody ticked this" apart
+    # from "the form never asked about this".
+    offered = sorted({p.day for p in polls if start <= p.day <= end})
+
     availability: Availability | None = None
     if args.poll:
         poll_path = Path(args.poll)
         if not poll_path.is_absolute():
             poll_path = base_dir / poll_path
-        known = {p.key: p.name for p in people.values() if p.audits}
         availability = parse_availability(
             poll_path.read_text(encoding="utf-8"), known, today
+        )
+    elif config.availability.path:
+        availability = from_form_responses(
+            load_table(config.availability, config, base_dir),
+            known,
+            today,
+            offered_days=offered,
         )
 
     plan = build_roster(
@@ -103,6 +116,11 @@ def main(argv: list[str] | None = None) -> int:
         f"{plan.total_filled}/{plan.total_needed} slots filled across {len(plan.shifts)} poll(s), "
         f"{len(plan.shifts_per_person())} callers used, {len(plan.excluded)} barred -> {out_path}"
     )
+    if availability is not None:
+        print(
+            f"  {availability.volunteer_count} caller(s) replied, covering "
+            f"{len(availability.days)} day(s)"
+        )
     for day in plan.days_without_a_poll:
         print(f"  note: the poll said nothing about {day:%a %d %b}; picked from everyone active")
     for day, person in plan.volunteered_but_barred:

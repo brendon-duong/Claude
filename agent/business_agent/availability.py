@@ -24,11 +24,13 @@ copied and pasted by a person in a hurry.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import date, datetime
 
 from .audit import normalise_name
 from .performance import MIN_FUZZY_TOKEN, _one_edit_apart
+from .sheets import Row
 
 _MONTHS = (
     "jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec"
@@ -185,5 +187,126 @@ def parse_availability(
             continue
         result.by_day[current].add(key)
         result.display_names.setdefault(key, known.get(key, name))
+
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Google Form responses
+# ---------------------------------------------------------------------------
+#
+# A form beats a WhatsApp poll for one reason above all others: the name is a
+# dropdown, so callers pick themselves off a list instead of typing. That
+# removes the whole class of "Loraine / Lorraine / Lorraine Sabraso" problems
+# at the point where they are created, rather than trying to untangle them
+# afterwards.
+#
+# Google writes one row per response, with the checkbox answers joined into a
+# single cell:
+#
+#   Timestamp            | Your name       | Which days can you work?
+#   09/09/2026 14:02:11  | Lia Villapaz    | Sunday 13 Sep, Monday 14 Sep
+#
+# Column names are matched loosely, because the question wording will change
+# and nobody should have to edit code when it does.
+
+_NAME_HINTS = ("name", "who are you", "caller")
+_DAYS_HINTS = ("day", "available", "availability", "work", "shift")
+_IGNORE_HINTS = ("timestamp", "email", "score", "time")
+
+
+def _find_column(rows: list[Row], hints: tuple[str, ...]) -> str | None:
+    """The first column whose heading mentions any of these words."""
+    if not rows:
+        return None
+    for column in rows[0]:
+        lowered = column.lower()
+        if any(word in lowered for word in _IGNORE_HINTS):
+            continue
+        if any(hint in lowered for hint in hints):
+            return column
+    return None
+
+
+def _split_days(cell: str) -> list[str]:
+    """Split a checkbox answer into its individual options.
+
+    Google joins the ticked options with ", ", so a comma inside an option
+    label would split wrongly — semicolons and newlines are accepted too,
+    which is what a form built with those separators produces.
+    """
+    parts = re.split(r"[;\n]|,(?=\s)", cell or "")
+    return [part.strip() for part in parts if part.strip()]
+
+
+def from_form_responses(
+    rows: list[Row],
+    known: dict[str, str],
+    reference: date,
+    *,
+    name_column: str | None = None,
+    days_column: str | None = None,
+    offered_days: Iterable[date] | None = None,
+) -> Availability:
+    """Read Google Form responses into per-day volunteer lists.
+
+    Later responses win: people change their minds and resubmit, and the last
+    answer is the one they meant. Rows are taken in sheet order, which is the
+    order Google appends them.
+    """
+    result = Availability()
+    # A day the form offered that nobody ticked means nobody is available —
+    # which must not be confused with a day the form never asked about. The
+    # first leaves a shift short and says so; the second falls back to the
+    # whole pool. Seeding the offered days keeps them distinguishable.
+    for day in offered_days or ():
+        result.by_day.setdefault(day, set())
+
+    if not rows:
+        return result
+
+    name_column = name_column or _find_column(rows, _NAME_HINTS)
+    days_column = days_column or _find_column(rows, _DAYS_HINTS)
+    if not name_column or not days_column:
+        raise ValueError(
+            "could not find the name and days columns in the form responses; "
+            f"columns present: {', '.join(rows[0])}"
+        )
+
+    # One entry per person, last response winning.
+    latest: dict[str, tuple[str, list[str]]] = {}
+    order: list[str] = []
+    for row in rows:
+        raw_name = (row.get(name_column) or "").strip()
+        if not raw_name:
+            continue
+
+        day_labels = _split_days(row.get(days_column, ""))
+        # Any day mentioned anywhere in the responses is a day the form asked
+        # about, even if the only person who ticked it later changed their
+        # answer. Without this it would read as "never asked" and quietly fall
+        # back to the whole pool instead of showing the shift as unstaffed.
+        for label in day_labels:
+            day = parse_heading_date(label, reference)
+            if day is not None:
+                result.by_day.setdefault(day, set())
+
+        key = match_caller(raw_name, known) or f"?{normalise_name(raw_name)}"
+        if key not in latest:
+            order.append(key)
+        latest[key] = (raw_name, day_labels)
+
+    for key in order:
+        raw_name, day_labels = latest[key]
+        for label in day_labels:
+            day = parse_heading_date(label, reference)
+            if day is None:
+                continue
+            result.by_day.setdefault(day, set())
+            if key.startswith("?"):
+                result.unmatched.append((day, raw_name))
+                continue
+            result.by_day[day].add(key)
+            result.display_names.setdefault(key, known.get(key, raw_name))
 
     return result

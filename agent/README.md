@@ -181,7 +181,35 @@ Writes an HTML page you can open, read and share. Without `--poll` it picks
 from everyone still active; with it, from the people who actually said they
 can work.
 
-### The poll is the point
+### Collecting availability without typing it in
+
+A WhatsApp poll cannot be read by anything. Poll votes are not in chat exports,
+and the WhatsApp Cloud API does not support group chats at all — it is
+one-to-one business messaging only. So any WhatsApp-poll route ends in someone
+copying names by hand.
+
+**Use a Google Form instead.** One link posted in the group, and the responses
+land in a Google Sheet the agent already knows how to read. Set it as the
+`availability` source and every run picks up the latest replies, including ones
+that arrived a minute ago.
+
+Build the form with two questions:
+
+1. **"Your name"** — a **dropdown**, listing your callers. Not a text box.
+2. **"Which days can you work next week?"** — checkboxes, one per day, labelled
+   `Sunday 13 Sep`, `Monday 14 Sep` and so on.
+
+The dropdown is the important part. It removes the whole `Loraine / Lorraine /
+Lorraine Sabraso` problem at the point where those variants are created,
+instead of trying to untangle them afterwards. Turn on "Limit to 1 response"
+if your callers have Google accounts; if not, leave it open — a caller who
+replies twice has their **last** answer used, because people change their minds.
+
+Column headings are matched loosely (anything containing "name", and anything
+containing "day", "available", "work" or "shift"), so you can reword the
+questions without touching any code.
+
+### Pasting poll results by hand instead
 
 Run a poll in the team WhatsApp group — "which days can you work next week?" —
 then tap through to see who voted and paste it into a file:
@@ -196,8 +224,8 @@ Monday 14 Sep
 - Mary Joy Villacura
 ```
 
-A day, then the names under it. Bullets, numbering and `(12 votes)` are all
-tolerated, and dates can be `Sunday 13 Sep`, `13 September 2026` or `13/9`.
+Use `--poll poll.txt` for this. A day, then the names under it. Bullets,
+numbering and `(12 votes)` are all tolerated, and dates can be `Sunday 13 Sep`, `13 September 2026` or `13/9`.
 Names are matched to the audit history, tolerating a shortened name or a
 single-letter typo.
 
@@ -210,6 +238,22 @@ are reported back rather than swallowed:
   a shift, so the answer is on the page.
 - **A day the poll never covered.** That falls back to the whole pool and says
   so, rather than being read as "nobody is available" and emptying the shift.
+
+### Does it get better over time?
+
+Yes, but not by learning — by re-reading. Every run reads the audit sheet
+fresh, and an audit's influence halves every 90 days, so recent shifts
+dominate. Scoring the same sheet as at three different dates shows what that
+means in practice: **of the top 20 callers in April, only 7 are still top 20 in
+September.** Nothing in the code changed between those runs.
+
+So as long as the audits keep being filled in, the roster tracks who is
+performing *now* rather than who was good six months ago. What it does *not* do
+is invent new rules. When the audit sheet's wording changed mid-year, 497
+flagged rows silently scored as clean until someone taught the parser the new
+phrasings. Treat it as a very consistent assistant that reads everything and
+forgets nothing, not as something that will notice on its own that the ground
+has shifted.
 
 ### How callers are ranked
 

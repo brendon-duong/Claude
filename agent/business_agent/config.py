@@ -59,6 +59,10 @@ class Config:
     # unaudited rather than as untrustworthy.
     audit: SourceConfig = field(default_factory=SourceConfig)
 
+    # Google Form responses: who said they can work which days. Read fresh
+    # every run, so a late reply is picked up without anyone re-entering it.
+    availability: SourceConfig = field(default_factory=SourceConfig)
+
     # Overrides for performance.Thresholds — the rules about off-phone time,
     # integrity failures and how quickly old audits stop counting.
     performance: dict[str, float] = field(default_factory=dict)
@@ -94,7 +98,7 @@ class Config:
         raw = json.loads(Path(path).read_text())
         sources = {
             key: SourceConfig(**raw.pop(key))
-            for key in ("team", "roster", "demand", "audit")
+            for key in ("team", "roster", "demand", "audit", "availability")
             if key in raw
         }
         known = {f for f in cls.__dataclass_fields__}
