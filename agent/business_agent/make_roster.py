@@ -26,6 +26,7 @@ from .curia import load_schedule
 from .directory import Directory
 from .loaders import load_demand_rows  # noqa: F401  (kept for config validation)
 from .page import render_roster_page
+from .patterns import derive_patterns
 from .performance import Thresholds, find_possible_duplicates, score_all
 from .roster_plan import build_roster
 from .sheets import load_table
@@ -42,6 +43,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--end", required=True, help="last day, YYYY-MM-DD")
     parser.add_argument(
         "--poll", default="", help="file of pasted poll results (overrides the form sheet)"
+    )
+    parser.add_argument(
+        "--standing",
+        action="store_true",
+        help="derive availability from each caller's own shift history instead of asking",
     )
     parser.add_argument("--today", default="", help="override today's date")
     parser.add_argument("--max-shifts", type=int, default=5, help="cap per person per week")
@@ -80,7 +86,13 @@ def main(argv: list[str] | None = None) -> int:
     offered = sorted({p.day for p in polls if start <= p.day <= end})
 
     availability: Availability | None = None
-    if args.poll:
+    standing = None
+    if args.standing:
+        # Nobody is asked anything. Each caller's own history says which days
+        # they work, and only the days that come up short need chasing.
+        standing = derive_patterns(audits, as_of=today)
+        availability = standing.to_availability(offered)
+    elif args.poll:
         poll_path = Path(args.poll)
         if not poll_path.is_absolute():
             poll_path = base_dir / poll_path
@@ -129,7 +141,19 @@ def main(argv: list[str] | None = None) -> int:
         f"{plan.total_filled}/{plan.total_needed} slots filled across {len(plan.shifts)} poll(s), "
         f"{len(plan.shifts_per_person())} callers used, {len(plan.excluded)} barred -> {out_path}"
     )
-    if availability is not None:
+    if standing is not None:
+        print(
+            f"  standing patterns: {len(standing.fresh)} caller(s) with a settled "
+            f"weekly pattern, {len(standing.too_few_shifts)} too new to read"
+        )
+        for shift in plan.shifts:
+            short = shift.needed - len(standing.on(shift.day))
+            if short > 0:
+                print(
+                    f"  ask about {shift.day:%a %d %b}: {short} more than "
+                    f"normally work that day"
+                )
+    elif availability is not None:
         print(
             f"  {availability.volunteer_count} caller(s) replied, covering "
             f"{len(availability.days)} day(s)"
