@@ -19,19 +19,22 @@
  * A caller is never given a block split across two pools. They work down the
  * list, cross into another survey's numbers, and have no way to know.
  *
- * BEFORE YOU RUN IT
- * The pools must be Google Sheets, not .xlsx. Cell shading cannot be applied
- * to an .xlsx in Drive by anything — it is a file, not a sheet. To convert:
- * open the .xlsx from Drive, then File > Save as Google Sheets. Do that once
- * per pool and paste the new IDs below. The script says so plainly if you
- * miss one.
+ * ABOUT THE .XLSX POOLS
+ * Curia sends the numbers as .xlsx, and cell shading cannot be applied to an
+ * .xlsx in Drive by anything — it is a file, not a sheet. So the first run
+ * converts each pool to a Google Sheet and works on that from then on. The
+ * converted sheet is the new master: shade it, rename it, and next month
+ * point this at it again. The original .xlsx is left untouched.
  *
  * HOW TO RUN IT
  *   1. script.google.com, new project, paste this in.
- *   2. Fill in the IDs below. The ID is the long string in the sheet's URL,
- *      between /d/ and /edit.
- *   3. Run `preview`. It changes nothing and prints what it would do.
- *   4. Read it. Then set DRY_RUN to false and run `allocate`.
+ *   2. The IDs below are already yours; change them for the next poll. The ID
+ *      is the long string in the URL, between /d/ and /edit.
+ *   3. Turn on the Drive service: in the left sidebar, Services > + > Drive
+ *      API > Add. That is what lets it convert the .xlsx pools. Skip it and
+ *      the script tells you to convert them by hand instead.
+ *   4. Run `preview`. It changes nothing and prints what it would do.
+ *   5. Read it. Then set DRY_RUN to false and run `allocate`.
  *
  * Running `allocate` twice would hand the same numbers out again, so it
  * refuses if the call sheet already has numbers in it. Clear the tabs first
@@ -47,10 +50,11 @@ var DRY_RUN = true;
 // The call sheet with one tab per caller. Blocks are written in tab order.
 var CALLSHEET_ID = '1Rxzw_YPtyGbRuPUFdSNSg56-EEdos_V7F7rXNvgnoc8';
 
-// The pools, drawn in this order. Google Sheet IDs, not .xlsx.
+// The pools, drawn in this order. Google Sheets or .xlsx — an .xlsx is
+// converted on first use and the converted sheet becomes the new master.
 var POOL_IDS = [
-  '',  // Wellington Bays Numbers September 2026  (convert to a Sheet first)
-  '',  // Wellington Bays Numbers Part 2 September 2026
+  '1MY1szxnBaYJtBvw908kJT4Zy2i6Getp6',  // Wellington Bays Numbers September 2026
+  '1OBsegs2k-hgQBQ3pWOVl2vVYyqseTUE9',  // Wellington Bays Numbers Part 2 September 2026
 ];
 
 var PER_CALLER = 200;
@@ -217,13 +221,15 @@ function loadPool_(id) {
   } catch (error) {
     var file = null;
     try { file = DriveApp.getFileById(id); } catch (ignored) {}
-    if (file && file.getMimeType().indexOf('spreadsheetml') !== -1) {
-      throw new Error(
-        '"' + file.getName() + '" is an .xlsx file, not a Google Sheet, so its ' +
-        'cells cannot be shaded. Open it from Drive and use ' +
-        'File > Save as Google Sheets, then put the new ID in POOL_IDS.');
-    }
-    throw error;
+    if (!file || file.getMimeType().indexOf('spreadsheetml') === -1) throw error;
+
+    // An .xlsx cannot be shaded in place, so convert once and use the copy
+    // from here on. The original is left exactly as Curia sent it.
+    var converted = convertToSheet_(file);
+    Logger.log('Converted "%s" to a Google Sheet: %s', file.getName(), converted.getId());
+    Logger.log('  ** Put %s in POOL_IDS for next time. **', converted.getId());
+    book = SpreadsheetApp.openById(converted.getId());
+    id = converted.getId();
   }
 
   var sheet = book.getSheets()[0];
@@ -250,6 +256,28 @@ function loadPool_(id) {
   Logger.log('%s: %s usable number(s)%s', book.getName(), rows.length,
     startAfter !== null ? ', resuming after ' + startAfter : '');
   return { id: id, name: book.getName(), sheet: sheet, rows: rows };
+}
+
+
+function convertToSheet_(file) {
+  // The Drive advanced service, which has to be switched on in the editor:
+  // Services > + > Drive API > Add. Its shape differs between v2 and v3, so
+  // try both rather than tying the script to one.
+  if (typeof Drive === 'undefined' || !Drive.Files) {
+    throw new Error(
+      '"' + file.getName() + '" is an .xlsx and cannot be shaded in place. ' +
+      'Either turn on the Drive service (Services > + > Drive API > Add) so ' +
+      'this can convert it, or open it from Drive and use ' +
+      'File > Save as Google Sheets, then put the new ID in POOL_IDS.');
+  }
+  var name = stripMark_(file.getName()) + ' (Sheet)';
+  var copy;
+  try {
+    copy = Drive.Files.copy({ name: name, mimeType: MimeType.GOOGLE_SHEETS }, file.getId());
+  } catch (v3Failed) {
+    copy = Drive.Files.copy({ title: name }, file.getId(), { convert: true });
+  }
+  return DriveApp.getFileById(copy.id);
 }
 
 
