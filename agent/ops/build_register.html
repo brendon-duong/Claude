@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 11 September 2026, 3.10am</div>
+    <div class="eyebrow">Build register · updated 11 September 2026, 3.35am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -317,43 +317,7 @@
 
     <div class="items">
 
-      <article class="item pending">
-        <div class="item-head">
-          <h3>Writing into a Google Sheet — dropped, not solved</h3>
-          <span class="tag t-worked">No longer needed</span>
-        </div>
-        <dl class="rows">
-          <div class="row"><dt>Was</dt><dd>
-            The Drive connector's <code>update_file</code> changes only the title and parent
-            folder. No call sets a cell value, so the agent could compute an allocation and not
-            write one cell of it.
-          </dd></div>
-          <div class="row"><dt>Now</dt><dd>
-            Google runs a hosted <strong>Sheets MCP server</strong> at
-            <code>sheetsmcp.googleapis.com/mcp/v1</code>. It is added, authorised and live, and it
-            carries <code>update_values</code> (write cells) and <code>update_spreadsheet</code>
-            (batchUpdate — which is how a cell gets a green background). Because it is a hosted
-            HTTPS endpoint rather than a local subprocess, it works from a normal chat.
-          </dd></div>
-          <div class="row"><dt>Blocked on</dt><dd>
-            One enrolment step. The first call returns:
-          </dd></div>
-        </dl>
-        <div class="quote">Access to this tool requires that your Google Cloud project (454021123290)
-is enrolled in the Google Workspace Developer Preview Program.</div>
-        <dl class="rows">
-          <div class="row"><dt>Dropped</dt><dd>
-            <strong>Call sheets have moved to SharePoint, so none of this is on the path any more.</strong>
-            The preview enrolment, the OAuth client and the Cloud project are all off the list. Kept
-            here only so nobody spends a day rediscovering the enrolment wall.
-          </dd></div>
-          <div class="row"><dt>Still worth doing once</dt><dd>
-            <code>ops/revoke_callsheet_access.gs</code> — the old Google call sheets are still out
-            there and at least one is editable by anyone with the link. Moving to SharePoint does not
-            close them. That is now the only Google task that matters.
-          </dd></div>
-        </dl>
-      </article>
+      
 
       <article class="item worked">
         <div class="item-head">
@@ -526,6 +490,48 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
 
       <article class="item pending">
         <div class="item-head">
+          <h3>Fully automatic call sheets — where the chain breaks</h3>
+          <span class="tag t-worked">6 of 7 steps automatic</span>
+          <span class="tag t-pending">1 step needs a script</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Works unattended</dt><dd>
+            Download the pool from Drive (any size) &rarr; read it, whatever shape it arrives in
+            &rarr; allocate contiguous 200-number blocks &rarr; repair leading zeros &rarr; build one
+            workbook per caller &rarr; upload it into that caller's SharePoint folder. All built, all
+            tested.
+          </dd></div>
+          <div class="row"><dt>The one gap</dt><dd>
+            <strong>Marking the source pool</strong> — shading used rows green and writing the
+            high-water mark back. Two routes and both are shut:
+          </dd></div>
+          <div class="row"><dt>Sheets API</dt><dd>
+            Re-tested <strong>11 September</strong>, still refused:
+          </dd></div>
+        </dl>
+        <div class="quote">Access to this tool requires that your Google Cloud project (454021123290)
+is enrolled in the Google Workspace Developer Preview Program.</div>
+        <dl class="rows">
+          <div class="row"><dt>Round-trip</dt><dd>
+            Editing the .xlsx locally and putting it back fails on size: SharePoint uploads cap at
+            <strong>1MB</strong> and Curia's pools run to <strong>3–4MB</strong>. Reading them is
+            fine; writing them back is not.
+          </dd></div>
+          <div class="row"><dt>What covers it</dt><dd>
+            <code>ops/allocate_callsheet.gs</code> — runs inside Brendon's own account with no size
+            cap and full Sheets access, shades the rows and renames the pool. Put it on an
+            <strong>Apps Script time-based trigger</strong> and even that step stops needing a person.
+          </dd></div>
+          <div class="row"><dt>The real unlock</dt><dd>
+            Sharing is a <strong>one-off</strong>, not a per-day cost. Once a caller's folder is
+            shared, every future call sheet dropped into it is visible with no further action. Thirty
+            shares tomorrow buys unattended delivery from then on.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item pending">
+        <div class="item-head">
           <h3>Slack free plan: 90 days of history</h3>
           <span class="tag t-pending">Plan for it</span>
         </div>
@@ -650,32 +656,7 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
         </dl>
       </article>
 
-      <article class="item pending">
-        <div class="item-head">
-          <h3>A server on your Mac can't be reached from a cloud session</h3>
-          <span class="tag t-pending">Architectural</span>
-        </div>
-        <dl class="rows">
-          <div class="row"><dt>Why</dt><dd>
-            Claude Code on the web runs in a throwaway container. MCP servers reach it only
-            through claude.ai's connector settings — never from something installed on the
-            container's filesystem, and never from a process on your laptop. Anything with
-            <strong>stdio transport is local-only</strong>.
-          </dd></div>
-          <div class="row"><dt>Consequence</dt><dd>
-            Work needing Sheets write access has to happen in <strong>Claude Desktop on the Mac
-            mini</strong>, or the server has to be hosted somewhere with an HTTPS endpoint and
-            added as a custom connector.
-          </dd></div>
-          <div class="row"><dt>Also</dt><dd>
-            A hosted third-party option was tried and Google refused it —
-            <span class="mono">"This app tried to access sensitive info in your Google Account"</span>.
-            That's Google's unverified-app block on restricted scopes, and it was right to fire.
-            Running your own OAuth client (Desktop app type, yourself as a test user) avoids it
-            <strong>because you become the publisher</strong>, and your tokens never leave your machine.
-          </dd></div>
-        </dl>
-      </article>
+      
 
     </div>
   </section>
@@ -796,7 +777,7 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
       <div class="panel">
         <header><span style="color:var(--blocked)">●</span> Can't do</header>
         <ul>
-          <li class="no"><span class="mk">✕</span><span><b>Edit an existing Google Sheet — for now</b><em>The Sheets connector is live but the Cloud project needs preview enrolment.</em></span></li>
+                    <li class="no"><span class="mk">✕</span><span><b>Share a SharePoint folder with anyone</b><em>No permission call exists in the connector. Folders get built by the agent, shared by hand — once each.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Remove anyone's Drive access</b><em>Granting only. The Apps Script covers it.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>See who voted in a WhatsApp poll</b><em>Not exposed by WhatsApp. Slack reactions solve this properly.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Create a SharePoint site</b><em>Folders and files only. You make the site once; the rest is automatic.</em></span></li>
@@ -805,8 +786,7 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
           <li class="no"><span class="mk">✕</span><span><b>Delete a Slack message</b><em>No delete call in the connector. Test posts have to be cleared by hand.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Use Slack Lists or canvases</b><em>Both are paid-plan features. Instructions live as pinned messages instead.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Send anything on its own</b><em>Your standing setting: draft everything, send nothing. Deliberate, and changeable.</em></span></li>
-          <li class="no"><span class="mk">✕</span><span><b>Reach a server on your Mac</b><em>Cloud session. Local MCP servers are invisible to it.</em></span></li>
-          <li class="no"><span class="mk">✕</span><span><b>Attach a file to an Outlook email</b><em>Checked all three write tools. Gmail is the only route with attachments.</em></span></li>
+                    <li class="no"><span class="mk">✕</span><span><b>Attach a file to an Outlook email</b><em>Checked all three write tools. Gmail is the only route with attachments.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Transfer large files through chat</b><em>Anything over roughly 5 call-sheet tabs has to go via the script or an upload.</em></span></li>
         </ul>
       </div>
@@ -852,12 +832,12 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
       <p>Everything Google has dropped off except one cleanup. SharePoint is the path now.</p>
     </div>
     <ol class="asks">
-      <li><b>1. Turn on external sharing</b>Admin centre &rarr; Sites &rarr; Active sites &rarr; <span class="mono">callsheets</span> &rarr; Settings &rarr; External sharing &rarr; <b style="display:inline">Anyone</b>. <b style="display:inline">Nothing else works until this is on.</b> Callers have no Microsoft accounts, so without it they cannot open a call sheet or a resource link. Five minutes, and it unblocks items 2, 3 and 6.</li>
-      <li><b>2. Share the 30 caller folders</b>Every folder is built and named. Use <b style="display:inline">Specific people</b>, not "Anyone with the link", and share each caller's own folder — never the parent. Thirty shares, once, and never again. The agent cannot do this: the connector has no sharing call.</li>
-      <li><b>3. Upload the two resource files</b><span class="mono">Curia Staff FAQS May 2024 (2).doc</span> and <span class="mono">Orientation Module (1).pptx</span>, from the 19 February email, into <span class="mono">/sites/callsheets/Shared Documents/Resources</span>. The 9MB pptx is over the connector's 1MB upload cap, so it has to be by hand. Then paste the links into the resources post — the version now in Slack has no links on items 1 and 2, and there is a duplicate copy to delete.</li>
-      <li><b>4. Create the Agent Memory folder</b>Under <span class="mono">PacificLinkGlobal/Shared Documents/General/</span>, and drop in the contacts file. A write there was blocked by a safety guard, so it needs you. Until it exists the agent starts every session with no idea who anyone is. Not in the callsheets site — that one is about to be externally shared.</li>
-      <li><b>5. Chase the seven who have not set a name</b>Four are now identified from their email; three folders are named from a guess and may be wrong: <span class="mono">Juvylyn Abe</span>, <span class="mono">Karen Boiser</span>, <span class="mono">Jane Wareei</span>. Ask them to set Profile &rarr; Full name, then the folders get corrected.</li>
-      <li><b>6. Run the Google access revocation script</b>The old call sheets are still open — at least one is editable by anyone with the link, and moving to SharePoint does not close it. Audit mode changes nothing, so run that first and read it.</li>
+      <li><b>1. Upload the Orientation Module and the FAQs</b><span class="mono">Orientation Module (1).pptx</span> (9MB) and <span class="mono">Curia Staff FAQS May 2024 (2).doc</span>, from the 19 February email, into <span class="mono">/sites/callsheets/Shared Documents/Resources</span>. The pptx is over the connector's 1MB upload cap, so this one cannot be done for you. Then paste both links into the resources post in Slack: the version live now has <b style="display:inline">no links at all</b> on items 1 and 2, and there is a duplicate copy of the post to delete. The links only open for callers once item 2 is done.</li>
+      <li><b>2. Turn on external sharing</b>Admin centre &rarr; Sites &rarr; Active sites &rarr; <span class="mono">callsheets</span> &rarr; Settings &rarr; External sharing &rarr; <b style="display:inline">Anyone</b>. Five minutes. Callers have no Microsoft accounts, so until this is on they cannot open a call sheet or a resource link. Items 1, 3 and 6 all depend on it.</li>
+      <li><b>3. Share the 30 caller folders</b>Every folder is built and named. Use <b style="display:inline">Specific people</b>, never "Anyone with the link", and share each caller's own folder rather than the parent. Thirty shares, once, and never again — after that, new call sheets drop into an already-shared folder with no further action. The agent cannot do this step: the connector has no sharing call.</li>
+      <li><b>4. Create the Agent Memory folder</b>Under <span class="mono">PacificLinkGlobal/Shared Documents/General/</span>, with the contacts file in it. A write there was refused by a safety guard, so it needs you. Until it exists, every new session starts knowing nobody. Not in the callsheets site — that one is about to be externally shared.</li>
+      <li><b>5. Fix the three folders named from a guess</b><span class="mono">Juvylyn Abe</span>, <span class="mono">Karen Boiser</span> and <span class="mono">Jane Wareei</span> were inferred from email handles because those three never set a Slack display name. Ask them to set Profile &rarr; Full name and the folders get corrected automatically.</li>
+      <li><b>6. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
     </ol>
 
     <div class="section-head" style="margin-top:40px">
