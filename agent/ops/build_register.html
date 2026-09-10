@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 11 September 2026, 1.50am</div>
+    <div class="eyebrow">Build register · updated 11 September 2026, 3.10am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -297,10 +297,10 @@
     <div class="meta">6,117 lines · 447 tests passing · branch claude/business-agent-dev-9jxs55</div>
 
     <div class="tally">
-      <div><span class="dot" style="background:var(--blocked)"></span><b>1</b> hard blocker</div>
-      <div><span class="dot" style="background:var(--waiting)"></span><b>4</b> need a decision</div>
-      <div><span class="dot" style="background:var(--live)"></span><b>6</b> solved</div>
-      <div><span class="dot" style="background:var(--sky)"></span><b>7</b> waiting on you</div>
+      <div><span class="dot" style="background:var(--blocked)"></span><b>2</b> hard blockers</div>
+      <div><span class="dot" style="background:var(--waiting)"></span><b>3</b> need a decision</div>
+      <div><span class="dot" style="background:var(--live)"></span><b>7</b> solved</div>
+      <div><span class="dot" style="background:var(--sky)"></span><b>6</b> to do tomorrow</div>
     </div>
   </header>
 
@@ -319,9 +319,8 @@
 
       <article class="item pending">
         <div class="item-head">
-          <h3>Writing into a Google Sheet — one step away</h3>
-          <span class="tag t-pending">Almost</span>
-          <span class="tag t-worked">Script covers it meanwhile</span>
+          <h3>Writing into a Google Sheet — dropped, not solved</h3>
+          <span class="tag t-worked">No longer needed</span>
         </div>
         <dl class="rows">
           <div class="row"><dt>Was</dt><dd>
@@ -343,14 +342,15 @@
         <div class="quote">Access to this tool requires that your Google Cloud project (454021123290)
 is enrolled in the Google Workspace Developer Preview Program.</div>
         <dl class="rows">
-          <div class="row"><dt>Fix</dt><dd>
-            Enrol the project at <code>developers.google.com/workspace/preview</code>. One caveat:
-            that programme is aimed at Workspace accounts, and the project sits under a personal
-            Gmail — so enrolment may not be open to it.
+          <div class="row"><dt>Dropped</dt><dd>
+            <strong>Call sheets have moved to SharePoint, so none of this is on the path any more.</strong>
+            The preview enrolment, the OAuth client and the Cloud project are all off the list. Kept
+            here only so nobody spends a day rediscovering the enrolment wall.
           </dd></div>
-          <div class="row"><dt>Keep</dt><dd>
-            <code>ops/allocate_callsheet.gs</code> stays. "Developer Preview" means Google can change
-            or withdraw it; Apps Script has been stable for a decade.
+          <div class="row"><dt>Still worth doing once</dt><dd>
+            <code>ops/revoke_callsheet_access.gs</code> — the old Google call sheets are still out
+            there and at least one is editable by anyone with the link. Moving to SharePoint does not
+            close them. That is now the only Google task that matters.
           </dd></div>
         </dl>
       </article>
@@ -398,7 +398,39 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
 
       <article class="item blocked">
         <div class="item-head">
-          <h3>Access can be granted but never removed</h3>
+          <h3>SharePoint folders can be built but not shared</h3>
+          <span class="tag t-blocked">Blocked</span>
+          <span class="tag t-pending">30 manual shares, once</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Why</dt><dd>
+            The M365 connector has <code>create_folder</code>, <code>upload_file</code>,
+            <code>move_item</code>, <code>copy_item</code>, <code>rename_item</code> and
+            <code>delete_item</code> — and <strong>no permission or sharing call at all</strong>.
+            Checked against the full tool surface, not assumed. So the agent can build the whole
+            structure and cannot grant one person access to it.
+          </dd></div>
+          <div class="row"><dt>Mirror image of Drive</dt><dd>
+            On Google Drive the agent can grant access and never revoke it. On SharePoint it can do
+            neither. Both halves of sharing are manual.
+          </dd></div>
+          <div class="row"><dt>Why it is survivable</dt><dd>
+            This is exactly why <strong>folder-per-caller</strong> beats folder-per-date. Thirty
+            shares, once, forever — against twenty to forty every single day under the other shape.
+            A one-off cost is the difference between a system that runs and one that quietly stops.
+          </dd></div>
+          <div class="row"><dt>How to share correctly</dt><dd>
+            <strong>"Specific people"</strong>, never "Anyone with the link" — the latter is
+            forwardable and is how the Google call sheets ended up open to the world. Share the
+            <em style="font-style:normal">individual</em> folder, never the parent
+            <code>Call Sheets</code> folder, or everyone gets everyone's numbers.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item blocked">
+        <div class="item-head">
+          <h3>Google Drive access can be granted but never removed</h3>
           <span class="tag t-blocked">Blocked</span>
           <span class="tag t-pending">Script not yet run</span>
         </div>
@@ -816,19 +848,25 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
   <!-- ================= ASKS ================= -->
   <section>
     <div class="section-head">
-      <h2>Waiting on you</h2>
-      <p>Roughly in order of what unblocks the most.</p>
+      <h2>Tomorrow, in order</h2>
+      <p>Everything Google has dropped off except one cleanup. SharePoint is the path now.</p>
     </div>
     <ol class="asks">
-      <li><b>Send the Slack invites</b>Four pinnable messages are drafted and unsent, one per channel. Order matters: fix the channel spelling to <span class="mono">availability-pacificlinkglobal</span> while no links exist yet, set all four as <b style="display:inline">default channels</b> so invitees join automatically, paste the channel descriptions, then send and pin — and only then invite people. A half-built workspace is a bad first impression.</li>
-      <li><b>Decide whose names the roster is built from</b>Ten of the thirty-three names in <span class="mono">team.csv</span> are still active; thirty-three people invoicing now are missing from it. Confirm the invoice list is authoritative and the caller folders, standing patterns and scoring get rebuilt against the real team.</li>
-      <li><b>Turn on external sharing for the new site</b>Admin centre &rarr; Active sites &rarr; <span class="mono">callsheets</span> &rarr; Settings &rarr; External sharing &rarr; <b style="display:inline">Anyone</b>. Without it, callers with no Microsoft account cannot edit — which was the entire reason for the site.</li>
-      <li><b>Enrol the Cloud project</b>Project 454021123290 in the Google Workspace Developer Preview Program — only still worth doing if call sheets stay on Google. If they move to SharePoint, this stops mattering.</li>
-      <li><b>Run the access-revocation script</b>At least one call sheet is editable by anyone with the link, today. Audit mode changes nothing, so it's safe to look first.</li>
-      <li><b>Settle three names</b>Alexis, Kris Dolz, Nelle — and remove or rename one of the two Florence Bularons in the group.</li>
-      <li><b>Decide the WhatsApp tier</b>Free won't carry a weekly cycle. Ask Blueticks whether Basic lifts the API cap before paying for more. Lower priority now that Slack carries availability, roster and results — WhatsApp is reduced to problems and questions.</li>
-      <li><b>Rotate the Google OAuth client secret</b>It was pasted into a chat. Treat it as public and replace it, whether or not Sheets ends up being used.</li>
-      <li><b>Delete the six test messages</b>In the availability channel, clearly labelled as a test. The Slack connector has no delete call, so this one can only be done by hand.</li>
+      <li><b>1. Turn on external sharing</b>Admin centre &rarr; Sites &rarr; Active sites &rarr; <span class="mono">callsheets</span> &rarr; Settings &rarr; External sharing &rarr; <b style="display:inline">Anyone</b>. <b style="display:inline">Nothing else works until this is on.</b> Callers have no Microsoft accounts, so without it they cannot open a call sheet or a resource link. Five minutes, and it unblocks items 2, 3 and 6.</li>
+      <li><b>2. Share the 30 caller folders</b>Every folder is built and named. Use <b style="display:inline">Specific people</b>, not "Anyone with the link", and share each caller's own folder — never the parent. Thirty shares, once, and never again. The agent cannot do this: the connector has no sharing call.</li>
+      <li><b>3. Upload the two resource files</b><span class="mono">Curia Staff FAQS May 2024 (2).doc</span> and <span class="mono">Orientation Module (1).pptx</span>, from the 19 February email, into <span class="mono">/sites/callsheets/Shared Documents/Resources</span>. The 9MB pptx is over the connector's 1MB upload cap, so it has to be by hand. Then paste the links into the resources post — the version now in Slack has no links on items 1 and 2, and there is a duplicate copy to delete.</li>
+      <li><b>4. Create the Agent Memory folder</b>Under <span class="mono">PacificLinkGlobal/Shared Documents/General/</span>, and drop in the contacts file. A write there was blocked by a safety guard, so it needs you. Until it exists the agent starts every session with no idea who anyone is. Not in the callsheets site — that one is about to be externally shared.</li>
+      <li><b>5. Chase the seven who have not set a name</b>Four are now identified from their email; three folders are named from a guess and may be wrong: <span class="mono">Juvylyn Abe</span>, <span class="mono">Karen Boiser</span>, <span class="mono">Jane Wareei</span>. Ask them to set Profile &rarr; Full name, then the folders get corrected.</li>
+      <li><b>6. Run the Google access revocation script</b>The old call sheets are still open — at least one is editable by anyone with the link, and moving to SharePoint does not close it. Audit mode changes nothing, so run that first and read it.</li>
+    </ol>
+
+    <div class="section-head" style="margin-top:40px">
+      <h2>Then the two real jobs</h2>
+      <p>These are what the whole build has been for. Both are the agent's work, not yours.</p>
+    </div>
+    <ol class="asks">
+      <li><b>Saturday 6pm Manila — build the roster</b>Read the &#10003;/&#10007; reactions off the five day messages, rank against audit history, fill Curia's slots per day, draft five roster posts with real @mentions. You approve, then it goes out. The name-to-account match gets shown to you first.</li>
+      <li><b>Cut the call sheets from the number pools</b>Contiguous 200-number blocks, leading zeros repaired, high-water marks written back, used rows shaded green — all built and tested. What is new is the delivery: straight into each caller's SharePoint folder rather than one shared workbook. That works the moment item 1 and item 2 are done.</li>
     </ol>
   </section>
 
