@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 10 September 2026, 11pm</div>
+    <div class="eyebrow">Build register · updated 11 September 2026, 12.05am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -297,10 +297,10 @@
     <div class="meta">6,117 lines · 447 tests passing · branch claude/business-agent-dev-9jxs55</div>
 
     <div class="tally">
-      <div><span class="dot" style="background:var(--blocked)"></span><b>2</b> hard blockers</div>
+      <div><span class="dot" style="background:var(--blocked)"></span><b>1</b> hard blocker</div>
       <div><span class="dot" style="background:var(--waiting)"></span><b>1</b> one step away</div>
-      <div><span class="dot" style="background:var(--live)"></span><b>4</b> worked around</div>
-      <div><span class="dot" style="background:var(--sky)"></span><b>5</b> waiting on you</div>
+      <div><span class="dot" style="background:var(--live)"></span><b>5</b> solved</div>
+      <div><span class="dot" style="background:var(--sky)"></span><b>4</b> waiting on you</div>
     </div>
   </header>
 
@@ -370,11 +370,24 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             connected — but <strong>none of the three Outlook write tools can attach a file</strong>.
             Gmail's draft call takes attachments up to 25MB.
           </dd></div>
-          <div class="row"><dt>Why not SharePoint</dt><dd>
-            Considered and rejected. External sharing is either "anyone with the link" — the same
-            wide-open problem as the Drive call sheets — or "specific people", which emails each
-            caller a one-time passcode to enter before every open. Twenty callers, on phones,
-            every shift.
+          <div class="row"><dt>Now going further</dt><dd>
+            Email delivers a file; it does not bring one back, and callers have to record outcomes
+            as they work. So call sheets move to <strong>SharePoint</strong>, where they are edited
+            in place — which is what already happens today, just without one workbook shared to
+            everybody. "Anyone with the link, can edit" needs no Microsoft account, and unlike
+            Google Drive the links are <strong>revocable and can expire</strong>.
+          </dd></div>
+          <div class="row"><dt>Shape</dt><dd>
+            One folder per caller, <strong>shared once, permanently</strong>. Poll and date live in
+            the filename, so a caller working two polls in a day sees two clearly-named files.
+            Twenty shares, once, instead of forty every day.
+          </dd></div>
+          <div class="row"><dt>Isolation</dt><dd>
+            Not in the main site — that one holds invoices, contracts and GST receipts. A separate
+            SharePoint site keeps external sharing switched on in one place only.
+            <strong>Site creation is manual</strong>: there is no such call in the connector.
+            Everything inside it — folders, uploads, updates, reading back what callers typed —
+            is automatic.
           </dd></div>
           <div class="row"><dt>Side benefit</dt><dd>
             Each caller receives <strong>only their own numbers</strong>. The shared 20-tab workbook
@@ -414,9 +427,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
 
       <article class="item worked">
         <div class="item-head">
-          <h3>WhatsApp will not say who voted in a poll</h3>
-          <span class="tag t-blocked">Blocked</span>
-          <span class="tag t-worked">Solved another way</span>
+          <h3>Seeing who is available — solved twice over</h3>
+          <span class="tag t-worked">Solved</span>
         </div>
         <dl class="rows">
           <div class="row"><dt>Why</dt><dd>
@@ -444,6 +456,15 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             and the ability to send. It is also local-only, so it could not reach a chat session.
             The <strong>WhatsApp Business API</strong> is official and safe, but cannot do group
             chats and takes the number over from the normal app.
+          </dd></div>
+          <div class="row"><dt>Slack fixes it</dt><dd>
+            The Slack connector is now live — 27 tools. <code>slack_get_reactions</code> returns
+            <strong>the users who reacted</strong>, with names and ids. So an emoji reaction is a
+            readable, attributed vote: post the days, people tap, the agent reads exactly who
+            tapped what. That is the thing WhatsApp refused to give.
+            <strong>Slack Lists</strong> go further — a table with a checkbox per day that people
+            keep current, created and read through <code>slack_create_list</code> and
+            <code>slack_read_list</code>. No poll app, no Simple Poll, no Polly.
           </dd></div>
           <div class="row"><dt>What protects us</dt><dd>
             Read-only, plus <strong>draft everything, send nothing</strong>. Untrusted text can reach
@@ -594,6 +615,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
           <li class="yes"><span class="mk">✓</span><span><b>Read and draft in Outlook</b><em>Work account connected. Body only — no attachments on any Outlook tool.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Write into SharePoint / OneDrive</b><em>Upload and update files up to 1MB. Unused — callers would need passcodes.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Read WhatsApp</b><em>Chats, message history, group participants and their numbers.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Read and post in Slack</b><em>Channels, threads, users — and reactions, with the names of who reacted.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Build and read Slack Lists</b><em>A checkbox table for standing availability that people keep current themselves.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Compose WhatsApp posts with real @mentions</b><em>Drafted, not sent. 91% of rostered callers resolve to a number automatically.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Build, test and ship the code</b><em>Full toolchain, 447 tests, everything pushed to GitHub.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Publish pages like this one</b><em>Dashboards, rosters, reports.</em></span></li>
@@ -605,7 +628,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
         <ul>
           <li class="no"><span class="mk">✕</span><span><b>Edit an existing Google Sheet — for now</b><em>The Sheets connector is live but the Cloud project needs preview enrolment.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Remove anyone's Drive access</b><em>Granting only. The Apps Script covers it.</em></span></li>
-          <li class="no"><span class="mk">✕</span><span><b>See who voted in a WhatsApp poll</b><em>Not exposed by WhatsApp. Text replies are read instead.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>See who voted in a WhatsApp poll</b><em>Not exposed by WhatsApp. Slack reactions solve this properly.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Create a SharePoint site</b><em>Folders and files only. You make the site once; the rest is automatic.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Send anything on its own</b><em>Your standing setting: draft everything, send nothing. Deliberate, and changeable.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Reach a server on your Mac</b><em>Cloud session. Local MCP servers are invisible to it.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Attach a file to an Outlook email</b><em>Checked all three write tools. Gmail is the only route with attachments.</em></span></li>
@@ -641,6 +665,7 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
       <div><b>Per-caller call sheets</b> — one workbook each, so nobody sees anyone else's numbers</div>
       <div><b>Gmail delivery</b> — drafted with the sheet attached; tested and confirmed opening</div>
       <div><b>Wellington Bays 400</b> — 4,000 numbers allocated across two pools, 10 September</div>
+      <div><b>SharePoint delivery</b> — folder created, call sheet uploaded, ready for the isolated site</div>
     </div>
   </section>
 
@@ -652,7 +677,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
     </div>
     <ol class="asks">
       <li><b>The contact list</b>Name, WhatsApp number, email — one row per caller. The delivery path is built and proven; twenty addresses is the only missing input.</li>
-      <li><b>Enrol the Cloud project</b>Project 454021123290 in the Google Workspace Developer Preview Program. That is the last thing between here and writing straight into your spreadsheets.</li>
+      <li><b>The new SharePoint site</b>Create it, rename it "Call Sheets", send the URL. Then the caller folders get built and Kharen's sheet moves off the site that holds your contracts.</li>
+      <li><b>Enrol the Cloud project</b>Project 454021123290 in the Google Workspace Developer Preview Program — only still worth doing if call sheets stay on Google. If they move to SharePoint, this stops mattering.</li>
       <li><b>Run the access-revocation script</b>At least one call sheet is editable by anyone with the link, today. Audit mode changes nothing, so it's safe to look first.</li>
       <li><b>Settle three names</b>Alexis, Kris Dolz, Nelle — and remove or rename one of the two Florence Bularons in the group.</li>
       <li><b>Decide the WhatsApp tier</b>Free won't carry a weekly cycle. Ask Blueticks whether Basic lifts the API cap before paying for more.</li>
