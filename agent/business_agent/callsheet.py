@@ -226,15 +226,27 @@ def allocate(
     return allocation
 
 
-def _tab_name(caller: str, taken: set[str]) -> str:
+def _tab_name(caller: str, taken: set[str], *, verbatim: bool = False) -> str:
     """A worksheet name Excel and Sheets will both accept, and unique.
 
     Tabs are named by first name, which is what the existing sheets do, so
     two callers sharing one get a distinguishing initial rather than one
     silently overwriting the other.
+
+    With `verbatim`, the name is used as given. That is for the case where the
+    caller list was read off an existing workbook's tabs: shortening "Mary V"
+    to "Mary" there would rename a tab somebody has already set up, and lose
+    the very distinction the "V" was added to make.
     """
     cleaned = re.sub(r"[\[\]:*?/\\]", " ", caller).strip()
     parts = cleaned.split()
+    if verbatim and cleaned:
+        candidate, suffix = cleaned[:31], 2
+        while candidate.lower() in taken:
+            candidate = f"{cleaned[:28]} {suffix}"
+            suffix += 1
+        taken.add(candidate.lower())
+        return candidate
     name = parts[0] if parts else "Caller"
     if name.lower() in taken and len(parts) > 1:
         name = f"{parts[0]} {parts[1][0]}"
@@ -246,7 +258,12 @@ def _tab_name(caller: str, taken: set[str]) -> str:
     return candidate
 
 
-def build_workbook(allocation: Allocation, *, business_name: str = "Pacific Link Global"):
+def build_workbook(
+    allocation: Allocation,
+    *,
+    business_name: str = "Pacific Link Global",
+    verbatim_tabs: bool = False,
+):
     """Render an allocation as an .xlsx workbook, one tab per caller.
 
     Built as a real workbook rather than CSV because a call sheet needs one
@@ -267,7 +284,7 @@ def build_workbook(allocation: Allocation, *, business_name: str = "Pacific Link
     bold = Font(bold=True)
 
     for block in allocation.blocks:
-        sheet = workbook.create_sheet(_tab_name(block.caller, taken))
+        sheet = workbook.create_sheet(_tab_name(block.caller, taken, verbatim=verbatim_tabs))
         sheet["A1"] = "ID"
         sheet["B1"] = "Number"
         sheet["C1"] = "Outcome"

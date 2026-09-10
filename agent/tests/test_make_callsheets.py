@@ -190,13 +190,60 @@ class TestLoadingAPool(unittest.TestCase):
             _, title = load_pool(path)
         self.assertEqual(title, "Bays Numbers - USE FROM 401")
 
-    def test_a_number_excel_stored_as_a_float(self):
+    def test_a_number_excel_stored_as_a_float_gets_its_zero_back(self):
+        # Excel reads "0212507803" as a number and drops the leading zero.
+        # Handing a caller "212507803" gives them a number they cannot ring.
         with tempfile.TemporaryDirectory() as folder:
             path = self.build(folder, "Numbers.xlsx", [
-                ("ID", "Number"), (1, 210000001.0),
+                ("ID", "Number"), (1, 212507803.0), (2, 274953011.0),
             ])
             numbers, _ = load_pool(path)
-        self.assertEqual(numbers[0].number, "210000001")
+        self.assertEqual(numbers[0].number, "0212507803")
+        self.assertEqual(numbers[1].number, "0274953011")
+
+    def test_a_number_already_written_with_its_zero_is_left_alone(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = self.build(folder, "Numbers.xlsx", [
+                ("ID", "Number"), (1, "0212507803"), (2, "027 349 1962"),
+            ])
+            numbers, _ = load_pool(path)
+        self.assertEqual(numbers[0].number, "0212507803")
+        self.assertEqual(numbers[1].number, "027 349 1962")
+
+    def test_a_landline_that_is_not_a_mangled_mobile_keeps_its_shape(self):
+        # "43857135" is not an 02x/04x mobile pattern, so nothing is prepended.
+        with tempfile.TemporaryDirectory() as folder:
+            path = self.build(folder, "Numbers.xlsx", [
+                ("ID", "Number"), (1, "04 385 7135"), (2, 99887766),
+            ])
+            numbers, _ = load_pool(path)
+        self.assertEqual(numbers[0].number, "04 385 7135")
+        self.assertEqual(numbers[1].number, "99887766")
+
+    def test_the_phone_column_is_found_by_its_heading(self):
+        # An electoral-roll extract carries Home Phone, Mobile and Phone. The
+        # plain "Phone" column is the consolidated best number for that person;
+        # taking "Mobile" would drop everyone who only has a landline.
+        with tempfile.TemporaryDirectory() as folder:
+            path = self.build(folder, "Roll.xlsx", [
+                ("Elect Poll Phone Numbers ID", "Full Name", "Home Phone",
+                 "Mobile", "Phone", "Home Phone Source"),
+                (1, "A Person", "04 383 7554", "027 349 1962", "027 349 1962", "DataZoo"),
+                (2, "B Person", "04 385 8853", None, "04 385 8853", "DataZoo"),
+            ])
+            numbers, _ = load_pool(path)
+        self.assertEqual([n.number for n in numbers], ["027 349 1962", "04 385 8853"])
+
+    def test_a_differently_shaped_file_still_finds_its_phone_column(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = self.build(folder, "Part2.xlsx", [
+                ("ID", "First name", "Last name", "Gender", "suburb",
+                 "Postal code", "Phone number", "age"),
+                (10001, "A", "B", "M", "Maupuia", 6022, "0212507803", 55),
+            ])
+            numbers, _ = load_pool(path)
+        self.assertEqual(numbers[0].number_id, 10001)
+        self.assertEqual(numbers[0].number, "0212507803")
 
     def test_blank_rows_and_rows_without_an_id_are_skipped(self):
         with tempfile.TemporaryDirectory() as folder:

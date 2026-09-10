@@ -27,6 +27,7 @@ Nothing is uploaded. It writes a local .xlsx for you to check and upload.
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from datetime import date, datetime
 from pathlib import Path
@@ -48,12 +49,66 @@ def _day(value: str) -> date:
     return datetime.strptime(value, "%Y-%m-%d").date()
 
 
+# Curia's number files are not a tidy ID/Number list. They are whatever
+# extract the data came out of, with the phone buried among a dozen other
+# columns, and the layout changes between files — even between two files for
+# the same poll on the same day. So the columns are found by their headings.
+#
+# "Phone" beats "Mobile" beats "Home Phone": an electoral-roll extract carries
+# all three, and the plain "Phone" column is the one already consolidated to
+# the best number for that person. Picking "Mobile" instead would silently
+# drop everyone who only has a landline.
+_PHONE_HEADERS = (
+    ("phone number", "phone", "contact number", "number"),
+    ("mobile", "cell"),
+    ("home phone", "landline"),
+)
+_NOT_A_PHONE = ("source", "type", "id", "code", "count")
+
+
+def _phone_column(headers: list[str]) -> int | None:
+    """Which column holds the number to ring."""
+    cleaned = [(index, (name or "").strip().lower()) for index, name in enumerate(headers)]
+    for tier in _PHONE_HEADERS:
+        # An exact heading wins over one that merely contains the word, so
+        # "Phone" is not beaten by "Home Phone Source" appearing first.
+        for index, name in cleaned:
+            if name in tier:
+                return index
+        for index, name in cleaned:
+            if any(word in name for word in tier) and not any(
+                bad in name for bad in _NOT_A_PHONE
+            ):
+                return index
+    return None
+
+
+def _clean_number(value) -> str:
+    """A phone number as text, whatever Excel decided it was."""
+    if value is None:
+        return ""
+    text = str(value).strip()
+    if text.endswith(".0"):
+        text = text[:-2]
+    # A leading zero survives in a text cell and is lost in a numeric one.
+    # "212507803" is a mangled "0212507803", so put it back.
+    digits = re.sub(r"[^\d]", "", text)
+    if digits and not text.startswith("0") and len(digits) in (8, 9, 10):
+        if digits.startswith("2") or digits.startswith("4"):
+            text = "0" + text
+    return text
+
+
 def load_pool(path: Path) -> tuple[list[PoolNumber], str]:
     """Read a number pool from an .xlsx, with the sheet's own title.
 
     The title matters as much as the rows: it is where the high-water mark
     lives, and reading the rows without it means starting from the top of a
     pool that is half spent.
+
+    Column A is the id — every file Curia sends is numbered that way, and the
+    id is what gets written back as "USED TO n". The phone column is found by
+    its heading, because its position is not stable between files.
     """
     try:
         from openpyxl import load_workbook
@@ -64,33 +119,39 @@ def load_pool(path: Path) -> tuple[list[PoolNumber], str]:
     sheet = workbook[workbook.sheetnames[0]]
 
     numbers: list[PoolNumber] = []
+    phone_at: int | None = None
+    outcome_at: int | None = None
+
     for index, row in enumerate(sheet.iter_rows(values_only=True)):
         if not row or all(cell is None or str(cell).strip() == "" for cell in row):
             continue
+
         first = str(row[0]).strip() if row[0] is not None else ""
-        # The header row: "ID", "Number", or anything non-numeric in column A.
-        if index == 0 and not first.replace(".0", "").isdigit():
+        is_header = not first.replace(".0", "").replace(".", "").isdigit()
+        if is_header and phone_at is None:
+            headers = [str(cell) if cell is not None else "" for cell in row]
+            phone_at = _phone_column(headers)
+            for position, name in enumerate(headers):
+                if (name or "").strip().lower() in ("outcome", "result", "status", "call result"):
+                    outcome_at = position
             continue
+        if is_header:
+            continue
+
         try:
             number_id = int(float(first))
         except (TypeError, ValueError):
             continue
 
-        raw = row[1] if len(row) > 1 else None
-        if raw is None:
-            continue
-        # Excel reads a phone number as a float often enough to matter.
-        number = str(raw).strip()
-        if number.endswith(".0"):
-            number = number[:-2]
+        # No header row at all: fall back to the second column.
+        column = phone_at if phone_at is not None else 1
+        number = _clean_number(row[column] if len(row) > column else None)
         if not number:
             continue
 
         outcome = ""
-        for cell in row[2:]:
-            if cell is not None and str(cell).strip():
-                outcome = str(cell).strip()
-                break
+        if outcome_at is not None and len(row) > outcome_at:
+            outcome = str(row[outcome_at] or "").strip()
         numbers.append(PoolNumber(number_id=number_id, number=number, outcome=outcome))
 
     workbook.close()

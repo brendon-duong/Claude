@@ -202,3 +202,36 @@ class TestBuildWorkbook(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestVerbatimTabs(unittest.TestCase):
+    """Tab names taken straight from a workbook somebody already set up."""
+
+    def allocation(self, callers):
+        from business_agent.callsheet import Allocation, Block, PoolNumber
+        return Allocation(
+            poll="Wellington Bays 400",
+            day=date(2026, 9, 10),
+            blocks=[
+                Block(caller=name, numbers=[PoolNumber(i + 1, f"02100{i:05d}")])
+                for i, name in enumerate(callers)
+            ],
+        )
+
+    def test_a_disambiguated_name_is_not_shortened_away(self):
+        # "Mary V" exists to tell two Marys apart. Renaming her tab to "Mary"
+        # loses exactly the distinction the V was added to make.
+        book = build_workbook(self.allocation(["Kharen", "Mary V"]), verbatim_tabs=True)
+        self.assertEqual(book.sheetnames, ["Kharen", "Mary V"])
+
+    def test_the_default_still_shortens_to_first_names(self):
+        book = build_workbook(self.allocation(["Lia Villapaz", "Kharen Ybas"]))
+        self.assertEqual(book.sheetnames, ["Lia", "Kharen"])
+
+    def test_verbatim_names_are_still_made_unique(self):
+        book = build_workbook(self.allocation(["Jean", "Jean"]), verbatim_tabs=True)
+        self.assertEqual(book.sheetnames, ["Jean", "Jean 2"])
+
+    def test_verbatim_names_are_still_stripped_of_illegal_characters(self):
+        book = build_workbook(self.allocation(["Mary/Joy"]), verbatim_tabs=True)
+        self.assertNotIn("/", book.sheetnames[0])
