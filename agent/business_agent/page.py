@@ -133,6 +133,34 @@ def _barred_section(plan: RosterPlan) -> str:
     )
 
 
+def _cleared_section(plan: RosterPlan) -> str:
+    """Say plainly who was rostered over their own audit history, and why it shows."""
+    if not plan.manually_cleared:
+        return ""
+    cards = []
+    for person in plan.manually_cleared:
+        concerns = "".join(
+            f"<li>{_esc(line)}</li>" for line in getattr(person, "concerns", [])[:2]
+        )
+        cards.append(
+            '<li class="barred-item">'
+            f'<span class="barred-name">{_esc(person.name)}</span>'
+            f'<span class="barred-head">{_esc(person.headline)}</span>'
+            f'<ul class="barred-why">{concerns}</ul>'
+            "</li>"
+        )
+    return (
+        '<section class="panel panel-warn">'
+        "<h2>Rostered despite their audit history</h2>"
+        "<p>These callers would have been barred. They are on the roster because "
+        "you cleared them by hand, and they are named here rather than folded "
+        "silently into the list — an override that leaves no trace is how a "
+        "barring decision gets quietly lost.</p>"
+        f'<ul class="barred-list">{"".join(cards)}</ul>'
+        "</section>"
+    )
+
+
 def _poll_section(plan: RosterPlan) -> str:
     polled = any(shift.from_poll for shift in plan.shifts)
     if polled:
@@ -358,6 +386,7 @@ footer strong {{ color:var(--ink); }}
 
   {_day_sections(plan)}
 
+  {_cleared_section(plan)}
   {_barred_section(plan)}
   {_poll_section(plan)}
   {_duplicates_section(duplicates or [], duplicate_total)}

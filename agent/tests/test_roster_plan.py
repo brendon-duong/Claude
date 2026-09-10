@@ -87,6 +87,75 @@ class TestBuildRoster(unittest.TestCase):
         self.assertNotIn("Barred", names)
         self.assertIn("Barred", [p.name for p in plan.excluded])
 
+    def test_a_barred_caller_can_be_cleared_by_hand(self):
+        # Brendon overrules the audit gate — someone explained a bad audit, or
+        # he judges the failure not worth losing them over. It is his call.
+        records = audits_for("Good", completes=3) + audits_for(
+            "Barred", count=4, completes=9, declared=20
+        )
+        people = score_all(records, TODAY, Thresholds())
+        key = next(k for k, p in people.items() if p.name == "Barred")
+        plan = self.plan(records, [poll(SUNDAY, needed=2)], cleared={key})
+        self.assertIn("Barred", [a.name for a in plan.shifts[0].assigned])
+
+    def test_a_cleared_caller_is_named_rather_than_quietly_included(self):
+        # The override has to leave a trace. Folding them silently into the
+        # roster is how the reason for the barring gets lost.
+        records = audits_for("Good", completes=3) + audits_for(
+            "Barred", count=4, completes=9, declared=20
+        )
+        people = score_all(records, TODAY, Thresholds())
+        key = next(k for k, p in people.items() if p.name == "Barred")
+        plan = self.plan(records, [poll(SUNDAY, needed=2)], cleared={key})
+        self.assertEqual([p.name for p in plan.manually_cleared], ["Barred"])
+        self.assertNotIn("Barred", [p.name for p in plan.excluded])
+
+    def test_clearing_one_person_does_not_clear_the_rest(self):
+        records = (
+            audits_for("Good", completes=3)
+            + audits_for("Barred A", count=4, completes=9, declared=20)
+            + audits_for("Barred B", count=4, completes=9, declared=20)
+        )
+        people = score_all(records, TODAY, Thresholds())
+        key = next(k for k, p in people.items() if p.name == "Barred A")
+        plan = self.plan(records, [poll(SUNDAY, needed=3)], cleared={key})
+        names = [a.name for a in plan.shifts[0].assigned]
+        self.assertIn("Barred A", names)
+        self.assertNotIn("Barred B", names)
+        self.assertEqual([p.name for p in plan.excluded], ["Barred B"])
+
+    def test_a_cleared_caller_is_actually_placed_on_a_shift(self):
+        # Entering the pool is not enough. A barred caller sorts below every
+        # other tier, so without lifting the ranking tier the clearance is
+        # hollow — they show as cleared and never get a shift.
+        records = (
+            sum((audits_for(f"Filler {i}", completes=6) for i in range(3)), [])
+            + audits_for("Barred", count=4, completes=9, declared=20)
+        )
+        people = score_all(records, TODAY, Thresholds())
+        key = next(k for k, p in people.items() if p.name == "Barred")
+        plan = self.plan(records, [poll(SUNDAY, needed=4)], cleared={key})
+        self.assertIn("Barred", [a.name for a in plan.shifts[0].assigned])
+
+    def test_clearing_does_not_promote_someone_above_a_trusted_caller(self):
+        # Cleared means "eligible again", not "top of the list". A trusted
+        # caller still outranks them.
+        records = audits_for("Trusted", completes=9) + audits_for(
+            "Barred", count=4, completes=9, declared=20
+        )
+        people = score_all(records, TODAY, Thresholds())
+        key = next(k for k, p in people.items() if p.name == "Barred")
+        plan = self.plan(records, [poll(SUNDAY, needed=1)], cleared={key})
+        self.assertEqual([a.name for a in plan.shifts[0].assigned], ["Trusted"])
+
+    def test_clearing_nobody_leaves_the_gate_exactly_as_it_was(self):
+        records = audits_for("Good", completes=3) + audits_for(
+            "Barred", count=4, completes=9, declared=20
+        )
+        plan = self.plan(records, [poll(SUNDAY, needed=2)], cleared=set())
+        self.assertNotIn("Barred", [a.name for a in plan.shifts[0].assigned])
+        self.assertEqual(plan.manually_cleared, [])
+
     def test_callers_not_audited_recently_are_treated_as_gone(self):
         records = audits_for("Current") + audits_for("Departed", day=TODAY - timedelta(days=200))
         plan = self.plan(records, [poll(SUNDAY, needed=5)], active_within_days=45)

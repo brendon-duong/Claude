@@ -120,6 +120,10 @@ class RosterPlan:
     volunteered_but_barred: list[tuple[date, StaffPerformance]] = field(default_factory=list)
     # Names in the poll that match nobody in the audit history.
     unmatched_names: list[tuple[date, str]] = field(default_factory=list)
+    # People their audit history would bar, whom Brendon has cleared by hand.
+    # Kept as its own list rather than quietly folded into the available pool:
+    # an override that leaves no trace is how a barring decision gets lost.
+    manually_cleared: list[StaffPerformance] = field(default_factory=list)
 
     @property
     def total_needed(self) -> int:
@@ -145,21 +149,36 @@ def eligible_pool(
     performance: dict[str, StaffPerformance],
     today: date,
     active_within_days: int,
-) -> tuple[list[StaffPerformance], list[StaffPerformance]]:
+    cleared: set[str] | None = None,
+) -> tuple[list[StaffPerformance], list[StaffPerformance], list[StaffPerformance]]:
     """Split everyone into those who can be rostered and those who cannot.
 
     Being audited recently is how we tell who is still on the team — an audit
     sheet keeps names long after people stop working.
+
+    `cleared` holds the keys of people whose audit history bars them but whom
+    Brendon has decided to roster anyway — someone who has explained a bad
+    audit, or whose failure he judges not worth losing them over. They join the
+    available pool and are also returned separately, so the roster page can say
+    it was a decision rather than showing them as if nothing had happened.
     """
+    cleared = cleared or set()
     available: list[StaffPerformance] = []
     excluded: list[StaffPerformance] = []
+    overridden: list[StaffPerformance] = []
     for person in performance.values():
         if not person.audits or person.last_audit is None:
             continue
         if (today - person.last_audit).days > active_within_days:
             continue  # no longer active
-        (available if person.rosterable else excluded).append(person)
-    return available, excluded
+        if person.rosterable:
+            available.append(person)
+        elif person.key in cleared:
+            available.append(person)
+            overridden.append(person)
+        else:
+            excluded.append(person)
+    return available, excluded, overridden
 
 
 def build_roster(
@@ -175,6 +194,7 @@ def build_roster(
     fairness_weight: float = 0.06,
     week_starts: str = "sunday",
     availability: Availability | None = None,
+    cleared: set[str] | None = None,
 ) -> RosterPlan:
     """Assign named callers to every poll in the date range."""
     allowed = {d.strip().lower() for d in working_days}
@@ -187,8 +207,15 @@ def build_roster(
     scheduled = [p for p in in_range if f"{p.day:%A}".lower() in allowed]
     scheduled.sort(key=lambda p: (p.day, p.poll))
 
-    available, plan.excluded = eligible_pool(performance, today, active_within_days)
+    available, plan.excluded, plan.manually_cleared = eligible_pool(
+        performance, today, active_within_days, cleared
+    )
     groups = group_duplicates(performance)
+    # A cleared caller keeps their real tier everywhere it is reported, but is
+    # ranked as "watch" rather than "do_not_roster". Without this the clearance
+    # is hollow: they enter the pool and then sort below every other candidate,
+    # so they are never actually placed on a shift.
+    cleared_keys = {p.key for p in plan.manually_cleared}
     if availability is not None:
         plan.unmatched_names = list(availability.unmatched)
         barred_keys = {p.key for p in plan.excluded}
@@ -230,7 +257,8 @@ def build_roster(
             # Spread the work a little among people who rank closely, without
             # letting fairness outrank a materially better caller.
             fairness = fairness_weight * (max_shifts_per_week - worked)
-            candidates.append((TIER_ORDER[person.tier], -(person.ranking_score + fairness), person))
+            tier = "watch" if person.key in cleared_keys else person.tier
+            candidates.append((TIER_ORDER[tier], -(person.ranking_score + fairness), person))
 
         candidates.sort(key=lambda row: (row[0], row[1]))
 

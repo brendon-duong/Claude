@@ -20,7 +20,12 @@ from pathlib import Path
 
 from .announce import render_roster_announcement
 from .audit import load_audits
-from .availability import Availability, from_form_responses, parse_availability
+from .availability import (
+    Availability,
+    from_form_responses,
+    match_caller,
+    parse_availability,
+)
 from .config import Config
 from .curia import load_schedule
 from .directory import Directory
@@ -50,6 +55,14 @@ def main(argv: list[str] | None = None) -> int:
         help="derive availability from each caller's own shift history instead of asking",
     )
     parser.add_argument("--today", default="", help="override today's date")
+    parser.add_argument(
+        "--clear",
+        action="append",
+        default=[],
+        metavar="NAME",
+        help="roster this person even though their audit history bars them; "
+             "repeat for more than one. The page says they were cleared by hand.",
+    )
     parser.add_argument("--max-shifts", type=int, default=5, help="cap per person per week")
     parser.add_argument("--out", default="", help="where to write the page")
     parser.add_argument(
@@ -107,6 +120,14 @@ def main(argv: list[str] | None = None) -> int:
             offered_days=offered,
         )
 
+    cleared: set[str] = set()
+    for name in args.clear:
+        key = match_caller(name, known)
+        if key is None:
+            print(f"--clear {name!r}: matches nobody in the audit history", file=sys.stderr)
+            return 2
+        cleared.add(key)
+
     plan = build_roster(
         polls,
         people,
@@ -116,6 +137,7 @@ def main(argv: list[str] | None = None) -> int:
         working_days=config.working_days,
         max_shifts_per_week=args.max_shifts,
         availability=availability,
+        cleared=cleared,
     )
 
     duplicates = find_possible_duplicates(people)
