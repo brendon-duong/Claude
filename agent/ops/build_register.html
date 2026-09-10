@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 11 September 2026, 1.05am</div>
+    <div class="eyebrow">Build register · updated 11 September 2026, 1.50am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -576,9 +576,10 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
           </dd></div>
           <div class="row"><dt>Consequence</dt><dd>
             A person has to create one folder by hand before the agent can build the other twenty.
-            <code>/sites/callsheets</code> was created correctly and, <strong>after seven sweeps
-            across roughly two hours</strong>, still had not appeared. That is past a normal
-            indexing delay, so a wrong-location folder cannot yet be ruled out from this side.
+            <code>/sites/callsheets</code> was created correctly and appeared after
+            <strong>roughly two hours and eight sweeps</strong> — nothing was wrong, the index was
+            simply slow. Budget hours, not minutes, before assuming a new site is misconfigured.
+            Once visible, folder creation, cross-site copy and read-back all worked first time.
           </dd></div>
         </dl>
       </article>
@@ -662,8 +663,9 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
         </div>
         <dl class="rows">
           <div class="row"><dt>Unmatched</dt><dd>
-            <strong>Alexis</strong>, <strong>Kris Dolz</strong> and <strong>Nelle</strong> appear in the
-            roster and match nobody in the WhatsApp group closely enough to tag. (<em style="font-style:normal">Nelle</em> may be Shanelle.)
+            <strong>Alexis</strong> and <strong>Nelle</strong> appear in the roster and match nobody
+            in the WhatsApp group closely enough to tag. <strong>Kris Dolz is solved</strong> —
+            <code>dolzkris210@gmail.com</code>, found in the September invoice run. (<em style="font-style:normal">Nelle</em> may be Shanelle.)
           </dd></div>
           <div class="row"><dt>Collisions</dt><dd>
             Two group members are both saved as <strong>Florence Bularon</strong> on different numbers;
@@ -682,18 +684,33 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
 
       <article class="item pending">
         <div class="item-head">
-          <h3>No contact list yet</h3>
-          <span class="tag t-pending">Blocking email delivery</span>
+          <h3>The contact list — built, and it changed the picture</h3>
+          <span class="tag t-worked">Built</span>
+          <span class="tag t-pending">Roster data is stale</span>
         </div>
         <dl class="rows">
-          <div class="row"><dt>Needed</dt><dd>
-            One sheet: <strong>name, WhatsApp number, email</strong>. Headings don't matter — they're
-            matched loosely — but the name should be spelled as it appears in the audit sheet.
+          <div class="row"><dt>Built</dt><dd>
+            <strong>43 addresses</strong>, in <code>agent/data/contacts.csv</code> — deliberately
+            not committed, since <code>agent/.gitignore</code> excludes <code>data/</code> as personal
+            information. Sent to Brendon as a file instead.
           </dd></div>
-          <div class="row"><dt>Unlocks</dt><dd>
-            Call sheets emailed as attachments instead of shared from Drive. That removes the
-            access-revocation problem <strong>at the source</strong>: an attachment can't be left open
-            to the world eighteen months later.
+          <div class="row"><dt>Where from</dt><dd>
+            <strong>Invoice mail.</strong> Callers email invoices in monthly with their names in the
+            signature; the 3 September run alone yielded 32. <strong>Drive was a dead end</strong> —
+            three call sheets each returned owner-only permissions, because they were shared by link
+            rather than to named people, so no caller address is stored there at all.
+          </dd></div>
+          <div class="row"><dt>What it exposed</dt><dd>
+            Only <strong>10 of the 33 names in <code>team.csv</code></strong> appear anywhere in
+            current mail, and 33 people invoicing today are not in it. <strong>The roster the agent
+            plans against describes a team that has largely turned over.</strong> Standing patterns
+            and scoring are being computed over people who left. Awaiting Brendon's call on
+            rebuilding from the invoice list.
+          </dd></div>
+          <div class="row"><dt>Still to settle</dt><dd>
+            Whether <code>bryancanton25</code> (Bryan Canton) and <code>bonryancanton17</code> (Bon
+            Ryan Canton) are one person with two addresses. Mary Joy <em style="font-style:normal">Villacura</em>
+            is confirmed <strong>not</strong> Mary Joy <em style="font-style:normal">Tongson</em>.
           </dd></div>
         </dl>
       </article>
@@ -804,8 +821,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
     </div>
     <ol class="asks">
       <li><b>Send the Slack invites</b>Four pinnable messages are drafted and unsent, one per channel. Order matters: fix the channel spelling to <span class="mono">availability-pacificlinkglobal</span> while no links exist yet, set all four as <b style="display:inline">default channels</b> so invitees join automatically, paste the channel descriptions, then send and pin — and only then invite people. A half-built workspace is a bad first impression.</li>
-      <li><b>One folder in the new SharePoint site</b>The site at <span class="mono">/sites/callsheets</span> is correct. Create a single <span class="mono">Call Sheets</span> folder in its Documents library by hand; the other twenty, the file move and the cleanup follow automatically. Confirm it is in <b style="display:inline">Documents</b> — it still has not indexed.</li>
-      <li><b>The contact list</b>Name, WhatsApp number, email — one row per caller. The delivery path is built and proven; twenty addresses is the only missing input.</li>
+      <li><b>Decide whose names the roster is built from</b>Ten of the thirty-three names in <span class="mono">team.csv</span> are still active; thirty-three people invoicing now are missing from it. Confirm the invoice list is authoritative and the caller folders, standing patterns and scoring get rebuilt against the real team.</li>
+      <li><b>Turn on external sharing for the new site</b>Admin centre &rarr; Active sites &rarr; <span class="mono">callsheets</span> &rarr; Settings &rarr; External sharing &rarr; <b style="display:inline">Anyone</b>. Without it, callers with no Microsoft account cannot edit — which was the entire reason for the site.</li>
       <li><b>Enrol the Cloud project</b>Project 454021123290 in the Google Workspace Developer Preview Program — only still worth doing if call sheets stay on Google. If they move to SharePoint, this stops mattering.</li>
       <li><b>Run the access-revocation script</b>At least one call sheet is editable by anyone with the link, today. Audit mode changes nothing, so it's safe to look first.</li>
       <li><b>Settle three names</b>Alexis, Kris Dolz, Nelle — and remove or rename one of the two Florence Bularons in the group.</li>
