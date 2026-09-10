@@ -34,6 +34,46 @@ Accuracy is the whole point of this document. Every constraint in it should have
 been checked against the live tool, and entries say so. If something was assumed
 rather than tested, label it as assumed.
 
+## Standing instruction: there is no memory, so read the store first
+
+A session remembers nothing from the last one. The container is wiped and
+this file is the only thing that loads automatically. Treat it as the index,
+not the data.
+
+**At the start of any session that touches people — rostering, results,
+availability, announcements — read the caller directory before doing
+anything else.** It holds the name, email and phone of everyone currently
+working, plus the name decisions that have already been settled. Without it
+a session will re-derive the roster from `team.csv`, which is stale, and
+re-ask questions Brendon has already answered.
+
+    Directory location: SharePoint, "Agent Memory" folder — NOT YET CREATED.
+    Brendon has to place it; a write to the PacificLinkGlobal site was
+    blocked. Until it exists, ask him for the current contacts.csv rather
+    than guessing, and do not rebuild the roster from team.csv.
+
+It must **not** live in the `callsheets` site: that one has external sharing
+switched on so callers can edit their own sheets, and a contact directory
+cannot sit in a library strangers can reach. It is also deliberately absent
+from this repo — `agent/.gitignore` excludes `data/` because it is personal
+information about ~40 people. Do not commit it, and do not "fix" that
+ignore rule.
+
+When something is settled that a future session would otherwise get wrong —
+a name decision, a duplicate ruled out, a process change — write it into the
+directory or into this file. That is the whole of the memory.
+
+### Already settled, do not re-ask
+
+- **Bryan Canton and Bon Ryan Canton are two different people.** Never merge
+  them, however similar the names look to duplicate detection.
+- **Mary V** is Mary Joy Villacura; **Mary T** is Mary Joy Tongson. Two
+  people. The short forms are what go on call sheet tabs and rosters.
+- **Kris Dolz** is `dolzkris210@gmail.com` — previously unmatched.
+- `team.csv` is stale: only 10 of its 33 names are still active, and ~33
+  people invoicing now are missing from it. The invoice list is closer to
+  the truth. Awaiting Brendon's decision to switch over.
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,
