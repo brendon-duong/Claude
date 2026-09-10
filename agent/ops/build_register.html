@@ -1,0 +1,669 @@
+<title>Pacific Link Build Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --sky: #3ba9ec;
+    --brand: #1b7fc9;
+    --navy: #0c1a2b;
+
+    --paper: #f4f8fc;
+    --surface: #ffffff;
+    --sunk: #eaf1f8;
+    --line: #d3e0ec;
+    --line-soft: #e4edf5;
+
+    --ink: #101f2e;
+    --ink-2: #33475c;
+    --muted: #667e94;
+
+    --live: #16724a;
+    --live-bg: #e3f4eb;
+    --blocked: #a8301c;
+    --blocked-bg: #fbe7e3;
+    --waiting: #8a5a0c;
+    --waiting-bg: #fbf0dc;
+
+    --r: 14px;
+    --shadow: 0 1px 2px rgba(16,31,46,.05), 0 8px 24px -14px rgba(16,31,46,.22);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+    --paper: #08131f;
+    --surface: #10202f;
+    --sunk: #0c1a27;
+    --line: #22384b;
+    --line-soft: #1a2c3c;
+    --ink: #e8f1f8;
+    --ink-2: #b3c6d6;
+    --muted: #7e97ad;
+    --sky: #4fb6f0;
+    --brand: #4fb6f0;
+    --live: #5fcf9b;
+    --live-bg: #102c22;
+    --blocked: #ff8f78;
+    --blocked-bg: #33150f;
+    --waiting: #e5b45f;
+    --waiting-bg: #2e2110;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -14px rgba(0,0,0,.7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #08131f;
+    --surface: #10202f;
+    --sunk: #0c1a27;
+    --line: #22384b;
+    --line-soft: #1a2c3c;
+
+    --ink: #e8f1f8;
+    --ink-2: #b3c6d6;
+    --muted: #7e97ad;
+
+    --sky: #4fb6f0;
+    --brand: #4fb6f0;
+
+    --live: #5fcf9b;
+    --live-bg: #102c22;
+    --blocked: #ff8f78;
+    --blocked-bg: #33150f;
+    --waiting: #e5b45f;
+    --waiting-bg: #2e2110;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -14px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 20px;
+    padding-block: 44px 72px;
+  }
+
+  h1, h2, h3 { font-family: Poppins, ui-sans-serif, system-ui, sans-serif; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(1.9rem, 1.3rem + 2.2vw, 2.7rem); font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: 1.22rem; font-weight: 600; letter-spacing: -.01em; }
+  h3 { font-size: 1rem; font-weight: 600; }
+
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+  code {
+    font-size: .855em;
+    background: var(--sunk);
+    border: 1px solid var(--line-soft);
+    border-radius: 5px;
+    padding: .1em .38em;
+    word-break: break-word;
+  }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .7rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--brand);
+    display: flex;
+    align-items: center;
+    gap: .55em;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--sky);
+    flex: none;
+  }
+
+  header.top { display: flex; flex-direction: column; gap: 14px; }
+  .lede { color: var(--ink-2); max-width: 68ch; font-size: 1.02rem; margin: 0; }
+  .meta {
+    color: var(--muted); font-size: .82rem;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  /* ---- counters ---- */
+  .tally { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+  .tally div {
+    display: flex; align-items: baseline; gap: .5em;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 16px 8px 13px;
+    font-size: .87rem;
+    color: var(--ink-2);
+  }
+  .tally b {
+    font-family: Poppins, sans-serif; font-size: 1.02rem; font-weight: 700;
+    color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .tally .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; align-self: center; }
+
+  section { margin-top: 52px; }
+  .section-head { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+  .section-head p { margin: 0; color: var(--muted); font-size: .92rem; max-width: 66ch; }
+
+  /* ---- blockers ---- */
+  .items { display: flex; flex-direction: column; gap: 14px; }
+
+  .item {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--stripe, var(--line));
+    border-radius: var(--r);
+    box-shadow: var(--shadow);
+    padding: 20px 22px;
+    display: grid;
+    gap: 12px;
+  }
+  .item.blocked  { --stripe: var(--blocked); }
+  .item.worked   { --stripe: var(--live); }
+  .item.pending  { --stripe: var(--waiting); }
+
+  .item-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .item-head h3 { flex: 1 1 22ch; }
+
+  .tag {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .655rem; letter-spacing: .1em; text-transform: uppercase;
+    padding: 4px 9px; border-radius: 5px; white-space: nowrap; font-weight: 500;
+  }
+  .t-blocked { background: var(--blocked-bg); color: var(--blocked); }
+  .t-worked  { background: var(--live-bg);    color: var(--live); }
+  .t-pending { background: var(--waiting-bg); color: var(--waiting); }
+
+  .rows { display: grid; gap: 9px; }
+  .row { display: grid; grid-template-columns: 108px 1fr; gap: 6px 16px; align-items: start; }
+  .row dt {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .68rem; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--muted); padding-top: .28em;
+  }
+  .row dd { margin: 0; color: var(--ink-2); }
+  .row dd strong { color: var(--ink); font-weight: 500; }
+
+  .quote {
+    background: var(--sunk);
+    border-radius: 8px;
+    padding: 10px 13px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .8rem;
+    color: var(--ink-2);
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* ---- capability table ---- */
+  .split { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 16px; align-items: start; }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+  .panel > header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line-soft);
+    display: flex; align-items: center; gap: 9px;
+    font-family: Poppins, sans-serif; font-weight: 600; font-size: .95rem;
+  }
+  .panel ul { list-style: none; margin: 0; padding: 6px 0; }
+  .panel li {
+    padding: 9px 18px;
+    display: grid; grid-template-columns: 16px 1fr; gap: 11px;
+    align-items: start;
+    border-top: 1px solid var(--line-soft);
+    color: var(--ink-2);
+    font-size: .93rem;
+  }
+  .panel li:first-child { border-top: 0; }
+  .panel li span.mk { font-family: "IBM Plex Mono", monospace; line-height: 1.5; }
+  .panel li em { font-style: normal; color: var(--muted); font-size: .86rem; display: block; }
+  .yes .mk { color: var(--live); }
+  .no  .mk { color: var(--blocked); }
+
+  /* ---- built list ---- */
+  .built { columns: 2; column-gap: 32px; }
+  .built div {
+    break-inside: avoid;
+    padding: 7px 0 7px 20px;
+    position: relative;
+    color: var(--ink-2);
+    font-size: .93rem;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .built div::before {
+    content: "✓"; position: absolute; left: 0; top: 7px;
+    color: var(--live); font-family: "IBM Plex Mono", monospace; font-size: .85rem;
+  }
+  .built b { color: var(--ink); font-weight: 500; }
+
+  /* ---- asks ---- */
+  ol.asks { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; counter-reset: a; }
+  ol.asks li {
+    counter-increment: a;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 18px 14px 50px;
+    position: relative;
+    color: var(--ink-2);
+  }
+  ol.asks li::before {
+    content: counter(a);
+    position: absolute; left: 17px; top: 14px;
+    font-family: "IBM Plex Mono", monospace; font-size: .78rem; font-weight: 500;
+    color: var(--brand);
+  }
+  ol.asks b { color: var(--ink); font-weight: 600; display: block; font-family: Poppins, sans-serif; font-size: .95rem; }
+
+  footer {
+    margin-top: 56px; padding-top: 22px;
+    border-top: 1px solid var(--line);
+    color: var(--muted); font-size: .87rem; max-width: 70ch;
+  }
+
+  @media (max-width: 620px) {
+    .built { columns: 1; }
+    .row { grid-template-columns: 1fr; gap: 2px; }
+    .row dt { padding-top: .5em; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">Build register · updated 10 September 2026, 11pm</div>
+    <h1>What's working, what's blocked</h1>
+    <p class="lede">
+      A running record of the Pacific Link agent: what it already does unattended, what it
+      can't do and why, and the decisions waiting on a person. Written to be handed to
+      someone technical — the constraints are stated with the actual API behaviour that
+      causes them, so nobody has to rediscover them.
+    </p>
+    <div class="meta">6,117 lines · 447 tests passing · branch claude/business-agent-dev-9jxs55</div>
+
+    <div class="tally">
+      <div><span class="dot" style="background:var(--blocked)"></span><b>2</b> hard blockers</div>
+      <div><span class="dot" style="background:var(--waiting)"></span><b>1</b> one step away</div>
+      <div><span class="dot" style="background:var(--live)"></span><b>4</b> worked around</div>
+      <div><span class="dot" style="background:var(--sky)"></span><b>5</b> waiting on you</div>
+    </div>
+  </header>
+
+  <!-- ================= BLOCKERS ================= -->
+  <section>
+    <div class="section-head">
+      <h2>Platform limits</h2>
+      <p>
+        These are properties of the tools, not bugs in our code. Each says what can't be done,
+        the API behaviour behind it, whether there's a workaround in place, and what a real fix
+        would take.
+      </p>
+    </div>
+
+    <div class="items">
+
+      <article class="item pending">
+        <div class="item-head">
+          <h3>Writing into a Google Sheet — one step away</h3>
+          <span class="tag t-pending">Almost</span>
+          <span class="tag t-worked">Script covers it meanwhile</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Was</dt><dd>
+            The Drive connector's <code>update_file</code> changes only the title and parent
+            folder. No call sets a cell value, so the agent could compute an allocation and not
+            write one cell of it.
+          </dd></div>
+          <div class="row"><dt>Now</dt><dd>
+            Google runs a hosted <strong>Sheets MCP server</strong> at
+            <code>sheetsmcp.googleapis.com/mcp/v1</code>. It is added, authorised and live, and it
+            carries <code>update_values</code> (write cells) and <code>update_spreadsheet</code>
+            (batchUpdate — which is how a cell gets a green background). Because it is a hosted
+            HTTPS endpoint rather than a local subprocess, it works from a normal chat.
+          </dd></div>
+          <div class="row"><dt>Blocked on</dt><dd>
+            One enrolment step. The first call returns:
+          </dd></div>
+        </dl>
+        <div class="quote">Access to this tool requires that your Google Cloud project (454021123290)
+is enrolled in the Google Workspace Developer Preview Program.</div>
+        <dl class="rows">
+          <div class="row"><dt>Fix</dt><dd>
+            Enrol the project at <code>developers.google.com/workspace/preview</code>. One caveat:
+            that programme is aimed at Workspace accounts, and the project sits under a personal
+            Gmail — so enrolment may not be open to it.
+          </dd></div>
+          <div class="row"><dt>Keep</dt><dd>
+            <code>ops/allocate_callsheet.gs</code> stays. "Developer Preview" means Google can change
+            or withdraw it; Apps Script has been stable for a decade.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item worked">
+        <div class="item-head">
+          <h3>Getting call sheets to callers — solved and proven</h3>
+          <span class="tag t-worked">Working</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>How</dt><dd>
+            One workbook per caller, attached to a Gmail draft. <strong>Tested end to end</strong>:
+            Kharen's 200 numbers, 8.5KB, opened cleanly with the leading zeros intact.
+          </dd></div>
+          <div class="row"><dt>Why not work email</dt><dd>
+            The work account is Microsoft (<code>brendon@pacificlinkglobal.com</code>) and it is
+            connected — but <strong>none of the three Outlook write tools can attach a file</strong>.
+            Gmail's draft call takes attachments up to 25MB.
+          </dd></div>
+          <div class="row"><dt>Why not SharePoint</dt><dd>
+            Considered and rejected. External sharing is either "anyone with the link" — the same
+            wide-open problem as the Drive call sheets — or "specific people", which emails each
+            caller a one-time passcode to enter before every open. Twenty callers, on phones,
+            every shift.
+          </dd></div>
+          <div class="row"><dt>Side benefit</dt><dd>
+            Each caller receives <strong>only their own numbers</strong>. The shared 20-tab workbook
+            exposed everyone's list to everyone.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item blocked">
+        <div class="item-head">
+          <h3>Access can be granted but never removed</h3>
+          <span class="tag t-blocked">Blocked</span>
+          <span class="tag t-pending">Script not yet run</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Why</dt><dd>
+            <code>share_file</code> grants a role and, by its own documentation, only ever
+            <strong>raises</strong> an existing one. There is no revoke call in the connector at all.
+          </dd></div>
+          <div class="row"><dt>Exposure</dt><dd>
+            <strong>60+ files</strong> with "Callsheet" in the name are owned by the account.
+            <code>03/06/2025 Callsheet Nats Rural Poll</code> was checked directly and returns:
+          </dd></div>
+        </dl>
+        <div class="quote">{"role": "writer", "type": "anyone"}</div>
+        <dl class="rows">
+          <div class="row"><dt>Meaning</dt><dd>
+            Anyone with the link can <strong>edit</strong> it — a file of New Zealanders' names and
+            phone numbers. Others belong to Curia and to staff, so they need asking rather than fixing.
+          </dd></div>
+          <div class="row"><dt>Now</dt><dd>
+            <code>ops/revoke_callsheet_access.gs</code> — audits first and changes nothing, then closes
+            link-sharing and removes stale editors on a second run. <strong>Still to be run.</strong>
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item worked">
+        <div class="item-head">
+          <h3>WhatsApp will not say who voted in a poll</h3>
+          <span class="tag t-blocked">Blocked</span>
+          <span class="tag t-worked">Solved another way</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Why</dt><dd>
+            A poll arrives through the API as <code>type: "poll_creation"</code> carrying the question
+            and options — and nothing else. There is no voter list on the object. This is WhatsApp,
+            not the connector; no plan upgrade changes it.
+          </dd></div>
+          <div class="row"><dt>Instead</dt><dd>
+            Text replies <em style="font-style:normal">are</em> readable, and every reply already
+            carries its sender. So the question goes out as an ordinary message and
+            <code>from_chat_replies</code> reads the answers — <code>13 14 15</code>,
+            <code>Sun Mon Tue</code>, <code>Mon-Thu</code>, <code>all week</code>,
+            <code>Mon Tue Wed but not Wed</code>, <code>not available</code>.
+            <strong>Better than a poll</strong>: nobody types their own name, which is where the
+            spelling mess was being created.
+          </dd></div>
+          <div class="row"><dt>Better still</dt><dd>
+            Standing patterns read from six months of audit history cover
+            <strong>4 of the 5 days without asking anyone anything</strong>. The weekly question
+            shrinks to the days that come up short.
+          </dd></div>
+          <div class="row"><dt>Ruled out</dt><dd>
+            <code>lharries/whatsapp-mcp</code> — its own README warns it is subject to the
+            <strong>lethal trifecta</strong>: private data, untrusted content from 90 group members,
+            and the ability to send. It is also local-only, so it could not reach a chat session.
+            The <strong>WhatsApp Business API</strong> is official and safe, but cannot do group
+            chats and takes the number over from the normal app.
+          </dd></div>
+          <div class="row"><dt>What protects us</dt><dd>
+            Read-only, plus <strong>draft everything, send nothing</strong>. Untrusted text can reach
+            the agent; nothing leaves without a person reading it. That setting is doing real
+            security work and should stay.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item pending">
+        <div class="item-head">
+          <h3>WhatsApp connector: quota and a browser dependency</h3>
+          <span class="tag t-pending">Needs a decision</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Limit</dt><dd>
+            Blueticks free allows <strong>5 API requests per 6 hours</strong>. One week's roster cycle
+            — post the ask, read replies, post six daily rosters — needs roughly
+            <strong>12–15</strong>.
+          </dd></div>
+          <div class="row"><dt>Engine</dt><dd>
+            It's a browser extension driving a linked WhatsApp Web session, so the browser has to
+            be open. Only the Pro tier claims to work while you're offline.
+          </dd></div>
+          <div class="row"><dt>Cheapest fix</dt><dd>
+            Basic tier, with the Mac mini as the always-on browser. Worth asking their support
+            whether Basic lifts the 5-per-6-hours API cap before paying for Standard.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item pending">
+        <div class="item-head">
+          <h3>A server on your Mac can't be reached from a cloud session</h3>
+          <span class="tag t-pending">Architectural</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Why</dt><dd>
+            Claude Code on the web runs in a throwaway container. MCP servers reach it only
+            through claude.ai's connector settings — never from something installed on the
+            container's filesystem, and never from a process on your laptop. Anything with
+            <strong>stdio transport is local-only</strong>.
+          </dd></div>
+          <div class="row"><dt>Consequence</dt><dd>
+            Work needing Sheets write access has to happen in <strong>Claude Desktop on the Mac
+            mini</strong>, or the server has to be hosted somewhere with an HTTPS endpoint and
+            added as a custom connector.
+          </dd></div>
+          <div class="row"><dt>Also</dt><dd>
+            A hosted third-party option was tried and Google refused it —
+            <span class="mono">"This app tried to access sensitive info in your Google Account"</span>.
+            That's Google's unverified-app block on restricted scopes, and it was right to fire.
+            Running your own OAuth client (Desktop app type, yourself as a test user) avoids it
+            <strong>because you become the publisher</strong>, and your tokens never leave your machine.
+          </dd></div>
+        </dl>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ================= DATA GAPS ================= -->
+  <section>
+    <div class="section-head">
+      <h2>Data gaps</h2>
+      <p>Not platform limits — things in the records that a person has to settle once.</p>
+    </div>
+
+    <div class="items">
+      <article class="item pending">
+        <div class="item-head">
+          <h3>Names that can't be matched safely</h3>
+          <span class="tag t-pending">Needs you</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Unmatched</dt><dd>
+            <strong>Alexis</strong>, <strong>Kris Dolz</strong> and <strong>Nelle</strong> appear in the
+            roster and match nobody in the WhatsApp group closely enough to tag. (<em style="font-style:normal">Nelle</em> may be Shanelle.)
+          </dd></div>
+          <div class="row"><dt>Collisions</dt><dd>
+            Two group members are both saved as <strong>Florence Bularon</strong> on different numbers;
+            there are also two Jeans and two Karens. A name that could be two people is matched to
+            <strong>neither</strong> — tagging the wrong one puts the wrong person on a shift.
+          </dd></div>
+          <div class="row"><dt>In the audits</dt><dd>
+            <strong>43 name pairs</strong> look like the same caller entered twice, which splits their
+            history and flatters the half without the failures. Reported, never auto-merged.
+          </dd></div>
+          <div class="row"><dt>Fix</dt><dd>
+            Confirm each once; they're written to an alias file and never asked again.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item pending">
+        <div class="item-head">
+          <h3>No contact list yet</h3>
+          <span class="tag t-pending">Blocking email delivery</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Needed</dt><dd>
+            One sheet: <strong>name, WhatsApp number, email</strong>. Headings don't matter — they're
+            matched loosely — but the name should be spelled as it appears in the audit sheet.
+          </dd></div>
+          <div class="row"><dt>Unlocks</dt><dd>
+            Call sheets emailed as attachments instead of shared from Drive. That removes the
+            access-revocation problem <strong>at the source</strong>: an attachment can't be left open
+            to the world eighteen months later.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item pending">
+        <div class="item-head">
+          <h3>Sundays are genuinely short</h3>
+          <span class="tag t-pending">Operational</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Numbers</dt><dd>
+            Standing patterns cover <strong>4 callers on a Sunday against 10 needed</strong>.
+            Monday to Thursday are all over-covered.
+          </dd></div>
+          <div class="row"><dt>Caveat</dt><dd>
+            Patterns come from <strong>audited</strong> shifts, not all shifts, so every rate is a
+            floor rather than a measurement — Sunday may be under-audited as well as under-staffed.
+            Worth checking before treating it as a staffing problem.
+          </dd></div>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= CAPABILITIES ================= -->
+  <section>
+    <div class="section-head">
+      <h2>What I can and can't do</h2>
+      <p>The current tool surface, so nobody plans around something that isn't there.</p>
+    </div>
+
+    <div class="split">
+      <div class="panel">
+        <header><span style="color:var(--live)">●</span> Can do now</header>
+        <ul>
+          <li class="yes"><span class="mk">✓</span><span><b>Read anything in Drive</b><em>Search, metadata, download, permissions — including files shared by Curia and Elaine.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Create new Drive files</b><em>Including populated Google Sheets. Verified working. Size-capped per upload.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Rename and move Drive files</b><em>This is how pool high-water marks get written.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Email a call sheet as an attachment</b><em>Gmail drafts, up to 25MB. Proven end to end — a caller's sheet opened correctly.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Read and draft in Outlook</b><em>Work account connected. Body only — no attachments on any Outlook tool.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Write into SharePoint / OneDrive</b><em>Upload and update files up to 1MB. Unused — callers would need passcodes.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Read WhatsApp</b><em>Chats, message history, group participants and their numbers.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Compose WhatsApp posts with real @mentions</b><em>Drafted, not sent. 91% of rostered callers resolve to a number automatically.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Build, test and ship the code</b><em>Full toolchain, 447 tests, everything pushed to GitHub.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Publish pages like this one</b><em>Dashboards, rosters, reports.</em></span></li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <header><span style="color:var(--blocked)">●</span> Can't do</header>
+        <ul>
+          <li class="no"><span class="mk">✕</span><span><b>Edit an existing Google Sheet — for now</b><em>The Sheets connector is live but the Cloud project needs preview enrolment.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Remove anyone's Drive access</b><em>Granting only. The Apps Script covers it.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>See who voted in a WhatsApp poll</b><em>Not exposed by WhatsApp. Text replies are read instead.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Send anything on its own</b><em>Your standing setting: draft everything, send nothing. Deliberate, and changeable.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Reach a server on your Mac</b><em>Cloud session. Local MCP servers are invisible to it.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Attach a file to an Outlook email</b><em>Checked all three write tools. Gmail is the only route with attachments.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Transfer large files through chat</b><em>Anything over roughly 5 call-sheet tabs has to go via the script or an upload.</em></span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BUILT ================= -->
+  <section>
+    <div class="section-head">
+      <h2>Already built and tested</h2>
+      <p>So nobody spends a weekend rebuilding it. All of it runs without network access to anything but the sheets it reads.</p>
+    </div>
+    <div class="built">
+      <div><b>Curia schedule parser</b> — polls per day, continuation rows, holidays, staff counts</div>
+      <div><b>Audit parser</b> — 1,578 records; breaks, cumulative totals, "short by", suspicious entries</div>
+      <div><b>Performance scoring</b> — completes per shift from call logs, not from what was declared</div>
+      <div><b>Integrity gating</b> — rate-based, so a high-volume caller isn't barred for one bad week</div>
+      <div><b>Standing availability</b> — 46 of 52 active callers have a settled weekly pattern</div>
+      <div><b>Roster builder</b> — 74 of 80 slots filled for 13–17 Sep with no input at all</div>
+      <div><b>Duplicate detection</b> — union-find grouping; reported, never auto-merged</div>
+      <div><b>WhatsApp triage</b> — dropouts, offers and client requests picked out of the group chat</div>
+      <div><b>Roster announcements</b> — one message per day, real @mentions, preview and send forms</div>
+      <div><b>Call-sheet allocation</b> — contiguous 200-number blocks, never split across two pools</div>
+      <div><b>Pool reader</b> — finds the phone column by heading across differently-shaped files</div>
+      <div><b>Leading-zero repair</b> — <code>212507803</code> back to <code>0212507803</code>, landlines untouched</div>
+      <div><b>High-water marks</b> — "USE FROM" and "USED TO" read with opposite arithmetic</div>
+      <div><b>Green highlighting</b> — used rows shaded in the pool they came from</div>
+      <div><b>Analytics dashboard</b> — roster, capacity and audit findings on the Pacific Link brand</div>
+      <div><b>Two Apps Scripts</b> — allocation, and call-sheet access revocation</div>
+      <div><b>Per-caller call sheets</b> — one workbook each, so nobody sees anyone else's numbers</div>
+      <div><b>Gmail delivery</b> — drafted with the sheet attached; tested and confirmed opening</div>
+      <div><b>Wellington Bays 400</b> — 4,000 numbers allocated across two pools, 10 September</div>
+    </div>
+  </section>
+
+  <!-- ================= ASKS ================= -->
+  <section>
+    <div class="section-head">
+      <h2>Waiting on you</h2>
+      <p>Roughly in order of what unblocks the most.</p>
+    </div>
+    <ol class="asks">
+      <li><b>The contact list</b>Name, WhatsApp number, email — one row per caller. The delivery path is built and proven; twenty addresses is the only missing input.</li>
+      <li><b>Enrol the Cloud project</b>Project 454021123290 in the Google Workspace Developer Preview Program. That is the last thing between here and writing straight into your spreadsheets.</li>
+      <li><b>Run the access-revocation script</b>At least one call sheet is editable by anyone with the link, today. Audit mode changes nothing, so it's safe to look first.</li>
+      <li><b>Settle three names</b>Alexis, Kris Dolz, Nelle — and remove or rename one of the two Florence Bularons in the group.</li>
+      <li><b>Decide the WhatsApp tier</b>Free won't carry a weekly cycle. Ask Blueticks whether Basic lifts the API cap before paying for more.</li>
+    </ol>
+  </section>
+
+  <footer>
+    Every limit above was checked against the live tools rather than assumed — the permission
+    string, the poll object, the connector registry and the upload size were each tested
+    directly. Where a workaround exists it's named by filename, and where one doesn't, that's
+    stated plainly rather than worked around quietly.
+  </footer>
+
+</div>
