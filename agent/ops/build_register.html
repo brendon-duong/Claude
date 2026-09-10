@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 11 September 2026, 12.05am</div>
+    <div class="eyebrow">Build register · updated 11 September 2026, 1.05am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -298,9 +298,9 @@
 
     <div class="tally">
       <div><span class="dot" style="background:var(--blocked)"></span><b>1</b> hard blocker</div>
-      <div><span class="dot" style="background:var(--waiting)"></span><b>1</b> one step away</div>
-      <div><span class="dot" style="background:var(--live)"></span><b>5</b> solved</div>
-      <div><span class="dot" style="background:var(--sky)"></span><b>4</b> waiting on you</div>
+      <div><span class="dot" style="background:var(--waiting)"></span><b>4</b> need a decision</div>
+      <div><span class="dot" style="background:var(--live)"></span><b>6</b> solved</div>
+      <div><span class="dot" style="background:var(--sky)"></span><b>7</b> waiting on you</div>
     </div>
   </header>
 
@@ -461,15 +461,61 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             The Slack connector is now live — 27 tools. <code>slack_get_reactions</code> returns
             <strong>the users who reacted</strong>, with names and ids. So an emoji reaction is a
             readable, attributed vote: post the days, people tap, the agent reads exactly who
-            tapped what. That is the thing WhatsApp refused to give.
-            <strong>Slack Lists</strong> go further — a table with a checkbox per day that people
-            keep current, created and read through <code>slack_create_list</code> and
-            <code>slack_read_list</code>. No poll app, no Simple Poll, no Polly.
+            tapped what. That is the thing WhatsApp refused to give — and no poll app, no Simple
+            Poll, no Polly, no paid tier.
+          </dd></div>
+          <div class="row"><dt>Proven live</dt><dd>
+            Tested end to end on <strong>10 September</strong>, not assumed. Five day messages were
+            posted to <code>#availbility-pacificlinkglobal</code>, both emoji pre-seeded on each, and
+            the reactions read back:
+            <span class="mono">:white_check_mark: &times; 1 — Brendon Duong (U0C0U8P4T0W)</span>.
+            Emoji, count <em style="font-style:normal">and</em> the named voter. The loop works.
+          </dd></div>
+          <div class="row"><dt>Design that fell out of it</dt><dd>
+            <strong>One message per day</strong>, not one per week. That yields three states per
+            person per day — tapped yes, tapped no, tapped nothing — and the third is the valuable
+            one: it separates a caller having a quiet week from a caller who has drifted off.
+            Both emoji are <strong>pre-seeded</strong> so voting is one tap rather than a hunt
+            through the emoji picker, which is where mobile adoption dies. Cost: the agent's own
+            tap counts in every total and must be subtracted.
+          </dd></div>
+          <div class="row"><dt>Ruled out</dt><dd>
+            <strong>Slack Lists</strong> and <strong>canvases</strong> — both unavailable on a free
+            workspace. The instructions therefore live as pinned messages, which the 90-day limit
+            below will eventually eat, so they need re-posting.
           </dd></div>
           <div class="row"><dt>What protects us</dt><dd>
             Read-only, plus <strong>draft everything, send nothing</strong>. Untrusted text can reach
             the agent; nothing leaves without a person reading it. That setting is doing real
             security work and should stay.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item pending">
+        <div class="item-head">
+          <h3>Slack free plan: 90 days of history</h3>
+          <span class="tag t-pending">Plan for it</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Not the problem</dt><dd>
+            <strong>No member cap.</strong> The "1,000 users" figure is not the binding limit — a free
+            workspace takes the 100–150 people Pacific Link expects. App installs cap at 10 (Claude
+            is one) and huddles are 1-to-1, neither of which bites here.
+          </dd></div>
+          <div class="row"><dt>The real limit</dt><dd>
+            <strong>Message history is readable for 90 days.</strong> After that it is gone — to
+            Brendon and to the agent alike.
+          </dd></div>
+          <div class="row"><dt>Harmless for</dt><dd>
+            Availability and rostering. Standing-pattern derivation looks back <strong>56 days</strong>,
+            comfortably inside 90.
+          </dd></div>
+          <div class="row"><dt>Harmful for</dt><dd>
+            The results channel. Deciding who to keep on a year of performance will not work if the
+            year has been eaten. <strong>The fix is not paying Slack</strong> — it is extracting
+            results weekly into Pacific Link's own records, where they are permanent and not rented.
+            That belongs in the weekly routine.
           </dd></div>
         </dl>
       </article>
@@ -492,6 +538,67 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
           <div class="row"><dt>Cheapest fix</dt><dd>
             Basic tier, with the Mac mini as the always-on browser. Worth asking their support
             whether Basic lifts the 5-per-6-hours API cap before paying for Standard.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item pending">
+        <div class="item-head">
+          <h3>A SharePoint site is invisible until it holds something</h3>
+          <span class="tag t-pending">Waiting on indexing</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Why</dt><dd>
+            The M365 connector finds sites only through the <strong>tenant search index</strong> —
+            that is, through their contents. An empty site has no contents, so it cannot be seen at
+            all, however correct its URL.
+          </dd></div>
+          <div class="row"><dt>And it can't be looked up by URL</dt><dd>
+            Asking for a site by address returns <code>itemNotFound</code>. That was worth proving
+            rather than assuming: the same request against the <em style="font-style:normal">old</em>
+            site, which certainly exists, failed identically. <strong>So the 404 says nothing about
+            whether a site exists</strong> — the connector simply has no URL-to-site path. There is
+            also no site-creation tool, so the site itself must be made by hand.
+          </dd></div>
+          <div class="row"><dt>Consequence</dt><dd>
+            A person has to create one folder by hand before the agent can build the other twenty.
+            <code>/sites/callsheets</code> was created correctly and, <strong>after seven sweeps
+            across roughly two hours</strong>, still had not appeared. That is past a normal
+            indexing delay, so a wrong-location folder cannot yet be ruled out from this side.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item worked">
+        <div class="item-head">
+          <h3>Spreadsheet contents are not searchable — and the upload was fine</h3>
+          <span class="tag t-worked">Resolved</span>
+          <span class="tag t-pending">Changes how files get found</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Retracted</dt><dd>
+            The uploaded call sheet was being reported as <em style="font-style:normal">possibly
+            corrupt</em> and carried on the open list as unverified, on two pieces of evidence. Both
+            were over-read. It never reached this register as a finding, and it is now closed.
+          </dd></div>
+          <div class="row"><dt>The size difference</dt><dd>
+            8,570 bytes sent, 17,170 reported. <strong>Normal.</strong> SharePoint repacks an xlsx on
+            upload and adds its own document properties; a small workbook roughly doubling is
+            expected. Truncation would come back <em style="font-style:normal">smaller</em>, not larger.
+          </dd></div>
+          <div class="row"><dt>The extraction refusal</dt><dd>
+            Graph returns <code>notSupported</code> for the file's text. That is the
+            <strong>connector's extraction path</strong> failing, which it does routinely for
+            spreadsheets — it says nothing about whether Excel can open the file. And Brendon had
+            already opened it, which is the only test that counts.
+          </dd></div>
+          <div class="row"><dt>The finding that does matter</dt><dd>
+            A content search for <span class="mono">Wellington Bays</span> across the whole tenant
+            returned old Zoom invoices and <strong>not the call sheet</strong> — despite it sitting in
+            an indexed folder modified that morning. So <strong>spreadsheet contents are not
+            searchable</strong> to the agent. Files can be listed and a sheet read when its location
+            is already known, but a call sheet cannot be found by what is inside it. The agent must
+            therefore <strong>track file locations itself</strong> rather than rediscovering them.
           </dd></div>
         </dl>
       </article>
@@ -616,7 +723,7 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
           <li class="yes"><span class="mk">✓</span><span><b>Write into SharePoint / OneDrive</b><em>Upload and update files up to 1MB. Unused — callers would need passcodes.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Read WhatsApp</b><em>Chats, message history, group participants and their numbers.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Read and post in Slack</b><em>Channels, threads, users — and reactions, with the names of who reacted.</em></span></li>
-          <li class="yes"><span class="mk">✓</span><span><b>Build and read Slack Lists</b><em>A checkbox table for standing availability that people keep current themselves.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Run a readable availability poll</b><em>Emoji reactions on one message per day. Proven live — returns the named voter, not just a count.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Compose WhatsApp posts with real @mentions</b><em>Drafted, not sent. 91% of rostered callers resolve to a number automatically.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Build, test and ship the code</b><em>Full toolchain, 447 tests, everything pushed to GitHub.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Publish pages like this one</b><em>Dashboards, rosters, reports.</em></span></li>
@@ -630,6 +737,10 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
           <li class="no"><span class="mk">✕</span><span><b>Remove anyone's Drive access</b><em>Granting only. The Apps Script covers it.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>See who voted in a WhatsApp poll</b><em>Not exposed by WhatsApp. Slack reactions solve this properly.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Create a SharePoint site</b><em>Folders and files only. You make the site once; the rest is automatic.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Find a SharePoint site by its URL</b><em>Only through the search index, so an empty site is invisible. Proven against a site that does exist.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Search inside a spreadsheet on SharePoint</b><em>Contents aren't indexed. Locations have to be tracked, not rediscovered.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Delete a Slack message</b><em>No delete call in the connector. Test posts have to be cleared by hand.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Use Slack Lists or canvases</b><em>Both are paid-plan features. Instructions live as pinned messages instead.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Send anything on its own</b><em>Your standing setting: draft everything, send nothing. Deliberate, and changeable.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Reach a server on your Mac</b><em>Cloud session. Local MCP servers are invisible to it.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Attach a file to an Outlook email</b><em>Checked all three write tools. Gmail is the only route with attachments.</em></span></li>
@@ -666,6 +777,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
       <div><b>Gmail delivery</b> — drafted with the sheet attached; tested and confirmed opening</div>
       <div><b>Wellington Bays 400</b> — 4,000 numbers allocated across two pools, 10 September</div>
       <div><b>SharePoint delivery</b> — folder created, call sheet uploaded, ready for the isolated site</div>
+      <div><b>Slack availability poll</b> — reaction loop tested live; emoji, count and named voter read back</div>
+      <div><b>Slack onboarding</b> — four pinnable channel guides drafted, unsent, one per channel</div>
     </div>
   </section>
 
@@ -676,12 +789,15 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
       <p>Roughly in order of what unblocks the most.</p>
     </div>
     <ol class="asks">
+      <li><b>Send the Slack invites</b>Four pinnable messages are drafted and unsent, one per channel. Order matters: fix the channel spelling to <span class="mono">availability-pacificlinkglobal</span> while no links exist yet, set all four as <b style="display:inline">default channels</b> so invitees join automatically, paste the channel descriptions, then send and pin — and only then invite people. A half-built workspace is a bad first impression.</li>
+      <li><b>One folder in the new SharePoint site</b>The site at <span class="mono">/sites/callsheets</span> is correct. Create a single <span class="mono">Call Sheets</span> folder in its Documents library by hand; the other twenty, the file move and the cleanup follow automatically. Confirm it is in <b style="display:inline">Documents</b> — it still has not indexed.</li>
       <li><b>The contact list</b>Name, WhatsApp number, email — one row per caller. The delivery path is built and proven; twenty addresses is the only missing input.</li>
-      <li><b>The new SharePoint site</b>Create it, rename it "Call Sheets", send the URL. Then the caller folders get built and Kharen's sheet moves off the site that holds your contracts.</li>
       <li><b>Enrol the Cloud project</b>Project 454021123290 in the Google Workspace Developer Preview Program — only still worth doing if call sheets stay on Google. If they move to SharePoint, this stops mattering.</li>
       <li><b>Run the access-revocation script</b>At least one call sheet is editable by anyone with the link, today. Audit mode changes nothing, so it's safe to look first.</li>
       <li><b>Settle three names</b>Alexis, Kris Dolz, Nelle — and remove or rename one of the two Florence Bularons in the group.</li>
-      <li><b>Decide the WhatsApp tier</b>Free won't carry a weekly cycle. Ask Blueticks whether Basic lifts the API cap before paying for more.</li>
+      <li><b>Decide the WhatsApp tier</b>Free won't carry a weekly cycle. Ask Blueticks whether Basic lifts the API cap before paying for more. Lower priority now that Slack carries availability, roster and results — WhatsApp is reduced to problems and questions.</li>
+      <li><b>Rotate the Google OAuth client secret</b>It was pasted into a chat. Treat it as public and replace it, whether or not Sheets ends up being used.</li>
+      <li><b>Delete the six test messages</b>In the availability channel, clearly labelled as a test. The Slack connector has no delete call, so this one can only be done by hand.</li>
     </ol>
   </section>
 
