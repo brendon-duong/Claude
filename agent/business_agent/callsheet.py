@@ -157,6 +157,14 @@ def start_after_from_title(title: str) -> int | None:
     return mark - 1 if title_mark_is_inclusive(title) else mark
 
 
+# Only for rewriting a title, never for deciding where to resume: one or two
+# digits after a phrase word is as likely to be "from 5 areas" as a mark.
+_ANY_MARK = re.compile(
+    r"\b(?:use\s+from|start\s+(?:at|from)|up\s+to)\b[^\d]{0,12}(?P<mark>\d+)",
+    re.IGNORECASE,
+)
+
+
 def next_title(title: str, last_issued_id: int) -> str:
     """The pool file's title after issuing up to `last_issued_id`.
 
@@ -167,6 +175,13 @@ def next_title(title: str, last_issued_id: int) -> str:
     """
     match = _MARK_PHRASE.search(title or "")
     if match is None:
+        # A mark too small for the detector to trust — "USE FROM 1" on a fresh
+        # pool — is still a mark, and appending a second one beside it would
+        # leave the title carrying two. Replace it rather than stack them.
+        stale = _ANY_MARK.search(title or "")
+        if stale is not None:
+            return (title[: stale.start("mark")] + str(last_issued_id + 1)
+                    + title[stale.end("mark") :])
         return f"{title.rstrip()} - USE FROM {last_issued_id + 1}"
     mark = last_issued_id + 1 if title_mark_is_inclusive(title) else last_issued_id
     return title[: match.start("mark")] + str(mark) + title[match.end("mark") :]
