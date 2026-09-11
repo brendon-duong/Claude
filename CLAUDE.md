@@ -133,6 +133,30 @@ directory or into this file. That is the whole of the memory.
   Philip · `Karen Redaniel Boiser`→Karen Boiser · `Melburne Baliad`→Melburne
   Ando Baliad · `Josephus Chris Parages`→Josephus Parages · `Eunilyn
   Lisondra`→Nilyn Lisondra.
+- **Settled 12 Sep by Brendon, each corroborated by the Slack account's own
+  email and Real Name field — the first time email was used as the join key:**
+  - **`CJ` is Crystal Jahm Peralta** (`crystaljahmperalta@gmail.com`, Real Name
+    "Crystal Jahm Peralta"). This **closes the `Jahm Peralta` / `CJ Peralta`
+    near-miss**: Crystal and Jahm are the same person, so Slack `CJ` is Zoom
+    `jahm peralta`. Brendon said "CJ is Crystal" and the account confirms why.
+  - **`boiserkaren21` is Karen Boiser** → Zoom `karen redaniel boiser`. Note the
+    Boiser cluster is four different people: Karen, Katherine, Leizel and Erika.
+  - **`Goldy Kaye` is Goldy Kaye Maglasang** (`goldymaglasang7@gmail.com`) →
+    Zoom `goldy maglasang`.
+- **`Cha` is NOT settled, and Brendon's answer conflicts with the record.** He
+  said "Cha is Charlotte". The Slack account is `charyjay12@gmail.com`, Real
+  Name "Cha" — that reads as **Chary Jay**, and Zoom has a `chary jay sanchez`.
+  **Charlotte Gimpes is a separate Slack account** (`chaching.gimpes@gmail.com`)
+  that votes independently on the same messages. Zoom also has a bare `cha`
+  alongside `chary jay sanchez`. Not merged; she is left unrankable until
+  Brendon confirms against the email rather than the display name.
+- **`Jane` — the surname is contested and it does not matter yet.** Brendon said
+  12 Sep "that is Jane Wareei". This file already records that **Jane Wareei was
+  a wrong inference from `janewareei919@gmail.com`** and that she is Jane
+  Labora. Both cannot be right. What is certain either way: she is **not** Zoom's
+  `jane wary rose espanueva`, and **no Jane appears in the Zoom logs under any
+  spelling**, so she cannot be ranked regardless. Ask again before the name
+  reaches a contract, an invoice or a call sheet folder.
 - **Jane Wary Rose Espanueva is a real, separate caller.** Elaine audits her as
   `Jane Wary Espanueva`. She is not Jane Labora; she simply has no call sheet
   folder. The earlier worry about a "third Jane" is closed.
@@ -405,10 +429,16 @@ to 4× Elaine's on some callers. The dashboard's "Clean" column was relabelled
 
 What the dummy run showed, all recorded on the page itself:
 
-- **8 people take all five nights; 19 of the 43 who voted get none**, and 24
-  people cover all 80 slots. No floor was applied. A 3-shift-per-week cap
-  spreads the same 80 slots across 28 people and still fills every one — that
-  comparison is on the page. Brendon has been asked which he wants.
+- **Brendon chose NO CAP on shifts, 12 Sep.** Asked directly, having seen what
+  it does. With the three names above resolved, **23 people cover all 80 slots
+  and 20 of the 43 who voted get nothing**; nine people work all five nights.
+  A 3-shift cap would spread the same 80 slots across 31 people — that
+  comparison stays on the dashboard, but the roster is built his way.
+- **Adding Karen, Goldy and Crystal pushed Nilyn from 3 shifts to none.** She is
+  the caller whose off-phone figure reads ~4× Elaine's. The ranking rule and the
+  unreliable number together now cost her the entire week. Flagged to Brendon,
+  his call, recorded here because it is the clearest example of what that metric
+  does to a real person.
 - **10 voted ✅ and have no call history to rank on**, so a pure ranking can
   never give them a first shift: Bryan Canton, Charlotte Gimpes, Hermi, Ian
   Christopher, Jellame Malicay, Kris, Marynel Joy Reanturco, Rechiell W.,
