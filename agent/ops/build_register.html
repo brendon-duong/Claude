@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 12 September 2026, 12.15am</div>
+    <div class="eyebrow">Build register · updated 12 September 2026, 1.05am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -299,8 +299,8 @@
     <div class="tally">
       <div><span class="dot" style="background:var(--blocked)"></span><b>3</b> hard blockers</div>
       <div><span class="dot" style="background:var(--waiting)"></span><b>5</b> need a decision</div>
-      <div><span class="dot" style="background:var(--live)"></span><b>6</b> solved</div>
-      <div><span class="dot" style="background:var(--sky)"></span><b>8</b> to do tomorrow</div>
+      <div><span class="dot" style="background:var(--live)"></span><b>7</b> solved</div>
+      <div><span class="dot" style="background:var(--sky)"></span><b>9</b> to do tomorrow</div>
     </div>
   </header>
 
@@ -685,6 +685,83 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
         </dl>
       </article>
 
+      <article class="item pending">
+        <div class="item-head">
+          <h3>The first real shift measurement — and two defects it exposed</h3>
+          <span class="tag t-worked">Ran</span>
+          <span class="tag t-pending">Two fixes need a decision</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>What ran</dt><dd>
+            The full per-caller measurement over <strong>10 September, Wellington Bays</strong> —
+            attempts, answered, completes, time away, time worked, shortfall. Not a spot check:
+            every caller on the day, scored by the same rules.
+          </dd></div>
+          <div class="row"><dt>The day</dt><dd>
+            <strong>22 callers worked the shift</strong>: 5,412 outbound attempts, 2,526 answered,
+            <strong>197 completes</strong>. Top of the day is <code>Karen Redaniel Boiser</code> on
+            15, then <code>Mariel Angelica Aresco</code> 14 and <code>Jasmine Magdayao</code> 13.
+          </dd></div>
+          <div class="row"><dt>The number that matters</dt><dd>
+            <strong>10 of the 22 are more than 30 minutes short</strong> of three hours on the
+            phone. Two are more than an hour short — <code>Eunilyn Lisondra</code> (1h24m short,
+            1h21m away from the phone) and <code>Florence Bularon</code> (1h12m). This is the first
+            time that has been measured rather than declared, and it is the whole point of the
+            build. <strong>It is also unverified against anything</strong>: nobody has yet checked a
+            single one of these against what the caller said they did, because the declared half is
+            unreadable (see the entry below).
+          </dd></div>
+          <div class="row"><dt>Defect 1 — a phantom caller</dt><dd>
+            Zoom writes <code>caller_name: "Anonymous"</code> on an inbound call from a withheld
+            number. <code>by_caller</code> groups on <code>caller_name</code> regardless of
+            direction, so five withheld inbound calls to three different extensions were collected
+            into a <strong>caller called "Anonymous"</strong> who appeared in the table with a
+            2h59m shortfall. Nobody by that name exists. On a shift report handed to a person, an
+            invented caller is worse than a missing one.
+          </dd></div>
+          <div class="row"><dt>Why it is there</dt><dd>
+            For an <em style="font-style:normal">outbound</em> call <code>caller_name</code> is the
+            agent; for an <em style="font-style:normal">inbound</em> one it is the member of the
+            public ringing in. Grouping both together attributes the wrong half. Today it is nearly
+            harmless — only 6 of 207 inbound rows carry a name at all — but the shape is wrong, and
+            it also silently dropped one of Jasmine Magdayao's calls into her own total.
+            <strong>Proposed fix: <code>by_caller</code> counts outbound only.</strong> Not applied
+            — it changes what every figure means, and that is Brendon's call.
+          </dd></div>
+          <div class="row"><dt>Defect 2 — a window that runs backwards</dt><dd>
+            <code>Princess Matildo</code> and <code>Chary Jay Sanchez</code> each made exactly one
+            call, at <strong>10:37 Manila</strong>, to the same number a second apart — a phone
+            test, not a shift. But <code>started_at()</code> floors to 1:30pm while
+            <code>finished_at()</code> stays at 10:37, so each was reported with the window
+            <span class="mono">13:30–10:37</span> and a full <strong>three-hour shortfall</strong>.
+            <code>span()</code> clamps to zero so the arithmetic never breaks — it just reads as a
+            three-hour no-show for someone who was never rostered.
+          </dd></div>
+          <div class="row"><dt>Proposed fix</dt><dd>
+            A caller whose calls <strong>all</strong> fall before the earliest start has not worked
+            the shift and should be listed separately rather than scored against three hours.
+            Also not applied. Both defects are in the report shown to Brendon with the rows pulled
+            out, so no wrong number reached him.
+          </dd></div>
+          <div class="row"><dt>Name matching, tightened</dt><dd>
+            The first pass matched <code>Jean Sumarago</code> to the roster's bare <code>Jean</code>
+            on a prefix rule. There are <strong>two Jeans</strong>, so that is exactly the merge the
+            standing rule forbids. The matcher now collects <em style="font-style:normal">every</em>
+            plausible candidate and, where there is more than one, matches to
+            <strong>neither</strong>. On 10 September: 13 exact, 1 settled (<code>Khars -</code>),
+            6 with a single candidate awaiting a yes/no, <strong>1 ambiguous</strong>
+            (<code>Jean Sumarago</code> — <code>Jean</code> or <code>Jean Carla Sumarago</code>),
+            and 3 that resemble nothing (<code>Jane Wary Rose Espanueva</code>,
+            <code>Florence Bularon</code>, <code>Chary Jay Sanchez</code>).
+          </dd></div>
+          <div class="row"><dt>Standing caveat</dt><dd>
+            The roster used here is the <strong>48 call sheet folder names</strong>, because
+            <code>team.csv</code> is stale and the caller directory does not exist yet. That is a
+            proxy, not a roster — it is labelled as such rather than treated as truth.
+          </dd></div>
+        </dl>
+      </article>
+
       <article class="item blocked">
         <div class="item-head">
           <h3>Call sheets can be located but not read — and the library is empty</h3>
@@ -982,7 +1059,7 @@ unless the file or its label changes.</div>
           <li class="yes"><span class="mk">✓</span><span><b>Run a readable availability poll</b><em>Emoji reactions on one message per day. Proven live — returns the named voter, not just a count.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Compose WhatsApp posts with real @mentions</b><em>Drafted, not sent. 91% of rostered callers resolve to a number automatically.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Build, test and ship the code</b><em>Full toolchain, 508 tests, everything pushed to GitHub.</em></span></li>
-          <li class="yes"><span class="mk">✓</span><span><b>Audit a shift from the call logs</b><em>Completes, breaks, total time away and shortfall against three hours, proven on real data.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Audit a shift from the call logs</b><em>Run end to end on 10 Sep: 22 callers scored on attempts, answered, completes, time away, time worked and shortfall.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Publish pages like this one</b><em>Dashboards, rosters, reports.</em></span></li>
         </ul>
       </div>
@@ -1039,6 +1116,7 @@ unless the file or its label changes.</div>
       <div><b>Shift measurement</b> — completes, breaks, time worked and shortfall from Zoom call logs</div>
       <div><b>Slack onboarding</b> — four pinnable channel guides drafted, unsent, one per channel</div>
       <div><b>Live call-log pull</b> — 33,875 calls for 1–11 Sep, 37 callers, Manila boundary verified</div>
+      <div><b>First measured shift</b> — 10 Sep scored per caller; 10 of 22 over 30 min short</div>
     </div>
   </section>
 
@@ -1054,9 +1132,10 @@ unless the file or its label changes.</div>
       <li><b>3. Share the 48 caller folders</b>Every folder is built and named — 48 of them, not the 30 estimated earlier. Use <b style="display:inline">Specific people</b>, never "Anyone with the link", and share each caller's own folder rather than the parent. Thirty shares, once, and never again — after that, new call sheets drop into an already-shared folder with no further action. The agent cannot do this step: the connector has no sharing call.</li>
       <li><b>4. Create the Agent Memory folder</b>Under <span class="mono">PacificLinkGlobal/Shared Documents/General/</span>, with the contacts file in it. A write there was refused by a safety guard, so it needs you. Until it exists, every new session starts knowing nobody. Not in the callsheets site — that one is about to be externally shared.</li>
       <li><b>5. Fix the folders named from a guess</b><span class="mono">Juvylyn Abe</span> and <span class="mono">Karen Boiser</span> were inferred from email handles because they never set a Slack display name. Ask them to set Profile &rarr; Full name and the folders get corrected automatically. <b style="display:inline">Jane is already fixed</b> — that folder now reads <span class="mono">Jane Labora</span>, so the earlier <span class="mono">Jane Wareei</span> entry here was stale. Note Zoom shows a <b style="display:inline">third</b> spelling, <span class="mono">Jane Wary Rose Espanueva</span>, which may or may not be the same person.</li>
-      <li><b>6. Confirm what "Auto Recorded" means in Zoom</b>It is the only call result that carries real talk time, so the audit now treats it as "a human picked up" — that change is in, and it turns 0 completes into roughly 953 a week. What is left is your eye on it: check one afternoon against Zoom's own reporting. If it does not match, it is one line back, and every completes figure moves with it.</li>
+      <li><b>6. Confirm what "Auto Recorded" means in Zoom</b>It is the only call result that carries real talk time, so the audit now treats it as "a human picked up" — that change is in, and it turns 0 completes into roughly 953 a week. What is left is your eye on it: check one afternoon against Zoom's own reporting. If it does not match, it is one line back, and every completes figure moves with it. This is now load-bearing: the 10 September shift report says <b style="display:inline">197 completes and 10 callers over 30 minutes short</b>, and none of that survives if the assumption is wrong.</li>
       <li><b>7. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</li>
-      <li><b>8. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
+      <li><b>8. Two defects in the shift measurement — say which way to fix them</b>First: <b style="display:inline">count outbound only</b>. Zoom names an inbound call after whoever rang in, so a withheld number invented a caller called "Anonymous" with a 2h59m shortfall. Second: a caller whose only calls fall <b style="display:inline">before 1:30pm</b> gets a backwards window and a full three-hour shortfall — two people made a single test call at 10:37 and were scored as three-hour no-shows. Both fixes are small and neither is applied, because each changes what a published figure means. Say go and they go in.</li>
+      <li><b>9. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
     </ol>
 
     <div class="section-head" style="margin-top:40px">
@@ -1079,7 +1158,7 @@ unless the file or its label changes.</div>
     calls answered), the reading of <code>notSupported</code> as harmless, and the claim that the
     Zoom allowlist stays on once configured — it is per environment. All three are left visible
     above with what was wrong about them. The counters were also off — they now
-    match the articles below them (3 blocked, 6 working, 5 awaiting a decision, 14 in total).
+    match the articles below them (3 blocked, 7 working, 5 awaiting a decision, 15 in total).
   </footer>
 
 </div>
