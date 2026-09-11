@@ -270,6 +270,70 @@
   }
   ol.asks b { color: var(--ink); font-weight: 600; display: block; font-family: Poppins, sans-serif; font-size: .95rem; }
 
+  /* ---- tick boxes ---- */
+  .tick { display: grid; grid-template-columns: 20px 1fr; gap: 12px; align-items: start; }
+  .tick input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    width: 19px; height: 19px; margin: 2px 0 0; flex: none;
+    border: 1.5px solid var(--line); border-radius: 5px;
+    background: var(--surface); cursor: pointer; position: relative;
+    transition: background .12s ease, border-color .12s ease;
+  }
+  .tick input[type="checkbox"]:hover:not(:disabled) { border-color: var(--brand); }
+  .tick input[type="checkbox"]:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .tick input[type="checkbox"]:checked { background: var(--live); border-color: var(--live); }
+  .tick input[type="checkbox"]:checked::after {
+    content: ""; position: absolute; left: 5.5px; top: 1.5px;
+    width: 5px; height: 10px; border: solid #fff;
+    border-width: 0 2px 2px 0; transform: rotate(42deg);
+  }
+  .tick input[type="checkbox"]:disabled { opacity: .4; cursor: default; }
+  .tick-body.is-done { opacity: .5; }
+  .tick-body.is-done > b, .tick-body.is-done > .todo-title { text-decoration: line-through; }
+  @media (prefers-reduced-motion: reduce) {
+    .tick input[type="checkbox"] { transition: none; }
+  }
+
+  /* ---- tomorrow ---- */
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start; }
+  .todo { background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+  .todo > header {
+    padding: 15px 18px; border-bottom: 1px solid var(--line-soft);
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .todo > header h3 { font-size: 1rem; }
+  .todo > header .who {
+    font-family: "IBM Plex Mono", monospace; font-size: .66rem;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  }
+  .todo > header .count {
+    margin-left: auto; font-family: "IBM Plex Mono", monospace;
+    font-size: .74rem; color: var(--brand); font-variant-numeric: tabular-nums;
+  }
+  .todo ul { list-style: none; margin: 0; padding: 0; }
+  .todo li { padding: 12px 18px; border-top: 1px solid var(--line-soft); }
+  .todo li:first-child { border-top: 0; }
+  .todo .todo-title { font-weight: 500; color: var(--ink); font-size: .93rem; display: block; }
+  .todo .todo-why { color: var(--muted); font-size: .84rem; display: block; margin-top: 2px; }
+  .todo .flag {
+    font-family: "IBM Plex Mono", monospace; font-size: .6rem;
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 4px; margin-left: 7px; white-space: nowrap;
+  }
+  .f-now { background: var(--blocked-bg); color: var(--blocked); }
+  .f-blocked { background: var(--waiting-bg); color: var(--waiting); }
+  .f-later { background: var(--sunk); color: var(--muted); }
+  .f-built { background: var(--live-bg); color: var(--live); }
+
+  #sync-note {
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem;
+    color: var(--muted); margin-top: 12px;
+  }
+  #sync-note[hidden] { display: none !important; }
+
+  ol.asks li .tick { align-items: start; }
+
   footer {
     margin-top: 56px; padding-top: 22px;
     border-top: 1px solid var(--line);
@@ -305,6 +369,29 @@
       <div><span class="dot" style="background:var(--waiting)"></span><b>13</b> waiting on you</div>
     </div>
   </header>
+
+
+  <!-- ================= TOMORROW ================= -->
+  <section id="tomorrow">
+    <div class="section-head">
+      <h2>Tomorrow</h2>
+      <p>Two lists: what only you can do, and what I build next. Tick anything off — the ticks
+      are saved, they survive this page being rebuilt, and I can read them back next session.</p>
+    </div>
+    <div class="two">
+      <div class="todo">
+        <header><h3>Yours</h3><span class="who">only you can do these</span>
+          <span class="count" data-count="y">— / —</span></header>
+        <ul><li><label class="tick"><input type="checkbox" data-task="y-names" disabled><span class="tick-body"><span class="todo-title">Settle Cha and Jane<span class="flag f-now">5 min</span></span><span class="todo-why">Cha's Slack account is charyjay12@gmail.com, not Charlotte Gimpes — they vote separately. Jane has no Zoom history under any spelling. Two words unblocks the roster.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="y-roster" disabled><span class="tick-body"><span class="todo-title">Approve the roster for 13–17 Sep<span class="flag f-now">before Sat</span></span><span class="todo-why">80 slots, everyone against their poll. Reply and it posts to #roster with the @mentions.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="y-na" disabled><span class="tick-body"><span class="todo-title">Add NA to the pinned results format<span class="flag f-now">before Sun</span></span><span class="todo-why">Do it before Sunday's shift posts. Without NA the declared total cannot be built and Elaine's second check is lost.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="y-sonnet" disabled><span class="tick-body"><span class="todo-title">Set the upload Routine to Sonnet 5<span class="flag ">2 min</span></span><span class="todo-why">Routines UI, on Curia call log upload. Mechanical job; the byte-count check catches a slip.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="y-sharing" disabled><span class="tick-body"><span class="todo-title">Turn on external sharing for /sites/callsheets<span class="flag f-blocked">gates call sheets</span></span><span class="todo-why">Admin centre → Sites → callsheets → External sharing → Anyone. <b>Call sheet delivery cannot start until this is on.</b></span></span></label></li><li><label class="tick"><input type="checkbox" data-task="y-folders" disabled><span class="tick-body"><span class="todo-title">Share the 48 caller folders</span><span class="todo-why">Specific people, never Anyone with the link, and each caller's own folder — never the parent. Once, then never again.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="y-resources" disabled><span class="tick-body"><span class="todo-title">Upload the Orientation Module and FAQs</span><span class="todo-why">9MB pptx is over the connector's upload cap, so this one cannot be done for you. Then paste both links into the Slack resources post.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="y-memory" disabled><span class="tick-body"><span class="todo-title">Create the Agent Memory folder</span><span class="todo-why">Under PacificLinkGlobal/Shared Documents/General/. Until it exists every new session starts knowing nobody.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="y-label" disabled><span class="tick-body"><span class="todo-title">Decide on the Purview label</span><span class="todo-why">If it can come off /sites/callsheets the audit gets both halves automatically. If not, declared numbers come from Slack — either answer works, the question just has to be settled.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="y-guess" disabled><span class="tick-body"><span class="todo-title">Fix the two folders named from a guess</span><span class="todo-why">Juvylyn Abe and Karen Boiser. Ask them to set Profile → Full name and the folders correct themselves.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="y-cmix" disabled><span class="tick-body"><span class="todo-title">Allowlist cmix.com and paste one working Test link<span class="flag f-later">optional</span></span><span class="todo-why">Only if you want per-poll completion thresholds. The Live link is never opened.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="y-revoke" disabled><span class="tick-body"><span class="todo-title">Run the Google access revocation script</span><span class="todo-why">Audit mode changes nothing — run that first and read the output. At least one old call sheet is editable by anyone with the link.</span></span></label></li></ul>
+      </div>
+      <div class="todo">
+        <header><h3>Mine</h3><span class="who">the agent builds these</span>
+          <span class="count" data-count="m">— / —</span></header>
+        <ul><li><label class="tick"><input type="checkbox" data-task="m-routine3" disabled><span class="tick-body"><span class="todo-title">Build Routine 3 — the roster<span class="flag f-now">ready to build</span></span><span class="todo-why">Saturday 6pm Manila. Reads the ✓/✗ reactions, reads columns B and F, ranks, drafts to you, posts only when you reply. Also puts up next week's availability message.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-callsheets" disabled><span class="tick-body"><span class="todo-title">Cut call sheets from the number pools and give them to whoever is rostered<span class="flag f-blocked">blocked on sharing</span></span><span class="todo-why"><b>The new one.</b> Read Curia's number spreadsheet, cut a contiguous 200-number block per caller, repair leading zeros, write the high-water mark back, shade used rows green — all built and tested already. What is new is the last step: take <em style='font-style:normal'>that day's roster</em> and drop each caller's sheet into their own folder. Blocked only on external sharing.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-appsscript" disabled><span class="tick-body"><span class="todo-title">Write the Apps Script</span><span class="todo-why">Three jobs now point at it: uploading Curia's CSVs without pushing 880KB through a session every night, writing the results page the Sheets connector cannot write, and reading the schedule directly. Runs in your account, no size caps, seconds not minutes.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-sunday" disabled><span class="tick-body"><span class="todo-title">Watch both Routines land on Sunday</span><span class="todo-why">First real run of the audit and the upload. Check the files arrive and the summary is right before Elaine stops uploading.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-results" disabled><span class="tick-body"><span class="todo-title">Fill Curia's results page automatically<span class="flag f-blocked">after script</span></span><span class="todo-why">Phone, Total and Shift Notes are already producible from the call logs; GNA/RB/R/C come from Slack. Needs the Apps Script first.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-app" disabled><span class="tick-body"><span class="todo-title">Put all of this in an app<span class="flag f-later">later</span></span><span class="todo-why">Parked, and rightly. What exists now is a set of scheduled jobs plus pages you open — no app needed to run the business. An app earns its place when you want it on a phone with logins for other people, and that is a rebuild, not an export. Revisit once the weekly loop has run unattended for a month.</span></span></label></li></ul>
+      </div>
+    </div>
+    <p id="sync-note" hidden></p>
+  </section>
 
   <!-- ================= BLOCKERS ================= -->
   <section>
@@ -1260,19 +1347,19 @@ unless the file or its label changes.</div>
       real one.</strong></p>
     </div>
     <ol class="asks">
-      <li><b>1. Upload the Orientation Module and the FAQs</b><span class="mono">Orientation Module (1).pptx</span> (9MB) and <span class="mono">Curia Staff FAQS May 2024 (2).doc</span>, from the 19 February email, into <span class="mono">/sites/callsheets/Shared Documents/Resources</span>. The pptx is over the connector's 1MB upload cap, so this one cannot be done for you. Then paste both links into the resources post in Slack: the version live now has <b style="display:inline">no links at all</b> on items 1 and 2, and there is a duplicate copy of the post to delete. The links only open for callers once item 2 is done.</li>
-      <li><b>2. Turn on external sharing</b>Admin centre &rarr; Sites &rarr; Active sites &rarr; <span class="mono">callsheets</span> &rarr; Settings &rarr; External sharing &rarr; <b style="display:inline">Anyone</b>. Five minutes. Callers have no Microsoft accounts, so until this is on they cannot open a call sheet or a resource link. Items 1, 3 and 6 all depend on it.</li>
-      <li><b>3. Share the 48 caller folders</b>Every folder is built and named — 48 of them, not the 30 estimated earlier. Use <b style="display:inline">Specific people</b>, never "Anyone with the link", and share each caller's own folder rather than the parent. Thirty shares, once, and never again — after that, new call sheets drop into an already-shared folder with no further action. The agent cannot do this step: the connector has no sharing call.</li>
-      <li><b>4. Create the Agent Memory folder</b>Under <span class="mono">PacificLinkGlobal/Shared Documents/General/</span>, with the contacts file in it. A write there was refused by a safety guard, so it needs you. Until it exists, every new session starts knowing nobody. Not in the callsheets site — that one is about to be externally shared.</li>
-      <li><b>5. Fix the folders named from a guess</b><span class="mono">Juvylyn Abe</span> and <span class="mono">Karen Boiser</span> were inferred from email handles because they never set a Slack display name. Ask them to set Profile &rarr; Full name and the folders get corrected automatically. <b style="display:inline">Jane is already fixed</b> — that folder now reads <span class="mono">Jane Labora</span>, so the earlier <span class="mono">Jane Wareei</span> entry here was stale. Note Zoom shows a <b style="display:inline">third</b> spelling, <span class="mono">Jane Wary Rose Espanueva</span>, which may or may not be the same person.</li>
-      <li><b>6. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</li>
-      <li><b>7. Add <span class="mono">NA</span> to the results format before the next shift posts</b>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</li>
-      <li><b>8. <strike>Paste the Curia schedule rows</strike> — done, and it was never yours to do</b>This asked you to paste columns A, B and F because the schedule "could not be read past 2022". It could: <span class="mono">get_file_metadata</span> with <span class="mono">MAX_ALLOWED</span> returns the whole sheet where <span class="mono">read_file_content</span> truncates. The week is read, the roster is on real polls and headcounts, and the ask should never have existed. Left here rather than deleted.</li>
-      <li><b>9. Settle five Slack names, one word each</b><span class="mono">Jane</span> (Jane Labora — confirm she is <b style="display:inline">not</b> Zoom's Jane Wary Rose Espanueva), <span class="mono">boiserkaren21</span> (Karen Boiser?), <span class="mono">Goldy Kaye</span> (Goldy Maglasang?), <span class="mono">CJ</span> (Jahm Peralta?), <span class="mono">Cha</span> (Chary Jay Sanchez, or someone else?). All five ticked ✓ and sit out of every roster until you say. Same person / not — nothing more.</li>
-      <li><b>10. Decide on a roster floor</b>With none, the dummy run gives the same 17 people all five nights and 17 voters nothing, and a new starter can never get a first shift because there is no history to rank them on. Options: everyone who ticks ✓ works at least once a week; or the bottom five slots rotate; or no floor. One line from you and it is built either way.</li>
-      <li><b>11. Add <span class="mono">cmix.com</span> to the Pacific Link environment's allowlist, and paste one working Test link</b>The environment only allows zoom.us, so no survey can be opened from it. And the Test links in Curia's emails arrive corrupted — every <span class="mono">=</span> in the query string is a control character — so one pasted from wherever the callers get it is needed. The Live link is never opened. Only worth doing if you want the per-poll threshold idea pursued.</li>
-      <li><b>12. Set the upload Routine's model to Sonnet 5</b>In the Routines UI, on <span class="mono">Curia call log upload (Sun–Thu)</span>. Mechanical job, and the byte-count check catches a slip. Leave the audit and the roster on Fable. Or say the word and it is set from here.</li>
-      <li><b>13. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-1" disabled><span class="tick-body"><b>1. Upload the Orientation Module and the FAQs</b><span class="mono">Orientation Module (1).pptx</span> (9MB) and <span class="mono">Curia Staff FAQS May 2024 (2).doc</span>, from the 19 February email, into <span class="mono">/sites/callsheets/Shared Documents/Resources</span>. The pptx is over the connector's 1MB upload cap, so this one cannot be done for you. Then paste both links into the resources post in Slack: the version live now has <b style="display:inline">no links at all</b> on items 1 and 2, and there is a duplicate copy of the post to delete. The links only open for callers once item 2 is done.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-2" disabled><span class="tick-body"><b>2. Turn on external sharing</b>Admin centre &rarr; Sites &rarr; Active sites &rarr; <span class="mono">callsheets</span> &rarr; Settings &rarr; External sharing &rarr; <b style="display:inline">Anyone</b>. Five minutes. Callers have no Microsoft accounts, so until this is on they cannot open a call sheet or a resource link. Items 1, 3 and 6 all depend on it.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-3" disabled><span class="tick-body"><b>3. Share the 48 caller folders</b>Every folder is built and named — 48 of them, not the 30 estimated earlier. Use <b style="display:inline">Specific people</b>, never "Anyone with the link", and share each caller's own folder rather than the parent. Thirty shares, once, and never again — after that, new call sheets drop into an already-shared folder with no further action. The agent cannot do this step: the connector has no sharing call.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-4" disabled><span class="tick-body"><b>4. Create the Agent Memory folder</b>Under <span class="mono">PacificLinkGlobal/Shared Documents/General/</span>, with the contacts file in it. A write there was refused by a safety guard, so it needs you. Until it exists, every new session starts knowing nobody. Not in the callsheets site — that one is about to be externally shared.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-5" disabled><span class="tick-body"><b>5. Fix the folders named from a guess</b><span class="mono">Juvylyn Abe</span> and <span class="mono">Karen Boiser</span> were inferred from email handles because they never set a Slack display name. Ask them to set Profile &rarr; Full name and the folders get corrected automatically. <b style="display:inline">Jane is already fixed</b> — that folder now reads <span class="mono">Jane Labora</span>, so the earlier <span class="mono">Jane Wareei</span> entry here was stale. Note Zoom shows a <b style="display:inline">third</b> spelling, <span class="mono">Jane Wary Rose Espanueva</span>, which may or may not be the same person.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-6" disabled><span class="tick-body"><b>6. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-7" disabled><span class="tick-body"><b>7. Add <span class="mono">NA</span> to the results format before the next shift posts</b>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-8" disabled><span class="tick-body"><b>8. <strike>Paste the Curia schedule rows</strike> — done, and it was never yours to do</b>This asked you to paste columns A, B and F because the schedule "could not be read past 2022". It could: <span class="mono">get_file_metadata</span> with <span class="mono">MAX_ALLOWED</span> returns the whole sheet where <span class="mono">read_file_content</span> truncates. The week is read, the roster is on real polls and headcounts, and the ask should never have existed. Left here rather than deleted.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-9" disabled><span class="tick-body"><b>9. Settle five Slack names, one word each</b><span class="mono">Jane</span> (Jane Labora — confirm she is <b style="display:inline">not</b> Zoom's Jane Wary Rose Espanueva), <span class="mono">boiserkaren21</span> (Karen Boiser?), <span class="mono">Goldy Kaye</span> (Goldy Maglasang?), <span class="mono">CJ</span> (Jahm Peralta?), <span class="mono">Cha</span> (Chary Jay Sanchez, or someone else?). All five ticked ✓ and sit out of every roster until you say. Same person / not — nothing more.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-10" disabled><span class="tick-body"><b>10. Decide on a roster floor</b>With none, the dummy run gives the same 17 people all five nights and 17 voters nothing, and a new starter can never get a first shift because there is no history to rank them on. Options: everyone who ticks ✓ works at least once a week; or the bottom five slots rotate; or no floor. One line from you and it is built either way.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-11" disabled><span class="tick-body"><b>11. Add <span class="mono">cmix.com</span> to the Pacific Link environment's allowlist, and paste one working Test link</b>The environment only allows zoom.us, so no survey can be opened from it. And the Test links in Curia's emails arrive corrupted — every <span class="mono">=</span> in the query string is a control character — so one pasted from wherever the callers get it is needed. The Live link is never opened. Only worth doing if you want the per-poll threshold idea pursued.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-12" disabled><span class="tick-body"><b>12. Set the upload Routine's model to Sonnet 5</b>In the Routines UI, on <span class="mono">Curia call log upload (Sun–Thu)</span>. Mechanical job, and the byte-count check catches a slip. Leave the audit and the roster on Fable. Or say the word and it is set from here.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-13" disabled><span class="tick-body"><b>13. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</span></label></li>
     </ol>
 
     <div class="section-head" style="margin-top:40px">
@@ -1280,8 +1367,8 @@ unless the file or its label changes.</div>
       <p>These are what the whole build has been for. Both are the agent's work, not yours.</p>
     </div>
     <ol class="asks">
-      <li><b>Saturday 6pm Manila — build the roster</b>Design agreed 12 September and a dummy run is on the dashboard: read the &#10003;/&#10007; reactions off the five day messages, rank on completes and time away, fill Curia's slots per day from columns B and F, draft the roster with real @mentions, notify you, and post only when you reply. The same run puts up next week's availability message. Becomes a Routine the moment asks 8, 9 and 10 are answered.</li>
-      <li><b>Cut the call sheets from the number pools</b>Contiguous 200-number blocks, leading zeros repaired, high-water marks written back, used rows shaded green — all built and tested. What is new is the delivery: straight into each caller's SharePoint folder rather than one shared workbook. That works the moment item 1 and item 2 are done.</li>
+      <li><label class="tick"><input type="checkbox" data-task="job-roster" disabled><span class="tick-body"><b>Saturday 6pm Manila — build the roster</b>Design agreed 12 September and a dummy run is on the dashboard: read the &#10003;/&#10007; reactions off the five day messages, rank on completes and time away, fill Curia's slots per day from columns B and F, draft the roster with real @mentions, notify you, and post only when you reply. The same run puts up next week's availability message. Becomes a Routine the moment asks 8, 9 and 10 are answered.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="job-sheets" disabled><span class="tick-body"><b>Cut the call sheets from the number pools</b>Contiguous 200-number blocks, leading zeros repaired, high-water marks written back, used rows shaded green — all built and tested. What is new is the delivery: straight into each caller's SharePoint folder rather than one shared workbook. That works the moment item 1 and item 2 are done.</span></label></li>
     </ol>
   </section>
 
@@ -1355,3 +1442,63 @@ unless the file or its label changes.</div>
   </footer>
 
 </div>
+
+<script>
+(function () {
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-task]'));
+  var note = document.getElementById('sync-note');
+  function say(msg) { note.textContent = msg; note.hidden = false; }
+  function paint(b) {
+    var body = b.parentNode.querySelector('.tick-body');
+    if (body) body.classList.toggle('is-done', b.checked);
+  }
+  function counts() {
+    ['y', 'm'].forEach(function (k) {
+      var el = document.querySelector('[data-count="' + k + '"]');
+      if (!el) return;
+      var mine = boxes.filter(function (b) { return b.dataset.task.indexOf(k + '-') === 0; });
+      var done = mine.filter(function (b) { return b.checked; }).length;
+      el.textContent = done + ' / ' + mine.length + ' done';
+    });
+  }
+  counts();
+  if (!window.claude || typeof window.claude.use !== 'function') {
+    say('Ticks are not saved in this view — open the page on claude.ai.');
+    return;
+  }
+  window.claude.use('db').then(function (db) {
+    if (!db) {
+      say('Ticks are not saved in this view — open the page on claude.ai.');
+      return;
+    }
+    var col = db.collection('register_tasks');
+    col.onSnapshot(function (snap) {
+      var done = {};
+      snap.docs.forEach(function (d) { done[d.id] = !!(d.data() || {}).done; });
+      boxes.forEach(function (b) {
+        if (document.activeElement !== b) b.checked = !!done[b.dataset.task];
+        b.disabled = false;
+        paint(b);
+      });
+      counts();
+      note.hidden = true;
+    }, function (e) {
+      boxes.forEach(function (b) { b.disabled = true; });
+      say(e.code === 'not_granted'
+        ? 'Ticks are not being saved — the page was not granted storage.'
+        : 'Ticks are not being saved (' + e.code + ').');
+    });
+    boxes.forEach(function (b) {
+      b.addEventListener('change', function () {
+        paint(b); counts();
+        col.doc(b.dataset.task)
+          .set({ done: b.checked, at: new Date().toISOString() })
+          .catch(function (e) {
+            b.checked = !b.checked; paint(b); counts();
+            say('That tick did not save (' + e.code + ') — it has been put back.');
+          });
+      });
+    });
+  });
+})();
+</script>
