@@ -545,10 +545,21 @@ ranks on the 75/25 score from the week just finished, snake-drafts any two-poll
 day, and reports the per-poll balance so the split is checkable. It **posts
 nothing** — the drafts go to Brendon and he sends them.
 
-Like the other two it was created from a session and so **stores no connectors**.
-It needs **Slack and Google Drive** ticked in the claude.ai Routines UI — both,
-not one: Slack for the availability reactions and the user IDs, Drive for the
-schedule. The prompt tells it to stop and say so if either is missing.
+Like the other two it was created from a session and so stored no connectors.
+**Brendon attached Slack and Google Drive on 12 Sep and `list_triggers` now shows
+both** — it needs both, not one: Slack for the availability reactions and the
+user IDs, Drive for the schedule. The prompt tells it to stop and say so if
+either is missing.
+
+**Its notification channels read push/email/Slack all `false`**, where the audit
+and upload Routines show `push: true, slack: true`. That may be an unset default
+rendering as false rather than a real setting, but it matters — Brendon asked to
+be notified when the draft is ready. **`update_trigger` does not expose
+`notifications`**, only `create_trigger` does, so it cannot be fixed from a
+session without deleting and recreating the Routine — which would discard the
+connectors he just attached. Left for him to toggle in the UI. If a future
+session ever does recreate this Routine, pass
+`notifications: {push: true, email: true}` at creation.
 
 ### Slack user IDs are the mention key, and the member list is the identity map
 
