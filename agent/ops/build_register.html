@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 12 September 2026, 1.05am</div>
+    <div class="eyebrow">Build register · updated 12 September 2026, 2.20am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -299,7 +299,7 @@
     <div class="tally">
       <div><span class="dot" style="background:var(--blocked)"></span><b>3</b> hard blockers</div>
       <div><span class="dot" style="background:var(--waiting)"></span><b>5</b> need a decision</div>
-      <div><span class="dot" style="background:var(--live)"></span><b>7</b> solved</div>
+      <div><span class="dot" style="background:var(--live)"></span><b>8</b> solved</div>
       <div><span class="dot" style="background:var(--sky)"></span><b>9</b> to do tomorrow</div>
     </div>
   </header>
@@ -605,7 +605,9 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             stayed on. So length stands in for it: an answered call of <strong>150 seconds or
             more</strong> counts as a complete. That is Brendon's figure and it is a parameter, not
             a law: too low and a polite refusal counts, too high and genuinely quick respondents are
-            thrown away. <strong>Calibrate it against a week whose real completes are known.</strong>
+            thrown away. <strong>Calibrated 11 September against Elaine's own audit of 10
+            September — and 150s is the figure she already uses. See the entry below; this is
+            settled.</strong>
           </dd></div>
           <div class="row"><dt>The trap that drove the design</dt><dd>
             One of Pernelia's calls ran <strong>6 minutes 27 seconds</strong>. Measuring the gap
@@ -679,8 +681,9 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
           </dd></div>
           <div class="row"><dt>On the 150s figure</dt><dd>
             It sits in a flat part of the curve, not on a cliff: 1,753 answered calls land 30–149s
-            and 953 at 150s or more. Neither obviously right nor obviously wrong — still needs a
-            week whose real completes are known.
+            and 953 at 150s or more. That was as far as the data could settle it.
+            <strong>Elaine's audit settled the rest</strong> — she flags a survey "below 2 min and
+            30 seconds", which is the same 150s. See the calibration entry below.
           </dd></div>
         </dl>
       </article>
@@ -725,8 +728,11 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             public ringing in. Grouping both together attributes the wrong half. Today it is nearly
             harmless — only 6 of 207 inbound rows carry a name at all — but the shape is wrong, and
             it also silently dropped one of Jasmine Magdayao's calls into her own total.
-            <strong>Proposed fix: <code>by_caller</code> counts outbound only.</strong> Not applied
-            — it changes what every figure means, and that is Brendon's call.
+            <strong>The fix is now evidenced, not proposed:</strong> group on
+            <code>owner.name</code>, which is the Zoom user who owns the call leg whichever way it
+            rang. That reproduces Elaine's call counts on 21 of 22 callers — see the calibration
+            entry below — and the phantom disappears with it. Still not applied: it moves every
+            call count on every published figure, so it is Brendon's to say go.
           </dd></div>
           <div class="row"><dt>Defect 2 — a window that runs backwards</dt><dd>
             <code>Princess Matildo</code> and <code>Chary Jay Sanchez</code> each made exactly one
@@ -758,6 +764,76 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             The roster used here is the <strong>48 call sheet folder names</strong>, because
             <code>team.csv</code> is stale and the caller directory does not exist yet. That is a
             proxy, not a roster — it is labelled as such rather than treated as truth.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item worked">
+        <div class="item-head">
+          <h3>Calibrated against Elaine's manual audit — the 150s threshold is hers</h3>
+          <span class="tag t-worked">Settled</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>The open question</dt><dd>
+            This register has asked three times for the completion threshold to be
+            <strong>calibrated against a week whose real completes are known</strong>. That week
+            existed the whole time. Elaine's <code>Audit - PL.xlsx</code> covers
+            <strong>10 September</strong> — the same day, the same 22 callers — and Brendon has
+            access to it.
+          </dd></div>
+          <div class="row"><dt>Completes</dt><dd>
+            <strong>16 of 22 exact. 197 against her 204 — 96.6%.</strong> Every disagreement is one
+            or two either way; there is no caller the module missed or invented.
+          </dd></div>
+          <div class="row"><dt>The threshold is not a guess</dt><dd>
+            Elaine writes, in her own Details column, <em style="font-style:normal">"1 completed
+            survey was below 2 min and 30 seconds"</em>. <strong>2 min 30 is 150 seconds.</strong>
+            The parameter Brendon gave is the one the manual process already uses. It did not need
+            tuning and should not be tuned. <strong>This item is closed.</strong>
+          </dd></div>
+          <div class="row"><dt>How she counts calls — tested</dt><dd>
+            Her "Total Number of Calls in Call Logs" is <strong>every call log row belonging to a
+            Zoom user, both directions, grouped by <code>owner.name</code></strong>. Grouping that
+            way reproduces her column on <strong>21 of 22 callers</strong>, the 22nd off by one.
+            That is not a guess about her method; it is the only rule that fits.
+          </dd></div>
+          <div class="row"><dt>Which settles defect 1</dt><dd>
+            <code>by_caller</code> groups on <code>caller_name</code>, which is the agent outbound
+            and the member of the public inbound. That is what invented the caller called
+            "Anonymous", and it also reads <em style="font-style:normal">low</em> against Elaine on
+            every single caller. <strong><code>owner.name</code> is the right key, and now there is
+            evidence rather than an argument.</strong> Still not changed — it moves every call
+            count — but the decision no longer needs a judgement call.
+          </dd></div>
+          <div class="row"><dt>What does NOT reconcile</dt><dd>
+            <strong>Cumulative off-phone time</strong>, and no single gap floor makes it. Hers runs
+            lower: Lovely Salva 15 min against 26 at a 60s floor and 9 at 120s; Gerard Siason 20
+            against 43 and 14; Eunilyn 18 against 81 and 57. Florence Bularon is the one that lands
+            (37 against 38). <strong>It is a human judgement, not a parameter.</strong> Brendon's
+            60s floor is his own call and stands — but the two numbers must never be presented as
+            the same measure, and the floor must not be bent to chase hers.
+          </dd></div>
+          <div class="row"><dt>Break detection agrees</dt><dd>
+            Independently, and this is the reassuring part. Elaine has Jean Carla Sumarago breaking
+            <strong>2:18–2:22</strong>; the module finds 2:17–2:22. She has Gerard Siason starting
+            at <strong>3:28</strong>; so does the module. Hers read shorter throughout, consistent
+            with her measuring start-to-start where the module measures end-to-start.
+          </dd></div>
+          <div class="row"><dt>Her format</dt><dd>
+            One tab, one flat table, a date header row per day, March 9 to September 10 2026.
+            Columns: name · completed surveys (WhatsApp) · completed surveys (call logs) · total
+            calls (WhatsApp) · total calls (call logs) · discrepancy Y/N · details. Times Manila.
+            <strong>Three of those columns cannot be produced from call logs</strong> — both
+            WhatsApp columns and the Y/N, which is a comparison of the two halves. Output for
+            Brendon leaves them blank and shaded rather than inventing a rule.
+          </dd></div>
+          <div class="row"><dt>Names settled by this</dt><dd>
+            Brendon confirmed all six single-candidate mappings, plus <code>Jean Sumarago</code> =
+            Jean Carla Sumarago and the roster's bare <code>Jean</code> = Jean Labora.
+            <code>Jane Wary Rose Espanueva</code> turns out to be a real caller Elaine audits — not
+            a third Jane, just one with no call sheet folder. <strong>One new collision:</strong>
+            Elaine writes Khars as <code>Kharen Ybas</code> where the roster folder says
+            <code>Kharen Mae Pihana</code>. Three spellings, one person, reported not merged.
           </dd></div>
         </dl>
       </article>
@@ -1117,6 +1193,7 @@ unless the file or its label changes.</div>
       <div><b>Slack onboarding</b> — four pinnable channel guides drafted, unsent, one per channel</div>
       <div><b>Live call-log pull</b> — 33,875 calls for 1–11 Sep, 37 callers, Manila boundary verified</div>
       <div><b>First measured shift</b> — 10 Sep scored per caller; 10 of 22 over 30 min short</div>
+      <div><b>Calibration against the manual audit</b> — completes 16/22 exact, call counts 21/22</div>
     </div>
   </section>
 
@@ -1132,9 +1209,9 @@ unless the file or its label changes.</div>
       <li><b>3. Share the 48 caller folders</b>Every folder is built and named — 48 of them, not the 30 estimated earlier. Use <b style="display:inline">Specific people</b>, never "Anyone with the link", and share each caller's own folder rather than the parent. Thirty shares, once, and never again — after that, new call sheets drop into an already-shared folder with no further action. The agent cannot do this step: the connector has no sharing call.</li>
       <li><b>4. Create the Agent Memory folder</b>Under <span class="mono">PacificLinkGlobal/Shared Documents/General/</span>, with the contacts file in it. A write there was refused by a safety guard, so it needs you. Until it exists, every new session starts knowing nobody. Not in the callsheets site — that one is about to be externally shared.</li>
       <li><b>5. Fix the folders named from a guess</b><span class="mono">Juvylyn Abe</span> and <span class="mono">Karen Boiser</span> were inferred from email handles because they never set a Slack display name. Ask them to set Profile &rarr; Full name and the folders get corrected automatically. <b style="display:inline">Jane is already fixed</b> — that folder now reads <span class="mono">Jane Labora</span>, so the earlier <span class="mono">Jane Wareei</span> entry here was stale. Note Zoom shows a <b style="display:inline">third</b> spelling, <span class="mono">Jane Wary Rose Espanueva</span>, which may or may not be the same person.</li>
-      <li><b>6. Confirm what "Auto Recorded" means in Zoom</b>It is the only call result that carries real talk time, so the audit now treats it as "a human picked up" — that change is in, and it turns 0 completes into roughly 953 a week. What is left is your eye on it: check one afternoon against Zoom's own reporting. If it does not match, it is one line back, and every completes figure moves with it. This is now load-bearing: the 10 September shift report says <b style="display:inline">197 completes and 10 callers over 30 minutes short</b>, and none of that survives if the assumption is wrong.</li>
+      <li><b>6. "Auto Recorded" — answered, and you can stop worrying about it</b>Nothing to do here any more. Treating it as "a human picked up" produces <b style="display:inline">197 completes on 10 September against Elaine's 204</b>, agreeing exactly on 16 of 22 callers. If the assumption were wrong the numbers would not land within 3% of a hand count. Left here only so nobody reopens it.</li>
       <li><b>7. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</li>
-      <li><b>8. Two defects in the shift measurement — say which way to fix them</b>First: <b style="display:inline">count outbound only</b>. Zoom names an inbound call after whoever rang in, so a withheld number invented a caller called "Anonymous" with a 2h59m shortfall. Second: a caller whose only calls fall <b style="display:inline">before 1:30pm</b> gets a backwards window and a full three-hour shortfall — two people made a single test call at 10:37 and were scored as three-hour no-shows. Both fixes are small and neither is applied, because each changes what a published figure means. Say go and they go in.</li>
+      <li><b>8. Two defects in the shift measurement — say go and they go in</b>First: <b style="display:inline">group on <span class="mono">owner.name</span></b>, not the caller name. Zoom names an inbound call after whoever rang in, which invented a caller called "Anonymous" and reads low against Elaine on every single person. Grouping her way matches her call counts on 21 of 22, so this one is no longer a judgement call — it is just not applied yet, because it moves every call count. Second: a caller whose only calls fall <b style="display:inline">before 1:30pm</b> gets a backwards window and a full three-hour shortfall — two people made one test call at 10:37 and were scored as three-hour no-shows. Both are small.</li>
       <li><b>9. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
     </ol>
 
@@ -1158,7 +1235,7 @@ unless the file or its label changes.</div>
     calls answered), the reading of <code>notSupported</code> as harmless, and the claim that the
     Zoom allowlist stays on once configured — it is per environment. All three are left visible
     above with what was wrong about them. The counters were also off — they now
-    match the articles below them (3 blocked, 7 working, 5 awaiting a decision, 15 in total).
+    match the articles below them (3 blocked, 8 working, 5 awaiting a decision, 16 in total).
   </footer>
 
 </div>

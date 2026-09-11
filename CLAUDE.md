@@ -115,7 +115,22 @@ directory or into this file. That is the whole of the memory.
 - **Khars is Kharen Mae Pihana.** Zoom Phone shows her display name as
   `Khars -` (trailing hyphen and all). Confirmed by Brendon, 11 Sep 2026.
 - Two different Jeans: **Jean** (`jeannax23@gmail.com`) and **Jean Carla
-  Sumarago** (`jeancarlasumarago@gmail.com`). Never merge.
+  Sumarago** (`jeancarlasumarago@gmail.com`). Never merge. Settled 11 Sep by
+  Brendon: Zoom's `Jean Sumarago` is **Jean Carla Sumarago**, and the bare
+  `Jean` on the roster is **Jean Labora**. Note Jean Labora and Jane Labora
+  share a surname and are two people — do not collapse them either.
+- **Zoom display name → roster, all confirmed by Brendon 11 Sep 2026:**
+  `Jayzel Pureza`→Jayzel Gabunada Pureza · `Tristan Philip Bustamante`→Tristan
+  Philip · `Karen Redaniel Boiser`→Karen Boiser · `Melburne Baliad`→Melburne
+  Ando Baliad · `Josephus Chris Parages`→Josephus Parages · `Eunilyn
+  Lisondra`→Nilyn Lisondra.
+- **Jane Wary Rose Espanueva is a real, separate caller.** Elaine audits her as
+  `Jane Wary Espanueva`. She is not Jane Labora; she simply has no call sheet
+  folder. The earlier worry about a "third Jane" is closed.
+- **Elaine writes Khars as `Kharen Ybas`.** Brendon confirmed Zoom's `Khars -`
+  is Kharen Mae Pihana, and her row in Elaine's sheet lines up on every figure,
+  but the surname differs from the roster folder. Three spellings for one
+  person; ask before writing any of them onto a contract or invoice.
 - `team.csv` is stale: only 10 of its 33 names are still active, and ~33
   people invoicing now are missing from it. The invoice list is closer to
   the truth. Awaiting Brendon's decision to switch over.
@@ -203,9 +218,48 @@ Also fixed: `calls_for_day` passed its default empty `token` straight to Zoom,
 so the real fetcher sent `Bearer ` and got a 401 that reads like a bad
 credential. It now mints one itself when no stub fetcher is supplied.
 
-The 150s threshold sits in a flat part of the duration curve (1,753 answered
-calls land 30–149s, 953 at 150s+), so it is neither obviously right nor
-obviously wrong. Still needs calibrating against a week with known completes.
+### Calibrated against Elaine's manual audit — 11 Sep 2026
+
+Elaine's `Audit - PL.xlsx` (Drive `1XXdy0Ma3sG_z4MCkdzFxt3FzZGDUx50o`, owned by
+`elainejoyabugan22@gmail.com`, shared with Brendon) already covers 10 September,
+the same 22 callers. Comparing it to what this module produced:
+
+- **Completes: 16 of 22 exact. 197 against her 204 — 96.6%.** The disagreements
+  are 1–2 either way, never a caller-level miss.
+- **The 150s threshold is Elaine's own.** She writes "1 completed survey was
+  below 2 min and 30 seconds" — 2m30s *is* 150s. The parameter was not a guess
+  that happened to work; it matches the manual process exactly. **This is the
+  calibration the register kept asking for. It is done.**
+- **Total calls: 21 of 22 exact** once counted her way — see below.
+
+**Elaine counts every call log row by Zoom `owner.name`, both directions.** That
+was tested, not assumed: grouping that way reproduces her "Total Number of Calls
+in Call Logs" on 21 of 22 callers (the 22nd is off by one). `by_caller` currently
+groups on `caller_name`, which is the agent on outbound calls and the member of
+the public on inbound ones — so it undercounts against Elaine and invents a
+caller named `Anonymous` out of withheld inbound numbers. **`owner.name` is the
+right grouping key and is evidenced.** Not yet changed.
+
+- **Cumulative off-phone time does NOT reconcile**, and no single gap floor
+  makes it. Hers is consistently lower: Lovely Salva 15 min against 26 at a 60s
+  floor and 9 at 120s; Gerard Siason 20 against 43 and 14; Eunilyn 18 against 81
+  and 57. Florence Bularon is the one that matches (37 against 38). It is a
+  human judgement, not a parameter. Brendon's 60s floor is his own decision and
+  stands; do not tune it to chase Elaine's number, and do not present the two as
+  the same measure.
+- Individual break detection is sound: Elaine has Jean Carla Sumarago breaking
+  at 2:18–2:22 and this module finds 2:17–2:22; she has Gerard Siason starting
+  at 3:28 and so does this. Her breaks read shorter, consistent with her
+  measuring start-to-start where this measures end-to-start.
+- **Elaine's times are Manila**, and her sheet is one flat table, one tab,
+  grouped by a date header row, running March 9 to September 10 2026.
+
+Her column order, worth matching exactly when producing output:
+name · completed surveys (WhatsApp) · completed surveys (call logs) · total
+calls (WhatsApp) · total calls (call logs) · discrepancy Y/N · details.
+The three WhatsApp/discrepancy columns come from what the caller declared and
+**cannot be produced from call logs** — leave them blank rather than inventing a
+rule. Her Y/N is a comparison of the two halves, not a call-log judgement.
 
 Zoom display names do not match roster names, as expected. Of the 37 names,
 19 match a call sheet folder exactly, 10 are near-misses needing a human
