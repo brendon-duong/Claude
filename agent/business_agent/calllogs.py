@@ -47,9 +47,29 @@ from datetime import date, datetime, timedelta, timezone
 TOKEN_URL = "https://zoom.us/oauth/token"
 API_ROOT = "https://api.zoom.us/v2"
 
-# Zoom reports a call's result in `result`. These are the ones that mean a human
-# picked up — the only calls that can possibly have produced a completed survey.
-ANSWERED = frozenset({"Connected", "Answered", "Call connected"})
+# Zoom reports a call's outcome in `result`. These are the values that mean a
+# human picked up — the only calls that can possibly have produced a completed
+# survey.
+#
+# The obvious guess at these names was wrong, and wrong in the quietest possible
+# way: it scored zero completes for every caller on every day. Counted over
+# 33,875 real calls, 1-11 September 2026:
+#
+#     result            n        median    max     what it is
+#     Auto Recorded     15,669   14s       2,841s  a human picked up
+#     Call Cancel       11,457   0s        0s      hung up before ring-out
+#     Call connected     5,579   3s        7s      a dialler state, never a call
+#     Call failed            5   0s        0s      -
+#
+# So `Auto Recorded` is the answered state, and `Call connected` is not: capped
+# at 7 seconds, it cannot be a conversation, and counting it would invent 5,579
+# answered calls a day-ish that nobody ever spoke on. "Connected" and "Answered"
+# never appear at all; they are kept only because Zoom's field names have
+# drifted between API versions and a tenant on another one may send them.
+#
+# STILL TO CONFIRM: that `Auto Recorded` matches what Zoom's own reporting calls
+# answered. Everything downstream of `Call.answered` moves when this set does.
+ANSWERED = frozenset({"Auto Recorded", "Connected", "Answered"})
 
 # Manila. Curia's shifts are quoted in Manila time and Zoom returns UTC, so the
 # day boundary has to be moved or a 2pm-5pm shift spills across two UTC dates.
@@ -379,6 +399,11 @@ def calls_for_day(day: date, *, fetch=None, token: str = "") -> list[Call]:
     whole shift's audit.
     """
     fetcher = fetch or _zoom_fetch
+    if fetch is None and not token:
+        # Without this the real fetcher sends `Bearer ` and Zoom answers 401,
+        # which reads like a bad credential rather than a missing one. A stub
+        # fetcher is left alone so the tests never reach for a token.
+        token = access_token()
     rows = fetcher(day, token)
     return [call for call in (parse_call(row) for row in rows) if call is not None]
 

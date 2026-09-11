@@ -123,8 +123,10 @@ directory or into this file. That is the whole of the memory.
 ## In flight: auditing shifts from Zoom Phone call logs
 
 The goal is to make the manual audit redundant. `business_agent/calllogs.py`
-reads Zoom Phone call logs and groups them per caller per day; 32 tests cover
-it and all run without Zoom.
+reads Zoom Phone call logs and groups them per caller per day, and reports per
+caller: attempts, answered, talk time, completes, short answers, each break and
+their total, time actually worked and shortfall against a three-hour shift.
+55 tests cover it and all run without Zoom.
 
 **The Claude Zoom connector cannot do this.** Asking it returns
 `403 "User does not have a valid license"` — its search API needs a tier this
@@ -154,16 +156,27 @@ default.** A session in a `Trusted` environment gets
 credential is checked, so it looks exactly like a bad key. It needs a cloud
 environment set to **Custom** network access listing `zoom.us` and
 `api.zoom.us`. If Zoom calls fail, test reachability with curl before
-suspecting the credentials. Once configured it stays working: a later session
-reached `zoom.us/oauth/token` (405, the expected GET-on-a-POST-endpoint) and
+suspecting the credentials. A session in the Custom environment reached
+`zoom.us/oauth/token` (405, the expected GET-on-a-POST-endpoint) and
 `api.zoom.us` (401, expected without a header) with no further setup.
+
+**The allowlist is per environment; the credentials are not.** Confirmed 11
+September from a session that had all three `ZOOM_*` variables set and still got
+`403 Forbidden` on CONNECT to both `zoom.us:443` and `api.zoom.us:443` — it was
+simply not the Custom environment. So having the credentials proves nothing
+about reachability. Test it in one line before building anything on it:
+
+    curl -sS -o /dev/null -w '%{http_code}\n' https://api.zoom.us/v2/users
+
+`000` with a tunnel error means the wrong environment, not a bad key. Work that
+needs the live API has to be started from the Custom one.
 
 Two related traps: environment variables are copied in once at container
 start, so the session that sets them can never see them; and the settings
 gear does not appear on a running session's chip — use **Add cloud
 environment** instead, whose creation form has the same fields.
 
-**`ANSWERED` in `calllogs.py` is wrong and still unfixed.** It reads
+**`ANSWERED` was wrong; it is fixed as of 11 September.** It read
 `{"Connected", "Answered", "Call connected"}`. Against live data:
 
 | `result` | n (11 days) | median | max | meaning |
@@ -173,17 +186,22 @@ environment** instead, whose creation form has the same fields.
 | `Call connected` | 5,579 | 3s | **7s** | dialler state, never a conversation |
 | `Call failed` | 5 | 0s | 0s | — |
 
-Two of the three names in `ANSWERED` never appear at all, and the third caps at
-7 seconds. So the module currently scores **0 completes for every caller on
-every day**. The fix is to treat `Auto Recorded` as answered, which gives 953
-completes at the 150s threshold across the 11 days. **Not yet applied — waiting
-on Brendon to confirm `Auto Recorded` matches what Zoom's own reporting shows**,
-because it changes every number the audit will ever produce.
+Two of the three names never appear at all and the third caps at 7 seconds, so
+the module scored **0 completes for every caller on every day** — and scored it
+silently. It is now `{"Auto Recorded", "Connected", "Answered"}`: `Auto Recorded`
+added, `Call connected` dropped (counting it would invent 5,579 answered calls
+nobody spoke on), the other two kept only for tenants on a different API
+version. That gives 953 completes at the 150s threshold across the 11 days.
 
-This reaches further than `completes`. `talk_seconds`, `short_answers` and
-anything built on `Call.answered` all read zero for the same reason. The
-timing work — `span`, `worked`, `idle_time`, `breaks`, `shortfall` — does not
-depend on `answered` and is unaffected.
+**Still to confirm with Brendon:** that `Auto Recorded` is what Zoom's own
+reporting calls answered. Everything downstream of `Call.answered` —
+`talk_seconds`, `completes`, `short_answers` — moves if it is not. The timing
+work (`span`, `worked`, `idle_time`, `breaks`, `shortfall`) does not read
+`answered` and is unaffected either way.
+
+Also fixed: `calls_for_day` passed its default empty `token` straight to Zoom,
+so the real fetcher sent `Bearer ` and got a 401 that reads like a bad
+credential. It now mints one itself when no stub fetcher is supplied.
 
 The 150s threshold sits in a flat part of the duration curve (1,753 answered
 calls land 30–149s, 953 at 150s+), so it is neither obviously right nor

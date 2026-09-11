@@ -56,6 +56,19 @@ class TestParsingARow(unittest.TestCase):
 
     def test_an_unanswered_call_is_not_answered(self):
         self.assertFalse(parse_call(row(result="No Answer")).answered)
+
+    def test_auto_recorded_is_what_a_picked_up_call_looks_like(self):
+        # Zoom's name for it. 15,669 of the 33,875 calls in the first eleven
+        # days of September, median 14s, longest 47 minutes.
+        self.assertTrue(parse_call(row(result="Auto Recorded")).answered)
+
+    def test_call_connected_is_a_dialler_state_not_a_conversation(self):
+        # The guess that scored zero completes for everybody. 5,579 rows, none
+        # of them longer than seven seconds.
+        self.assertFalse(parse_call(row(result="Call connected", seconds=5)).answered)
+
+    def test_a_cancelled_call_is_not_answered(self):
+        self.assertFalse(parse_call(row(result="Call Cancel", seconds=0)).answered)
         self.assertFalse(parse_call(row(result="Voicemail")).answered)
         self.assertFalse(parse_call(row(result="Hang up")).answered)
 
