@@ -566,10 +566,21 @@ And the roster channel's:
 > deadline. You'll be @mentioned on your rostered days, with your call sheet
 > link.
 
-**Both channels are empty except for joins.** No availability message has ever
-been posted, so no one has ever reacted, so there is nothing yet to build a
-roster from. Same wall as the results channel: the design is written down, the
-data does not exist. Do not write a reaction parser against imagined content.
+**That paragraph used to say both channels were empty. Half of it is now
+wrong, and the wrong half matters.**
+
+- `#availability-pacificlinkglobal` **has real data.** Five day messages for
+  13–17 Sep went up 11 September and drew **34–41 ✅ per day from 43 distinct
+  voters**, every reaction read by name on 12 Sep. The roster below was built
+  from them. Do not repeat the claim that there is nothing to roster from.
+- `#roster-pacificlinkglobal` **is still empty except for joins.** The 13–17 Sep
+  roster exists on the dashboard and **has never been posted**, so as of 12 Sep
+  no caller has been told they are working. Posting it is Brendon's call under
+  draft-everything-send-nothing; it has not been made.
+
+The three states rule bites here: a caller who reacts ✅ is available, ❌ is
+unavailable, and **no reaction at all is the third state** — silence, not
+refusal. Never collapse ❌ and no-answer.
 
 Note the three states rule bites here: a caller who reacts ✅ is available, ❌ is
 unavailable, and **no reaction at all is the third state** — silence, not
