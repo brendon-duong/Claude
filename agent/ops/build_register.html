@@ -385,7 +385,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 12 September 2026, 2.20pm · trimmed to open work</div>
+    <div class="eyebrow">Build register · updated 12 September 2026, 3.10pm · trimmed to open work</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       What is still open on the Pacific Link agent, and why. Written to be handed to someone
@@ -1082,18 +1082,36 @@ unless the file or its label changes.</div>
             day</strong>, 43 distinct voters. Every reaction was read by name, not counted.
           </dd></div>
           <div class="row"><dt>The ranking, as Brendon specified</dt><dd>
-            Completes per shift <em style="font-style:normal">and</em> time off the phone per
-            shift, combined — a rank on each, summed, lower is better. Built on the real Zoom logs of
-            Sun 6 – Thu 10 September: 98 caller-shifts, 35 callers. Kharen is first on both halves
-            (10.5 completes, 7.8 min away). <strong>Brendon chose to include the off-phone figure
-            knowing it reads up to 4× Elaine's on some callers.</strong> His call, recorded as such.
+            <strong>75% completes per shift, 25% least time off the phone</strong>, each min-max
+            scaled across the callers so both run 0 to 1 — his weights, set 12 September, and he
+            expects to tune them. It replaced <strike>a rank on each, summed</strike>. Built on the
+            real Zoom logs of Sun 6 – Thu 10 September: 98 caller-shifts, 35 callers. Kharen is
+            first on both halves (10.5 completes, 7.8 min away). <strong>Brendon chose to include
+            the off-phone figure knowing it reads up to 4× Elaine's on some callers.</strong> His
+            call, recorded as such — and the 75/25 split quietly limits the damage: Nilyn Lisondra
+            goes from zero shifts to three, because 6.5 completes now outweighs 48 minutes away. A
+            rank-percentile version of the same weights ordered all 35 almost identically (largest
+            move three places), so the two outliers at 63 and 67 minutes are not distorting it.
+          </dd></div>
+          <div class="row"><dt>Two polls on one day are split, not stacked</dt><dd>
+            Brendon, 12 September: distribute evenly by performance, "so it's not just all the good
+            callers on one and then all the other callers aren't on the other". Filling poll A then
+            poll B did exactly that — Wednesday read <strong>8.82 completes/shift on Rotorua against
+            6.58 on Tukituki</strong>. A <strong>serpentine draft</strong> over the same ranked list
+            (1 to A, 2–3 to B, 4–5 to A, reversing each round) brings them to <strong>7.75 and
+            7.64</strong>. Same people, same ranking, balanced result. Round-robin is not a
+            substitute: straight alternation hands every odd pick to the same poll, and the reversal
+            is what cancels that.
           </dd></div>
           <div class="row"><dt>What the dummy run showed</dt><dd>
             Published to the <em style="font-style:normal">Pacific Link Roster Dashboard</em>, now on
             the real polls and headcounts — 80 slots, with Wednesday split ten and ten across Rotorua
-            and Tukituki. <strong>8 people take all five nights; 19 of the 43 who voted get none</strong>,
-            and 24 people cover the whole week. A <strong>3-shift-per-week cap spreads the same 80 slots
-            across 28 people and still fills every one</strong>; that comparison is on the page. <strong>10 said ✓ and have no call history to rank on</strong> —
+            and Tukituki. Under the 75/25 weights and <strong>Brendon's decision of no cap on shifts</strong>
+            (asked directly, 12 September, having seen what it does): <strong>22 people cover all 80
+            slots, nine work all five nights, and 21 of the 43 who voted get none</strong>. A
+            <strong>3-shift-per-week cap would spread the same 80 slots across 31 people and still fill
+            every one</strong>, leaving 12 with nothing; that comparison stays on the page, but the
+            roster is built his way. <strong>10 said ✓ and have no call history to rank on</strong> —
             Bryan Canton, Charlotte Gimpes, Hermi, Ian Christopher, Jellame Malicay, Kris, Marynel
             Joy Reanturco, Rechiell W., Stefany Fojas, Thea Rejante — so a pure ranking can never
             give a new starter a first shift. <strong>5 sit out on a name problem</strong> (see
@@ -1103,9 +1121,15 @@ unless the file or its label changes.</div>
             dashboard says so.
           </dd></div>
           <div class="row"><dt>Three decisions before it can be real</dt><dd>
-            <strike>Headcount and poll</strike> — read on 12 September, see above. <strong>The five
-            names</strong> (ask 9). <strong>A floor</strong> — everyone who ticks ✓ works at least
-            once a week, or the bottom slots rotate, or none (ask 10). Everything else is built.
+            <strike>Headcount and poll</strike> — read on 12 September, see above.
+            <strike>A cap on shifts</strike> — Brendon chose none, 12 September.
+            <strike>Three of the five names</strike> — settled on the Slack email address, the first
+            unambiguous join key this project has had: <code>boiserkaren21</code> is Karen Boiser,
+            <code>Goldy Kaye</code> is Goldy Kaye Maglasang, and <code>CJ</code> is Crystal Jahm
+            Peralta, which also closes the long-open <code>Jahm Peralta</code>/<code>CJ Peralta</code>
+            near-miss. <strong>Two names left, and both of Brendon's answers conflict with the
+            evidence</strong> — see Data gaps. <strong>A floor</strong> — everyone who ticks ✓ works
+            at least once a week, or the bottom slots rotate, or none (ask 10). Everything else is built.
           </dd></div>
         </dl>
       </article>
@@ -1211,16 +1235,28 @@ unless the file or its label changes.</div>
             <strong>43 name pairs</strong> look like the same caller entered twice, which splits their
             history and flatters the half without the failures. Reported, never auto-merged.
           </dd></div>
-          <div class="row"><dt>Slack, 12 September</dt><dd>
-            Five availability voters cannot be tied to a Zoom name and so sit out of every roster
-            until settled: <strong>Jane</strong> — is Jane Labora (<code>janewareei919@gmail.com</code>),
-            <em style="font-style:normal">not</em> Zoom's <code>jane wary rose espanueva</code>, who
-            is a different person; <strong>boiserkaren21</strong> — probably Karen Boiser, but only
-            from the email handle, which is exactly how the Jane Wareei error happened;
-            <strong>Goldy Kaye</strong> — email says <code>goldy maglasang</code>, display name does
-            not; <strong>CJ</strong> — <code>jahm peralta</code> / CJ Peralta is an open near-miss;
-            <strong>Cha</strong> — Zoom has both <code>cha</code> and <code>chary jay sanchez</code>.
-            One word each from Brendon (ask 9).
+          <div class="row"><dt>Slack, 12 September — three of five settled</dt><dd>
+            <strike><strong>boiserkaren21</strong></strike> is Karen Boiser,
+            <strike><strong>Goldy Kaye</strong></strike> is Goldy Kaye Maglasang, and
+            <strike><strong>CJ</strong></strike> is Crystal Jahm Peralta — each confirmed by Brendon
+            and corroborated by the Slack account's email address, which is the first unambiguous
+            join key this project has had. CJ also closes the
+            <code>jahm peralta</code>/<code>CJ Peralta</code> near-miss that had been open since the
+            first Zoom pull. All three are on the roster now.
+          </dd></div>
+          <div class="row"><dt>Two left, and both answers conflict with the evidence</dt><dd>
+            Brendon answered all five; two of the answers do not match what the data says, so they
+            are flagged rather than applied — the standing rule is that a name that could be two
+            people is matched to neither.<br>
+            <strong>Cha</strong> — he says Charlotte. But the Slack account's email is
+            <code>charyjay12@gmail.com</code>, which reads as Chary Jay, and
+            <strong>Charlotte Gimpes is a separate Slack account</strong>
+            (<code>chaching.gimpes@gmail.com</code>) voting independently on the same messages. Two
+            accounts cannot be one person.<br>
+            <strong>Jane</strong> — he says Jane Wareei. This register already records "Jane Wareei"
+            as a wrong inference from the handle <code>janewareei919@gmail.com</code>; she is Jane
+            Labora. Either way <strong>no Jane appears in the Zoom logs under any spelling</strong>,
+            so she cannot be ranked and the roster is not blocked on it.
           </dd></div>
           <div class="row"><dt>Fix</dt><dd>
             Confirm each once; they're written to an alias file and never asked again.
@@ -1396,7 +1432,7 @@ unless the file or its label changes.</div>
       <li><label class="tick"><input type="checkbox" data-task="ask-6" disabled><span class="tick-body"><b>6. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</span></label></li>
       <li><label class="tick"><input type="checkbox" data-task="ask-7" disabled><span class="tick-body"><b>7. Add <span class="mono">NA</span> to the results format before the next shift posts</b>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</span></label></li>
       <li><label class="tick"><input type="checkbox" data-task="ask-8" disabled><span class="tick-body"><b>8. <strike>Paste the Curia schedule rows</strike> — done, and it was never yours to do</b>This asked you to paste columns A, B and F because the schedule "could not be read past 2022". It could: <span class="mono">get_file_metadata</span> with <span class="mono">MAX_ALLOWED</span> returns the whole sheet where <span class="mono">read_file_content</span> truncates. The week is read, the roster is on real polls and headcounts, and the ask should never have existed. Left here rather than deleted.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-9" disabled><span class="tick-body"><b>9. Settle five Slack names, one word each</b><span class="mono">Jane</span> (Jane Labora — confirm she is <b style="display:inline">not</b> Zoom's Jane Wary Rose Espanueva), <span class="mono">boiserkaren21</span> (Karen Boiser?), <span class="mono">Goldy Kaye</span> (Goldy Maglasang?), <span class="mono">CJ</span> (Jahm Peralta?), <span class="mono">Cha</span> (Chary Jay Sanchez, or someone else?). All five ticked ✓ and sit out of every roster until you say. Same person / not — nothing more.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-9" disabled><span class="tick-body"><b>9. Two Slack names left — and both your answers clash with the data</b>Three are done: <span class="mono">boiserkaren21</span> = Karen Boiser, <span class="mono">Goldy Kaye</span> = Goldy Kaye Maglasang, <span class="mono">CJ</span> = Crystal Jahm Peralta, each backed by the account email. Two are not. <span class="mono">Cha</span> — you said Charlotte, but that account's email is charyjay12@gmail.com and Charlotte Gimpes votes from a separate account (chaching.gimpes@gmail.com); they can't be the same person, so which is Cha? <span class="mono">Jane</span> — you said Jane Wareei, but "Jane Wareei" is already recorded here as a wrong guess from her email handle; she is Jane Labora. She has no Zoom history either way, so this one doesn't block the roster.</span></label></li>
       <li><label class="tick"><input type="checkbox" data-task="ask-10" disabled><span class="tick-body"><b>10. Decide on a roster floor</b>With none, the dummy run gives the same 17 people all five nights and 17 voters nothing, and a new starter can never get a first shift because there is no history to rank them on. Options: everyone who ticks ✓ works at least once a week; or the bottom five slots rotate; or no floor. One line from you and it is built either way.</span></label></li>
       <li><label class="tick"><input type="checkbox" data-task="ask-11" disabled><span class="tick-body"><b>11. Add <span class="mono">cmix.com</span> to the Pacific Link environment's allowlist, and paste one working Test link</b>The environment only allows zoom.us, so no survey can be opened from it. And the Test links in Curia's emails arrive corrupted — every <span class="mono">=</span> in the query string is a control character — so one pasted from wherever the callers get it is needed. The Live link is never opened. Only worth doing if you want the per-poll threshold idea pursued.</span></label></li>
       <li><label class="tick"><input type="checkbox" data-task="ask-12" disabled><span class="tick-body"><b>12. Set the upload Routine's model to Sonnet 5</b>In the Routines UI, on <span class="mono">Curia call log upload (Sun–Thu)</span>. Mechanical job, and the byte-count check catches a slip. Leave the audit and the roster on Fable. Or say the word and it is set from here.</span></label></li>
@@ -1430,7 +1466,7 @@ unless the file or its label changes.</div>
       <div><b>Spreadsheet contents are not searchable</b> — track file locations; traverse from the drive <code>root</code> alias rather than searching.</div>
       <div><b>Three measurement defects, all fixed</b> — group on the Zoom owner, count only calls that prove presence, and do not score anyone whose calls all fall before 1:30pm.</div>
       <div><b>The 150-second threshold is right</b> — it is the figure Elaine's manual audit already uses, and completes agree with her on 19 of 22 callers.</div>
-      <div><b>Eight caller names settled</b> — including both Jeans, and Khars. A shared first name is treated as ambiguous and matched to nobody.</div>
+      <div><b>Eleven caller names settled</b> — both Jeans, Khars, and the three Slack voters tied by their account email (Karen Boiser, Goldy Kaye Maglasang, Crystal Jahm Peralta). Email is the join key; a shared first name is treated as ambiguous and matched to nobody.</div>
       <div><b>The Curia exporter is verified</b> — row counts match her hand export exactly and 36 of 36 number formats agree.</div>
       <div><b>Routines get their connectors through the UI</b> — the API refuses; Brendon attached Slack to the audit and Drive to the upload on 12 September, both confirmed via <code>list_triggers</code>.</div>
     </div>
@@ -1440,7 +1476,7 @@ unless the file or its label changes.</div>
       <p>Kept visible on purpose. A register that quietly deletes its mistakes cannot be trusted on the rest.</p>
     </div>
     <div class="items">
-      <article class="item worked" data-kind="worked">
+      <article class="item worked" data-kind="corrections">
         <div class="item-head"><h3>Corrections</h3><span class="tag t-worked">All fixed</span></div>
         <dl class="rows">
           <div class="row"><dt>ANSWERED</dt><dd>
