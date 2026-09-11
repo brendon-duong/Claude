@@ -368,6 +368,69 @@ Routine's Slack was attached that way on 12 Sep and `list_triggers` now shows it
 byte through the session twice, roughly 45 minutes a run. The Apps Script remains
 the better shape and he knows it; this is the interim.
 
+### The Roster Dashboard, and the dummy roster of 12 Sep
+
+**Published at `https://claude.ai/code/artifact/1d1593ee-8975-4f06-8b98-f6a2fcb624dd`**
+("Pacific Link Roster Dashboard"). `business_agent/dashboard.py` renders it
+server-side from one dict; `render_dashboard(data)` reads these keys and no
+others, so a future build can go straight to filling them:
+
+    generatedFor · week{start,filled,needed,used,bench} ·
+    capacity{rosterable,weeklyCapacity,maxPerWeek,barredActive} ·
+    productivity{hist[{bucket,count}],median,n} ·
+    audits{total,daysSinceLast,missedOverDeclarations} · dataQuality{duplicatePairs} ·
+    topCaller{name,completes} · weeks[{start,slots}] ·
+    rosterDays[{day,slots,polls[]}] · roster[{day,poll,needed,callers[{name,completes,clean,tier}]}] ·
+    barred[{name,headline}]
+
+The **9 Sep** version was built from Elaine's 1,578 audits and a schedule read
+that named polls for 13–17 Sep (Hutt South 400, ACT 1000, Rotorua 400, Tukituki
+400, WCT 400). Where that read came from is not recoverable now — the schedule
+truncates at 2022 through the connector — so treat those poll names as
+unverified.
+
+**Republished 12 Sep with a dummy roster**, on Brendon's ask, built from:
+
+- the Zoom call logs of Sun 6 – Thu 10 Sep: 98 caller-shifts, 35 callers;
+- the ✅ reactions on the five day messages in `#availability-pacificlinkglobal`
+  (34–41 per day, 43 distinct people);
+- a **placeholder** headcount of 22/day and "Poll TBC" on every day, because
+  columns B and F of the Curia schedule cannot be read for 2026.
+
+**Ranking, as Brendon specified:** completes per shift *and* time off the phone
+per shift, combined — a Borda sum of the two ranks, lower is better, ties
+broken on completes. His decision, made knowing the off-phone figure reads up
+to 4× Elaine's on some callers. The dashboard's "Clean" column was relabelled
+"Away" and carries minutes away per shift. No audit gating, no integrity tier.
+
+What the dummy run showed, all recorded on the page itself:
+
+- **17 people take all five nights; 17 of the 43 who voted get none.** No floor
+  was applied. Brendon has been asked whether he wants one.
+- **10 voted ✅ and have no call history to rank on**, so a pure ranking can
+  never give them a first shift: Bryan Canton, Charlotte Gimpes, Hermi, Ian
+  Christopher, Jellame Malicay, Kris, Marynel Joy Reanturco, Rechiell W.,
+  Stefany Fojas, Thea Rejante.
+- **5 Slack names were not matched and sit out** until Brendon settles them:
+  `Jane` (is Jane Labora — **not** Zoom's `jane wary rose espanueva`),
+  `boiserkaren21` (probably Karen Boiser, but only from the email handle),
+  `Goldy Kaye` (email says `goldy maglasang`), `CJ` (`jahm peralta` / `CJ
+  Peralta` is an open near-miss), `Cha` (Zoom has both `cha` and `chary jay
+  sanchez`).
+- **Nilyn lands at rank 27 on 48 min away** — the one caller whose off-phone
+  figure is known to read ~4× Elaine's 18. Named on the page so the effect of
+  that number on a real person is visible.
+
+Slack display name → Zoom name pairs used, beyond the settled list above:
+`Lovely`→`lovely salva`, `Jess`→`jess burgos`, `Leizel`→`leizel boiser`,
+`Erika Jane Boiser`→`erika boiser`, `Lia`→`pernelia villapaz`,
+`jeancarlasumarago`→`jean sumarago`. Each is a single candidate, not a
+confirmation; treat as provisional until Brendon says otherwise.
+
+The scratch scripts that built it lived in `/tmp/roster/` and carried the
+Slack vote lists with user IDs — personal data, deliberately not committed.
+The method above is enough to rebuild them.
+
 ## Curia's call sheet codes — what a caller writes against each number
 
 From Brendon, 11 Sep 2026. These are the four marks callers put on a call sheet
