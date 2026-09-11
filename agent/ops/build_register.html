@@ -151,6 +151,41 @@
   }
   .tally .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; align-self: center; }
 
+  .tally-btn {
+    font: inherit; font-size: .87rem; color: var(--ink-2);
+    display: flex; align-items: baseline; gap: .5em;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 999px; padding: 8px 16px 8px 13px; cursor: pointer;
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .tally-btn:hover { border-color: var(--brand); }
+  .tally-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .tally-btn b {
+    font-family: Poppins, sans-serif; font-size: 1.02rem; font-weight: 700;
+    color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .tally-btn .dot { align-self: center; }
+  .tally-btn .x, .tally-btn .arrow {
+    font-family: "IBM Plex Mono", monospace; font-size: .8rem;
+    color: var(--muted); margin-left: .1em;
+  }
+  .tally-btn .x { display: none; }
+  .tally-btn[aria-pressed="true"] { background: var(--sunk); border-color: var(--brand); }
+  .tally-btn[aria-pressed="true"] .x { display: inline; color: var(--brand); }
+  @media (prefers-reduced-motion: reduce) { .tally-btn { transition: none; } }
+
+  .item[hidden], section[hidden] { display: none !important; }
+  #filter-note {
+    font-family: "IBM Plex Mono", monospace; font-size: .76rem;
+    color: var(--muted); margin: 14px 0 0;
+  }
+  #filter-note[hidden] { display: none !important; }
+  #filter-note button {
+    font: inherit; color: var(--brand); background: none; border: 0;
+    padding: 0 0 0 .5em; cursor: pointer; text-decoration: underline;
+  }
+  #filter-note button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
   section { margin-top: 52px; }
   .section-head { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
   .section-head p { margin: 0; color: var(--muted); font-size: .92rem; max-width: 66ch; }
@@ -362,12 +397,18 @@
     <div class="meta">13,036 lines · 566 tests passing · branch claude/business-agent-dev-9jxs55</div>
 
     <div class="tally">
-      <div><span class="dot" style="background:var(--blocked)"></span><b>5</b> hard blockers</div>
-      <div><span class="dot" style="background:var(--sky)"></span><b>2</b> working, still tuning</div>
-      <div><span class="dot" style="background:var(--waiting)"></span><b>9</b> need a decision</div>
-      <div><span class="dot" style="background:var(--live)"></span><b>10</b> closed &amp; removed</div>
-      <div><span class="dot" style="background:var(--waiting)"></span><b>13</b> waiting on you</div>
+      <button type="button" class="tally-btn" data-filter="blocked" aria-pressed="false"
+        ><span class="dot" style="background:var(--blocked)"></span><b>5</b> hard blockers<span class="x">×</span></button>
+      <button type="button" class="tally-btn" data-filter="worked" aria-pressed="false"
+        ><span class="dot" style="background:var(--sky)"></span><b>2</b> working, still tuning<span class="x">×</span></button>
+      <button type="button" class="tally-btn" data-filter="pending" aria-pressed="false"
+        ><span class="dot" style="background:var(--waiting)"></span><b>9</b> need a decision<span class="x">×</span></button>
+      <button type="button" class="tally-btn" data-goto="closed"
+        ><span class="dot" style="background:var(--live)"></span><b>10</b> closed &amp; removed<span class="arrow">↓</span></button>
+      <button type="button" class="tally-btn" data-goto="asks"
+        ><span class="dot" style="background:var(--waiting)"></span><b>13</b> waiting on you<span class="arrow">↓</span></button>
     </div>
+    <p id="filter-note" hidden></p>
   </header>
 
 
@@ -394,7 +435,7 @@
   </section>
 
   <!-- ================= BLOCKERS ================= -->
-  <section>
+  <section id="limits" class="filterable">
     <div class="section-head">
       <h2>Platform limits</h2>
       <p>
@@ -410,7 +451,7 @@
 
       
 
-      <article class="item blocked">
+      <article class="item blocked" data-kind="blocked">
         <div class="item-head">
           <h3>SharePoint folders can be built but not shared</h3>
           <span class="tag t-blocked">Blocked</span>
@@ -442,7 +483,7 @@
         </dl>
       </article>
 
-      <article class="item blocked">
+      <article class="item blocked" data-kind="blocked">
         <div class="item-head">
           <h3>Google Drive access can be granted but never removed</h3>
           <span class="tag t-blocked">Blocked</span>
@@ -471,7 +512,7 @@
         </dl>
       </article>
 
-      <article class="item blocked">
+      <article class="item blocked" data-kind="blocked">
         <div class="item-head">
           <h3>Curia's results page can be read but not written — and the schedule cannot be read past 2022</h3>
           <span class="tag t-blocked">Blocked</span>
@@ -539,7 +580,7 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
         </dl>
       </article>
 
-      <article class="item blocked">
+      <article class="item blocked" data-kind="blocked">
         <div class="item-head">
           <h3>Curia's survey links arrive by email — and cannot be opened yet</h3>
           <span class="tag t-blocked">Blocked</span>
@@ -588,7 +629,7 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
       </article>
 
 
-      <article class="item worked">
+      <article class="item worked" data-kind="worked">
         <div class="item-head">
           <h3>Measuring a shift from the call logs — built and tested</h3>
           <span class="tag t-worked">Working</span>
@@ -693,7 +734,7 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
 
       
 
-      <article class="item worked">
+      <article class="item worked" data-kind="worked">
         <div class="item-head">
           <h3>Calibrated against Elaine's manual audit — the 150s threshold is hers</h3>
           <span class="tag t-worked">Settled</span>
@@ -765,7 +806,7 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
         </dl>
       </article>
 
-      <article class="item blocked">
+      <article class="item blocked" data-kind="blocked">
         <div class="item-head">
           <h3>Call sheets can be located but not read — and the library is empty</h3>
           <span class="tag t-blocked">Blocked</span>
@@ -822,7 +863,7 @@ unless the file or its label changes.</div>
         </dl>
       </article>
 
-      <article class="item pending">
+      <article class="item pending" data-kind="pending">
         <div class="item-head">
           <h3>The declared half has a route — Slack, not the call sheets</h3>
           <span class="tag t-worked">Unblocks the audit</span>
@@ -867,7 +908,7 @@ unless the file or its label changes.</div>
         </dl>
       </article>
 
-      <article class="item pending">
+      <article class="item pending" data-kind="pending">
         <div class="item-head">
           <h3>Messaging a caller about their own numbers — not on this metric yet</h3>
           <span class="tag t-pending">Needs a decision</span>
@@ -926,7 +967,7 @@ unless the file or its label changes.</div>
         </dl>
       </article>
 
-      <article class="item pending">
+      <article class="item pending" data-kind="pending">
         <div class="item-head">
           <h3>Curia's own auditor — raw call logs, rebuilt and uploaded</h3>
           <span class="tag t-worked">Routine live — first run Sun 13 Sep</span>
@@ -1019,7 +1060,7 @@ unless the file or its label changes.</div>
       </article>
 
 
-      <article class="item pending">
+      <article class="item pending" data-kind="pending">
         <div class="item-head">
           <h3>The roster from Slack votes — dummy run done, three decisions open</h3>
           <span class="tag t-worked">On the dashboard</span>
@@ -1069,7 +1110,7 @@ unless the file or its label changes.</div>
         </dl>
       </article>
 
-      <article class="item pending">
+      <article class="item pending" data-kind="pending">
         <div class="item-head">
           <h3>Slack free plan: 90 days of history</h3>
           <span class="tag t-pending">Plan for it</span>
@@ -1097,7 +1138,7 @@ unless the file or its label changes.</div>
         </dl>
       </article>
 
-      <article class="item pending">
+      <article class="item pending" data-kind="pending">
         <div class="item-head">
           <h3>WhatsApp connector: quota and a browser dependency</h3>
           <span class="tag t-pending">Needs a decision</span>
@@ -1143,14 +1184,14 @@ unless the file or its label changes.</div>
   </section>
 
   <!-- ================= DATA GAPS ================= -->
-  <section>
+  <section id="gaps" class="filterable">
     <div class="section-head">
       <h2>Data gaps</h2>
       <p>Not platform limits — things in the records that a person has to settle once.</p>
     </div>
 
     <div class="items">
-      <article class="item pending">
+      <article class="item pending" data-kind="pending">
         <div class="item-head">
           <h3>Names that can't be matched safely</h3>
           <span class="tag t-pending">Needs you</span>
@@ -1187,7 +1228,7 @@ unless the file or its label changes.</div>
         </dl>
       </article>
 
-      <article class="item pending">
+      <article class="item pending" data-kind="pending">
         <div class="item-head">
           <h3>The contact list — built, and it changed the picture</h3>
           <span class="tag t-worked">Built</span>
@@ -1220,7 +1261,7 @@ unless the file or its label changes.</div>
         </dl>
       </article>
 
-      <article class="item pending">
+      <article class="item pending" data-kind="pending">
         <div class="item-head">
           <h3>Sundays are genuinely short</h3>
           <span class="tag t-pending">Operational</span>
@@ -1339,7 +1380,7 @@ unless the file or its label changes.</div>
   </section>
 
   <!-- ================= ASKS ================= -->
-  <section>
+  <section id="asks">
     <div class="section-head">
       <h2>Tomorrow, in order</h2>
       <p>Twelve things only you can do — item 8 turned out not to be one of them and is struck
@@ -1373,7 +1414,7 @@ unless the file or its label changes.</div>
   </section>
 
   <!-- ================= CLOSED ================= -->
-  <section>
+  <section id="closed">
     <div class="section-head">
       <h2>Closed — removed from the list above</h2>
       <p>
@@ -1399,7 +1440,7 @@ unless the file or its label changes.</div>
       <p>Kept visible on purpose. A register that quietly deletes its mistakes cannot be trusted on the rest.</p>
     </div>
     <div class="items">
-      <article class="item worked">
+      <article class="item worked" data-kind="worked">
         <div class="item-head"><h3>Corrections</h3><span class="tag t-worked">All fixed</span></div>
         <dl class="rows">
           <div class="row"><dt>ANSWERED</dt><dd>
@@ -1444,6 +1485,60 @@ unless the file or its label changes.</div>
 </div>
 
 <script>
+(function () {
+  var btns = Array.prototype.slice.call(document.querySelectorAll('.tally-btn'));
+  var items = Array.prototype.slice.call(document.querySelectorAll('.item[data-kind]'));
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section.filterable'));
+  var note = document.getElementById('filter-note');
+  var LABEL = { blocked: 'hard blockers', worked: 'working, still tuning',
+                pending: 'items needing a decision' };
+  var active = null;
+
+  function jump(el) {
+    if (!el) return;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  function apply() {
+    items.forEach(function (a) { a.hidden = !!active && a.dataset.kind !== active; });
+    sections.forEach(function (s) {
+      var vis = s.querySelectorAll('.item[data-kind]:not([hidden])').length;
+      s.hidden = !!active && vis === 0;
+    });
+    btns.forEach(function (b) {
+      if (b.dataset.filter) b.setAttribute('aria-pressed', String(b.dataset.filter === active));
+    });
+    if (active) {
+      var n = items.filter(function (a) { return !a.hidden; }).length;
+      note.innerHTML = 'Showing ' + n + ' ' + LABEL[active] + '.';
+      var clear = document.createElement('button');
+      clear.type = 'button'; clear.textContent = 'Show everything';
+      clear.addEventListener('click', function () { active = null; apply(); });
+      note.appendChild(clear);
+      note.hidden = false;
+    } else {
+      note.hidden = true; note.textContent = '';
+    }
+  }
+
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.dataset.goto) {
+        active = null; apply();
+        jump(document.getElementById(b.dataset.goto));
+        return;
+      }
+      active = (active === b.dataset.filter) ? null : b.dataset.filter;
+      apply();
+      if (active) {
+        var first = items.filter(function (a) { return !a.hidden; })[0];
+        jump(first ? first.closest('section') : null);
+      }
+    });
+  });
+})();
+
 (function () {
   var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-task]'));
   var note = document.getElementById('sync-note');

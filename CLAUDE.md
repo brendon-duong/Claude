@@ -429,15 +429,43 @@ to 4× Elaine's on some callers. The dashboard's "Clean" column was relabelled
 
 What the dummy run showed, all recorded on the page itself:
 
+### The rostering score — 75/25, set by Brendon 12 Sep
+
+    score = 0.75 x scaled(completes_per_shift) + 0.25 x (1 - scaled(away_per_shift))
+
+Both min-max scaled across the callers in the window, so each runs 0 to 1 and
+less time away scores higher. **His numbers, and he expects to tune them** — do
+not change the weights without him.
+
+It replaced an unweighted rank-sum of the two ranks. Two things worth knowing
+before anyone touches it:
+
+- **Weighting completes at 75% moves the clean-but-moderate callers down.**
+  Cherry Jean Raagas (6.8 completes, 2.0 min away) fell from 5th to 15th and
+  from five shifts to three; Richelle Mino (6.0, 1.3 min) 8th to 17th; Kiezel
+  Candido 11th to 18th. Who gained are the high-volume callers with ordinary
+  discipline — Jean Carla Sumarago 17th to 6th, Jasmine Magdayao 15th to 5th.
+- **It quietly reduces the harm from the off-phone figure**, the one measure
+  that does not reconcile with Elaine. Nilyn Lisondra went from **zero shifts to
+  three**, because 6.5 completes now outweighs 48 minutes away. That is the
+  right direction while that number is unsettled.
+
+A rank-percentile version of the same weights was computed as a check and
+ordered the 35 callers almost identically — largest move three places — so the
+min-max scaling is not being distorted by the two outliers at 63 and 67 minutes
+away. Raw min-max is used because it is the direct reading of "75% on
+completes".
+
 - **Brendon chose NO CAP on shifts, 12 Sep.** Asked directly, having seen what
-  it does. With the three names above resolved, **23 people cover all 80 slots
-  and 20 of the 43 who voted get nothing**; nine people work all five nights.
-  A 3-shift cap would spread the same 80 slots across 31 people — that
-  comparison stays on the dashboard, but the roster is built his way.
-- **Adding Karen, Goldy and Crystal pushed Nilyn from 3 shifts to none.** She is
-  the caller whose off-phone figure reads ~4× Elaine's. The ranking rule and the
-  unreliable number together now cost her the entire week. Flagged to Brendon,
-  his call, recorded here because it is the clearest example of what that metric
+  it does. Under the 75/25 weights, **22 people cover all 80 slots and 21 of the
+  43 who voted get nothing**; nine work all five nights. A 3-shift cap would
+  spread the same slots wider — that comparison stays on the dashboard, but the
+  roster is built his way.
+- **Nilyn Lisondra is the caller to watch when either rule changes.** Her
+  off-phone figure reads ~4× Elaine's, so she moves whenever the weights move:
+  three shifts under the rank-sum, none once Karen, Goldy and Crystal were
+  matched and displaced her, three again under the 75/25 weights. Recorded
+  because she is the clearest example of what that metric
   does to a real person.
 - **10 voted ✅ and have no call history to rank on**, so a pure ranking can
   never give them a first shift: Bryan Canton, Charlotte Gimpes, Hermi, Ian
@@ -462,6 +490,36 @@ confirmation; treat as provisional until Brendon says otherwise.
 The scratch scripts that built it lived in `/tmp/roster/` and carried the
 Slack vote lists with user IDs — personal data, deliberately not committed.
 The method above is enough to rebuild them.
+
+### Two polls on one day: split the strength, do not stack it
+
+**Brendon's rule, 12 Sep.** When a day runs more than one poll, the callers are
+distributed evenly by performance across them — "so it's not just all the good
+callers on one and then all the other callers aren't on the other". Curia are
+paying for both polls; one strong and one weak is a worse result than two even
+ones.
+
+Filling poll A to capacity and then poll B does exactly what he does not want.
+On Wednesday 16 Sep (Rotorua 400 and Tukituki 400, ten each) it gave:
+
+    Rotorua    mean score 0.788 · 8.82 completes/shift · 15.5 min away
+    Tukituki   mean score 0.576 · 6.58 completes/shift · 16.0 min away
+
+The fix is a **serpentine (snake) draft** over the ranked list: pick 1 to poll
+A, picks 2 and 3 to poll B, picks 4 and 5 to poll A, and so on, reversing the
+order each round. Same people, same ranking, balanced result:
+
+    Rotorua    mean score 0.690 · 7.75 completes/shift · 15.1 min away
+    Tukituki   mean score 0.674 · 7.64 completes/shift · 16.5 min away
+
+It generalises: with n polls the order reverses every n picks, and a poll that
+fills early is skipped, so uneven headcounts (10 and 20, say) still work. A day
+with one poll is unaffected — the draft degenerates to the plain ranked fill.
+
+Do **not** replace this with round-robin (A, B, A, B…). Straight alternation
+hands every odd-numbered pick to the same poll and A ends up ahead by roughly
+half a rank on every round; the reversal is what cancels it.
+
 
 ## Curia's call sheet codes — what a caller writes against each number
 
