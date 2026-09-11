@@ -7,7 +7,9 @@ from datetime import date, datetime, timedelta, timezone
 
 from business_agent.calllogs import (
     COMPLETE_SECONDS,
+    EARLIEST_START,
     IDLE_SECONDS,
+    SHIFT_HOURS,
     MANILA,
     Call,
     ShiftCalls,
@@ -235,8 +237,8 @@ class TestOneCallersShift(unittest.TestCase):
     def test_a_shift_with_one_call_has_no_idle_time(self):
         self.assertEqual(ShiftCalls("Lia", DAY, (call(),)).idle_time(), timedelta(0))
 
-    def test_the_default_break_threshold_is_two_minutes(self):
-        self.assertEqual(IDLE_SECONDS, 120)
+    def test_the_default_break_threshold_is_one_minute(self):
+        self.assertEqual(IDLE_SECONDS, 60)
 
     def test_the_longest_gap_is_measured_end_to_start(self):
         # 06:00 for 60s, then 06:30 -> a 29-minute gap, not 30.
@@ -262,6 +264,102 @@ class TestOneCallersShift(unittest.TestCase):
         shift = ShiftCalls("Lia", DAY, (call(hour=8), call(hour=6), call(hour=7)))
         self.assertEqual(shift.first_call.hour, 6)
         self.assertEqual(shift.last_call.hour, 8)
+
+
+class TestTheThreeHourShift(unittest.TestCase):
+    """A shift is three hours of calling, not a fixed clock window."""
+
+    def full_day(self):
+        # 1:30pm Manila is 05:30 UTC. A caller genuinely on the phone: a call
+        # every three minutes lasting 150s, so the 30s between them is dialling
+        # and not a break. Ten-minute spacing would be eight-minute gaps, which
+        # the floor would rightly count as time away from the phone.
+        return ShiftCalls("Lia", DAY, tuple(
+            call(hour=5 + (30 + m) // 60, minute=(30 + m) % 60, seconds=150)
+            for m in range(0, 181, 3)
+        ))
+
+    def test_the_clock_starts_at_the_callers_own_first_call(self):
+        shift = ShiftCalls("Lia", DAY, (call(hour=7, minute=0),))
+        # 07:00 UTC is 3pm Manila — a late start, and that is the start.
+        self.assertEqual(shift.started_at().hour, 15)
+
+    def test_starting_before_the_earliest_time_does_not_start_the_clock(self):
+        # One call at noon, then the real shift. Counting from noon would let
+        # the three hours run out before the work began.
+        shift = ShiftCalls("Lia", DAY, (
+            call(hour=4, minute=0, seconds=60),    # 12:00 Manila
+            call(hour=7, minute=0, seconds=60),
+        ))
+        self.assertEqual(
+            (shift.started_at().hour, shift.started_at().minute), EARLIEST_START
+        )
+
+    def test_the_shift_ends_when_the_last_call_ends_not_when_it_starts(self):
+        # A six-minute call at the end is six minutes of work.
+        shift = ShiftCalls("Lia", DAY, (
+            call(hour=5, minute=30, seconds=60),
+            call(hour=8, minute=24, seconds=360),
+        ))
+        self.assertEqual((shift.finished_at().hour, shift.finished_at().minute), (16, 30))
+
+    def test_a_full_three_hours_leaves_no_shortfall(self):
+        self.assertEqual(self.full_day().shortfall(), timedelta(0))
+
+    def test_dialling_between_calls_is_not_a_break(self):
+        # Sixty-one short gaps. If they counted, the most productive caller on
+        # the team would read as the idlest one.
+        shift = self.full_day()
+        self.assertEqual(shift.idle_time(), timedelta(0))
+        self.assertEqual(shift.worked(), shift.span())
+        self.assertGreaterEqual(shift.worked(), timedelta(hours=3))
+
+    def test_a_short_shift_is_reported_by_how_much(self):
+        # 1:30pm to 3:30pm Manila — two hours, so an hour short.
+        shift = ShiftCalls("Lia", DAY, (
+            call(hour=5, minute=30, seconds=60),
+            call(hour=7, minute=30, seconds=60),
+        ))
+        # Two hours of span, almost all of it one long break.
+        self.assertEqual(shift.span(), timedelta(hours=2, minutes=1))
+        self.assertGreater(shift.shortfall(), timedelta(hours=2))
+
+    def test_breaks_come_out_of_the_three_hours(self):
+        # Turning up for three hours and spending one of them away is not a
+        # three-hour shift. Measuring the span alone would say it was.
+        shift = ShiftCalls("Lia", DAY, tuple(
+            call(hour=5 + (30 + m) // 60, minute=(30 + m) % 60, seconds=120)
+            for m in list(range(0, 61, 10)) + list(range(121, 182, 10))
+        ))
+        self.assertGreaterEqual(shift.span(), timedelta(hours=3))
+        self.assertGreater(shift.idle_time(), timedelta(minutes=55))
+        self.assertGreater(shift.shortfall(), timedelta(minutes=55))
+
+    def test_worked_time_is_the_span_minus_the_breaks(self):
+        shift = ShiftCalls("Lia", DAY, (
+            call(hour=5, minute=30, seconds=60),
+            call(hour=6, minute=31, seconds=60),   # a 60 min break
+        ))
+        self.assertEqual(shift.span(), timedelta(hours=1, minutes=2))
+        self.assertEqual(shift.idle_time(), timedelta(hours=1))
+        self.assertEqual(shift.worked(), timedelta(minutes=2))
+
+    def test_a_shift_cannot_be_covered_by_two_calls_hours_apart(self):
+        # One call at 1:30, one at 4:30, nothing between. The span is three
+        # hours; the work is not.
+        shift = ShiftCalls("Lia", DAY, (
+            call(hour=5, minute=30, seconds=60),
+            call(hour=8, minute=29, seconds=60),
+        ))
+        self.assertGreaterEqual(shift.span(), timedelta(hours=2, minutes=59))
+        self.assertGreater(shift.shortfall(), timedelta(hours=2, minutes=55))
+
+    def test_a_day_with_no_calls_has_no_times(self):
+        empty = ShiftCalls("Lia", DAY, ())
+        self.assertIsNone(empty.started_at())
+        self.assertIsNone(empty.finished_at())
+        self.assertEqual(empty.span(), timedelta(0))
+        self.assertEqual(empty.shortfall(), timedelta(hours=SHIFT_HOURS))
 
 
 class TestGroupingADay(unittest.TestCase):

@@ -68,7 +68,17 @@ COMPLETE_SECONDS = 150
 # A gap between calls shorter than this is not "away from the phone" — it is
 # hanging up, reading the next number and dialling. Counting those would make
 # a fast caller look idle, because a fast caller has more of them.
-IDLE_SECONDS = 120
+IDLE_SECONDS = 60
+
+# A shift is three hours of calling. It is not a fixed clock window: callers
+# start when they start, and what is owed is the length, not the times. So the
+# shift is measured from a caller's own first call rather than against 2pm.
+SHIFT_HOURS = 3
+
+# The earliest a shift may begin, Manila time. Calls before this do not start
+# the clock — otherwise someone could dial once at noon, stop, and have their
+# three hours run out before the work began.
+EARLIEST_START = (13, 30)
 
 
 class ZoomError(RuntimeError):
@@ -197,6 +207,50 @@ class ShiftCalls:
         return max(
             (length for _, length in self.breaks(minimum)), default=timedelta(0)
         )
+
+    def started_at(self) -> datetime | None:
+        """When the shift clock starts, in Manila time.
+
+        A caller's own first call, or the earliest permitted start if they
+        began before it. Dialling once at noon and stopping must not let the
+        three hours expire before the work begins.
+        """
+        if not self.calls:
+            return None
+        first = min(c.started for c in self.calls).astimezone(MANILA)
+        floor = first.replace(
+            hour=EARLIEST_START[0], minute=EARLIEST_START[1], second=0, microsecond=0
+        )
+        return max(first, floor)
+
+    def finished_at(self) -> datetime | None:
+        """The end of the last call, in Manila time — not the start of it."""
+        if not self.calls:
+            return None
+        return max(
+            (c.started + timedelta(seconds=c.seconds) for c in self.calls)
+        ).astimezone(MANILA)
+
+    def span(self) -> timedelta:
+        """First call to the end of the last one: the shift as it happened."""
+        start, finish = self.started_at(), self.finished_at()
+        if start is None or finish is None:
+            return timedelta(0)
+        return max(finish - start, timedelta(0))
+
+    def worked(self, minimum: int = IDLE_SECONDS) -> timedelta:
+        """The span with the breaks taken out — time actually on the phone."""
+        return max(self.span() - self.idle_time(minimum), timedelta(0))
+
+    def shortfall(
+        self, hours: int = SHIFT_HOURS, minimum: int = IDLE_SECONDS
+    ) -> timedelta:
+        """How far short of a full shift, counting only time on the phone.
+
+        Measured against `worked` rather than `span`, so a caller cannot cover
+        three hours by making one call, disappearing, and making another.
+        """
+        return max(timedelta(hours=hours) - self.worked(minimum), timedelta(0))
 
 
 def _post_form(url: str, form: dict[str, str], headers: dict[str, str]) -> dict:
