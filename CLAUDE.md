@@ -52,6 +52,41 @@ re-ask questions Brendon has already answered.
     blocked. Until it exists, ask him for the current contacts.csv rather
     than guessing, and do not rebuild the roster from team.csv.
 
+### The call sheet library: how to list it, and what is actually in it
+
+Checked live 11 Sep 2026.
+
+Call sheets live at
+`/sites/callsheets/Shared Documents/Call Sheets/<Caller>/<Survey> - DD-MM-YYYY.xlsx`.
+
+**Folder names carry the nickname in brackets** — `Pernelia Villapaz (Lia)`,
+`Mary Joy Tongson (Mary T)`, `Mary Joy Villacura (Mary V)`. A path built from
+the plain name 404s. Do not guess these paths; list the folder instead.
+
+To list the library with the Microsoft 365 connector, `read_resource` on
+`file:///{driveId}/root` and follow the returned item IDs. A **single-segment**
+path such as `file:///{driveId}/Call Sheets` is parsed as an item ID, not a
+path, and fails with `invalidRequest` — the `root` alias is the way in.
+The drive is
+`b!lzF-7XOzRkSvOMQGD5WcR7VKtNUzQNBHpfsx_fsYCgr1NocjhVQORpyO0ObWmaU8`.
+
+Two limits found there, both live-tested, neither worked around:
+
+- **The library is empty.** 48 caller folders exist; 47 hold nothing. The only
+  file in the whole library is `Kharen Mae Pihana/Wellington Bays 400 -
+  10-09-2026.xlsx`. The move to `/sites/callsheets` is filed but unpopulated,
+  so there is no declared-numbers half of an audit to read yet.
+- **Graph will not extract a call sheet's contents.** Reading that one file
+  returns `notSupported` — Microsoft blocks conversion for apps that cannot
+  decrypt, which normally means an encrypting Purview label. Per-file and
+  enforced by Microsoft; retrying does not help. Brendon can still open it in a
+  browser under his own login. **Open question for him:** whether that label
+  can be dropped on this library. If it cannot, declared numbers have to come
+  from WhatsApp end-of-day or Curia's reporting, never from these files.
+
+SharePoint *search* indexes only that one file in the site, so search is not a
+way to survey this library — traverse from `root`.
+
 It must **not** live in the `callsheets` site: that one has external sharing
 switched on so callers can edit their own sheets, and a contact directory
 cannot sit in a library strangers can reach. It is also deliberately absent
@@ -77,6 +112,8 @@ directory or into this file. That is the whole of the memory.
 - **Jane** is Jane **Labora** (`janewareei919@gmail.com`), not Jane Wareei —
   that was inferred from her email handle and was wrong.
 - **Kendall is Hermi.** `kendall.acsva@gmail.com` is Hermi Jeb Edroso.
+- **Khars is Kharen Mae Pihana.** Zoom Phone shows her display name as
+  `Khars -` (trailing hyphen and all). Confirmed by Brendon, 11 Sep 2026.
 - Two different Jeans: **Jean** (`jeannax23@gmail.com`) and **Jean Carla
   Sumarago** (`jeancarlasumarago@gmail.com`). Never merge.
 - `team.csv` is stale: only 10 of its 33 names are still active, and ~33
@@ -102,9 +139,14 @@ which the 53 Zoom Phone licences cover. The app is built and activated:
     ZOOM_CLIENT_ID=rkYU0tiVRfCQa9S7GpUL1g
     ZOOM_CLIENT_SECRET  — environment variable, never in a message
 
-**This works as of 11 September.** The agent can read the account's call logs
-and see who made which calls. Getting there needed one thing beyond the
-credentials, and it is the part that will catch a future session out:
+**This works as of 11 September**, confirmed twice from separate sessions.
+The credentials above exchange for a token and `/phone/call_logs` returns
+account-wide rows. 1–11 September 2026 pulled 33,875 calls (32,710 outbound,
+1,165 inbound) from 37 distinct Zoom display names. The Manila day boundary is
+correct: the 2pm–5pm shift lands inside the right date. The audit is buildable.
+
+Getting there needed one thing beyond the credentials, and it is the part that
+will catch a future session out:
 
 **Cloud sessions sit behind a network allowlist and Zoom is not on it by
 default.** A session in a `Trusted` environment gets
@@ -112,15 +154,55 @@ default.** A session in a `Trusted` environment gets
 credential is checked, so it looks exactly like a bad key. It needs a cloud
 environment set to **Custom** network access listing `zoom.us` and
 `api.zoom.us`. If Zoom calls fail, test reachability with curl before
-suspecting the credentials.
+suspecting the credentials. Once configured it stays working: a later session
+reached `zoom.us/oauth/token` (405, the expected GET-on-a-POST-endpoint) and
+`api.zoom.us` (401, expected without a header) with no further setup.
 
 Two related traps: environment variables are copied in once at container
 start, so the session that sets them can never see them; and the settings
 gear does not appear on a running session's chip — use **Add cloud
 environment** instead, whose creation form has the same fields.
 
-Expect the Zoom display names not to match roster names — the same mismatch as
-Slack. That is a mapping to build, not a failure.
+**`ANSWERED` in `calllogs.py` is wrong and still unfixed.** It reads
+`{"Connected", "Answered", "Call connected"}`. Against live data:
+
+| `result` | n (11 days) | median | max | meaning |
+|---|---:|---:|---:|---|
+| `Auto Recorded` | 15,669 | 14s | 2,841s | **this is a human picking up** |
+| `Call Cancel` | 11,457 | 0s | 0s | hung up before ring-out |
+| `Call connected` | 5,579 | 3s | **7s** | dialler state, never a conversation |
+| `Call failed` | 5 | 0s | 0s | — |
+
+Two of the three names in `ANSWERED` never appear at all, and the third caps at
+7 seconds. So the module currently scores **0 completes for every caller on
+every day**. The fix is to treat `Auto Recorded` as answered, which gives 953
+completes at the 150s threshold across the 11 days. **Not yet applied — waiting
+on Brendon to confirm `Auto Recorded` matches what Zoom's own reporting shows**,
+because it changes every number the audit will ever produce.
+
+This reaches further than `completes`. `talk_seconds`, `short_answers` and
+anything built on `Call.answered` all read zero for the same reason. The
+timing work — `span`, `worked`, `idle_time`, `breaks`, `shortfall` — does not
+depend on `answered` and is unaffected.
+
+The 150s threshold sits in a flat part of the duration curve (1,753 answered
+calls land 30–149s, 953 at 150s+), so it is neither obviously right nor
+obviously wrong. Still needs calibrating against a week with known completes.
+
+Zoom display names do not match roster names, as expected. Of the 37 names,
+19 match a call sheet folder exactly, 10 are near-misses needing a human
+(`Jayzel Pureza`/`Jayzel Gabunada Pureza`, `Jahm Peralta`/`CJ Peralta`,
+`Eunilyn Lisondra`/`Nilyn Lisondra` and similar), and 7 have no folder at all
+(`Jane Wary Rose Espanueva`, `Florence Bularon`, `Leizel Boiser`,
+`Lee Daniel Flores`, `Chary Jay Sanchez`, `Cha`, and `Tristan Philip
+Bustamante`, whose folder is the shorter `Tristan Philip`). Per the standing
+rule these are reported, never auto-merged. Note `Jane Wary Rose Espanueva` is
+a **third** Jane spelling and is not yet known to be Jane Labora.
+
+The one name resolved so far: Zoom's `Khars -` is the `Kharen Mae Pihana`
+folder, confirmed by Brendon. The other 16 are still open.
+
+There is still no CLI entry point.
 
 ## How Brendon works
 
