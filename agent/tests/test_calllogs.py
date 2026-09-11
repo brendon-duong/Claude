@@ -7,6 +7,7 @@ from datetime import date, datetime, timedelta, timezone
 
 from business_agent.calllogs import (
     COMPLETE_SECONDS,
+    IDLE_SECONDS,
     MANILA,
     Call,
     ShiftCalls,
@@ -163,6 +164,79 @@ class TestOneCallersShift(unittest.TestCase):
             call(minute=10, result="No Answer"),
         ))
         self.assertEqual(shift.completes() + shift.short_answers(), shift.answered)
+
+    def test_time_inside_a_call_is_never_time_away(self):
+        # Pernelia's real case: call 16 ran 6m27s, then call 17 started right
+        # after. Measuring start-to-start would report six and a half minutes
+        # off the phone for a shift she spent entirely on it.
+        shift = ShiftCalls("Pernelia", DAY, (
+            call(hour=6, minute=0, seconds=387),   # 6m27s
+            call(hour=6, minute=7, seconds=120),
+        ))
+        self.assertEqual(shift.idle_time(), timedelta(0))
+        self.assertEqual(shift.breaks(), [])
+
+    def test_a_real_break_is_counted(self):
+        # 06:00 for 1 min, nothing until 06:20 — nineteen minutes away.
+        shift = ShiftCalls("Lia", DAY, (
+            call(hour=6, minute=0, seconds=60),
+            call(hour=6, minute=20, seconds=60),
+        ))
+        self.assertEqual(shift.idle_time(), timedelta(minutes=19))
+
+    def test_every_break_is_added_up_not_just_the_longest(self):
+        shift = ShiftCalls("Lia", DAY, (
+            call(hour=6, minute=0, seconds=60),
+            call(hour=6, minute=10, seconds=60),   # 9 min gap
+            call(hour=6, minute=25, seconds=60),   # 14 min gap
+        ))
+        self.assertEqual(shift.idle_time(), timedelta(minutes=23))
+        self.assertEqual(shift.longest_gap(), timedelta(minutes=14))
+
+    def test_dialling_time_between_calls_is_not_a_break(self):
+        # Twenty seconds to hang up, read the next number and dial. Counting
+        # these would punish a fast caller for making more calls.
+        shift = ShiftCalls("Lia", DAY, tuple(
+            call(hour=6, minute=m, seconds=40) for m in (0, 1, 2, 3, 4)
+        ))
+        self.assertEqual(shift.idle_time(), timedelta(0))
+
+    def test_the_break_threshold_can_be_moved(self):
+        shift = ShiftCalls("Lia", DAY, (
+            call(hour=6, minute=0, seconds=60),
+            call(hour=6, minute=3, seconds=60),    # a 2 min gap
+        ))
+        self.assertEqual(shift.idle_time(minimum=60), timedelta(minutes=2))
+        self.assertEqual(shift.idle_time(minimum=300), timedelta(0))
+
+    def test_breaks_say_when_as_well_as_how_long(self):
+        # Three twenty-minute breaks and forty two-minute ones total the same
+        # and mean different things, so the individual gaps are returned.
+        shift = ShiftCalls("Lia", DAY, (
+            call(hour=6, minute=0, seconds=60),
+            call(hour=6, minute=20, seconds=60),
+        ))
+        when, how_long = shift.breaks()[0]
+        self.assertEqual(when.hour, 6)
+        self.assertEqual(when.minute, 1)
+        self.assertEqual(how_long, timedelta(minutes=19))
+
+    def test_a_call_finishing_inside_a_longer_one_invents_no_gap(self):
+        # Two lines at once. Comparing neighbouring pairs would see the short
+        # call end long before the next starts and report a break that the
+        # caller was on the phone for.
+        shift = ShiftCalls("Lia", DAY, (
+            call(hour=6, minute=0, seconds=1800),  # 30 min, runs to 06:30
+            call(hour=6, minute=1, seconds=60),    # ends 06:02, inside it
+            call(hour=6, minute=30, seconds=60),
+        ))
+        self.assertEqual(shift.idle_time(), timedelta(0))
+
+    def test_a_shift_with_one_call_has_no_idle_time(self):
+        self.assertEqual(ShiftCalls("Lia", DAY, (call(),)).idle_time(), timedelta(0))
+
+    def test_the_default_break_threshold_is_two_minutes(self):
+        self.assertEqual(IDLE_SECONDS, 120)
 
     def test_the_longest_gap_is_measured_end_to_start(self):
         # 06:00 for 60s, then 06:30 -> a 29-minute gap, not 30.

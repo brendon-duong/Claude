@@ -65,6 +65,11 @@ MANILA = timezone(timedelta(hours=8))
 # be calibrated against a week where the real completes are already known.
 COMPLETE_SECONDS = 150
 
+# A gap between calls shorter than this is not "away from the phone" — it is
+# hanging up, reading the next number and dialling. Counting those would make
+# a fast caller look idle, because a fast caller has more of them.
+IDLE_SECONDS = 120
+
 
 class ZoomError(RuntimeError):
     """Zoom refused. The message carries its own words, not a guess at them."""
@@ -142,21 +147,56 @@ class ShiftCalls:
             1 for call in self.calls if call.answered and call.seconds < threshold
         )
 
-    def longest_gap(self) -> timedelta:
-        """The biggest stretch with no call started.
+    def _gaps(self) -> list[tuple[datetime, datetime]]:
+        """Every stretch between calls, as (from, to).
 
-        This is the "off the phone" measure. It is a floor, not a measurement:
-        a long call looks the same as a long silence from start times alone, so
-        the gap is measured from the end of one call to the start of the next.
+        Measured from the END of one call to the START of the next, which is
+        the whole point: a caller on a six-minute call is working, not absent.
+        Measuring start-to-start would report that six minutes as time away.
+
+        A running latest-end is used rather than comparing neighbouring pairs,
+        so a call that finishes inside a longer one cannot invent a gap that
+        never happened.
         """
         if len(self.calls) < 2:
-            return timedelta(0)
+            return []
         ordered = sorted(self.calls, key=lambda c: c.started)
-        gaps = []
-        for earlier, later in zip(ordered, ordered[1:]):
-            finished = earlier.started + timedelta(seconds=earlier.seconds)
-            gaps.append(max(later.started - finished, timedelta(0)))
-        return max(gaps)
+        spans: list[tuple[datetime, datetime]] = []
+        latest_end = ordered[0].started + timedelta(seconds=ordered[0].seconds)
+        for call in ordered[1:]:
+            if call.started > latest_end:
+                spans.append((latest_end, call.started))
+            finished = call.started + timedelta(seconds=call.seconds)
+            if finished > latest_end:
+                latest_end = finished
+        return spans
+
+    def breaks(self, minimum: int = IDLE_SECONDS) -> list[tuple[datetime, timedelta]]:
+        """Each stretch away from the phone worth counting, as (when, how long).
+
+        Returned rather than only totalled so a shift can be looked at: three
+        twenty-minute breaks and forty two-minute ones add to the same number
+        and mean completely different things.
+        """
+        floor = timedelta(seconds=minimum)
+        return [
+            (start, finish - start)
+            for start, finish in self._gaps()
+            if finish - start >= floor
+        ]
+
+    def idle_time(self, minimum: int = IDLE_SECONDS) -> timedelta:
+        """Total time away from the phone, counting only real breaks.
+
+        Time inside a call is never counted, however long the call ran.
+        """
+        return sum((length for _, length in self.breaks(minimum)), timedelta(0))
+
+    def longest_gap(self, minimum: int = 0) -> timedelta:
+        """The single biggest stretch away from the phone."""
+        return max(
+            (length for _, length in self.breaks(minimum)), default=timedelta(0)
+        )
 
 
 def _post_form(url: str, form: dict[str, str], headers: dict[str, str]) -> dict:
