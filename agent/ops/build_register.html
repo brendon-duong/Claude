@@ -286,23 +286,23 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 12 September 2026, 7.15am · trimmed to open work</div>
+    <div class="eyebrow">Build register · updated 12 September 2026, 2.20pm · trimmed to open work</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       What is still open on the Pacific Link agent, and why. Written to be handed to someone
       technical — every constraint is stated with the API behaviour that causes it, so nobody
-      rediscovers it. <strong>Trimmed on 12 September:</strong> six entries that were fully
+      rediscovers it. <strong>Trimmed on 12 September:</strong> nine entries that were fully
       solved came out and are listed in one line each at the bottom, along with the three
       claims this register got wrong. Everything still on this page is work someone has to do.
     </p>
     <div class="meta">13,036 lines · 566 tests passing · branch claude/business-agent-dev-9jxs55</div>
 
     <div class="tally">
-      <div><span class="dot" style="background:var(--blocked)"></span><b>3</b> hard blockers</div>
+      <div><span class="dot" style="background:var(--blocked)"></span><b>5</b> hard blockers</div>
       <div><span class="dot" style="background:var(--sky)"></span><b>2</b> working, still tuning</div>
-      <div><span class="dot" style="background:var(--waiting)"></span><b>8</b> need a decision</div>
-      <div><span class="dot" style="background:var(--live)"></span><b>9</b> closed &amp; removed</div>
-      <div><span class="dot" style="background:var(--waiting)"></span><b>9</b> waiting on you</div>
+      <div><span class="dot" style="background:var(--waiting)"></span><b>9</b> need a decision</div>
+      <div><span class="dot" style="background:var(--live)"></span><b>10</b> closed &amp; removed</div>
+      <div><span class="dot" style="background:var(--waiting)"></span><b>13</b> waiting on you</div>
     </div>
   </header>
 
@@ -384,16 +384,119 @@
         </dl>
       </article>
 
-      
+      <article class="item blocked">
+        <div class="item-head">
+          <h3>Curia's results page can be read but not written — and the schedule cannot be read past 2022</h3>
+          <span class="tag t-blocked">Blocked</span>
+          <span class="tag t-pending">Apps Script is the route</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Asked</dt><dd>
+            Automate <em style="font-style:normal">PL for Curia Staff Results Record</em> — the sheet
+            Curia read, where each caller's declared GNA, RB, R and C go after every shift. Both
+            Google Sheets calls, <code>get_values</code> and <code>get_spreadsheet</code>, refuse
+            (checked live 12 September):
+          </dd></div>
+        </dl>
+        <div class="quote">Access to this tool requires that your Google Cloud project (454021123290)
+is enrolled in the Google Workspace Developer Preview Program.</div>
+        <dl class="rows">
+          <div class="row"><dt>What it is not</dt><dd>
+            Not a sharing problem on the sheet, and not a Workspace tier or "business account"
+            problem — the gate is a developer-preview enrolment on a Cloud project.
+            <strong>That project number is not one Brendon created</strong>; it is almost certainly
+            the connector's own, which would explain why yesterday's business-account theory went
+            nowhere. Whose it is cannot be confirmed from the error text alone, and is not claimed.
+          </dd></div>
+          <div class="row"><dt>Reading works</dt><dd>
+            <code>Google_Drive__read_file_content</code> on the sheet's ID returns the whole thing
+            as markdown tables. So the connector can <strong>read</strong> a Google Sheet and cannot
+            <strong>write</strong> one. The results page's shape is now recorded: Staff Member ·
+            Date (<code>11/1</code>, day/month, no leading zeros) · Phone · Poll · GNA · RB · R · C ·
+            Total · Shift Notes — and a Status column that is Curia's, never ours.
+          </dd></div>
+          <div class="row"><dt>Three of eight columns are already producible</dt><dd>
+            <strong>Phone</strong> is in the call log's <code>From</code> field; <strong>Total</strong>
+            is arithmetic on the four codes; <strong>Shift Notes</strong> is exactly the shape the
+            audit's break detection already emits ("Had breaks between 2:13 - 2:18"). GNA/RB/R/C come
+            from Slack. Only <strong>Poll</strong> needs a source, and Curia's survey email names it.
+          </dd></div>
+          <div class="row"><dt>Do not force it through Drive</dt><dd>
+            <code>Google_Drive__update_file</code> replaces file content wholesale. On this sheet that
+            would wipe the merged header bands, every per-day Total row and Curia's Status column, on a
+            live document their auditor reads. <strong>Not attempted, on purpose.</strong>
+          </dd></div>
+          <div class="row"><dt>The schedule has the same problem from the other side</dt><dd>
+            <em style="font-style:normal">Curia 2026 Schedule</em> (David Farrar's file) is the source
+            for how many callers each shift wants — column A date, B poll, F "PL Staff Confirmed".
+            Read through Drive it returns <strong>April to September 2022 and truncates</strong> before
+            it reaches 2026, though the file was modified 11 September. Either a tab per year with only
+            the first returned, or one long sheet cut off. The Sheets API would fix it; that is the one
+            that is blocked. <strong>Columns B and F for 13–17 September are unread</strong> — ask 8.
+          </dd></div>
+          <div class="row"><dt>The route</dt><dd>
+            An Apps Script inside Brendon's own account writes to this sheet, reads the schedule and
+            uploads Curia's CSVs with no restriction and no session in the middle — the same shape as
+            <code>allocate_callsheet.gs</code>. <strong>This is now the third job pointing at the same
+            answer.</strong> Not written yet; offered.
+          </dd></div>
+        </dl>
+      </article>
 
-      
+      <article class="item blocked">
+        <div class="item-head">
+          <h3>Curia's survey links arrive by email — and cannot be opened yet</h3>
+          <span class="tag t-blocked">Blocked</span>
+          <span class="tag t-pending">Two separate reasons</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>The idea</dt><dd>
+            Brendon's, and a good one: read each survey and set the completion threshold
+            <strong>per poll</strong> instead of a flat 150 seconds for everything. A 90-second poll and
+            a six-minute one should not share a cutoff.
+          </dd></div>
+          <div class="row"><dt>Where they are</dt><dd>
+            Forwarded from David Farrar by <code>curiaresearch@gmail.com</code> — "Fwd: NZ tonight",
+            "Fwd: Kapiti poll", "Fwd: ACT link". Each carries a <strong>Live</strong> link
+            (<code>survey.cmix.com/…</code>) and a <strong>Test</strong> link (<code>test.cmix.com/#/?…</code>).
+          </dd></div>
+          <div class="row"><dt>Never open Live</dt><dd>
+            It is Curia's real data collection. Fetching it can register as a partial response in the
+            dataset they are paid to deliver. The Test link is the one built for this.
+          </dd></div>
+          <div class="row"><dt>Reason one: the allowlist</dt><dd>
+            From the <em style="font-style:normal">Pacific Link</em> environment,
+            <code>curl https://test.cmix.com/</code> and <code>https://survey.cmix.com/</code> both
+            return <strong><code>000</code></strong>. That environment allows only <code>zoom.us</code>
+            and <code>api.zoom.us</code>. <code>cmix.com</code> has to be added — ask 11.
+          </dd></div>
+          <div class="row"><dt>Reason two: the Test links are corrupted on arrival</dt><dd>
+            In the raw HTML <code>href</code>, not just the plain-text view, every <code>=</code> in the
+            query string has become a control character or a stray letter:
+          </dd></div>
+        </dl>
+        <div class="quote">https://test.cmix.com/#/?cmixPrj&lt;U+0016&gt;8286&amp;cmixLocale@0182&amp;cmixSampleSourcea0159&amp;cmixTest&lt;U+0015&gt;E336B6</div>
+        <dl class="rows">
+          <div class="row"><dt>Checked twice</dt><dd>
+            Two separate emails, mangled the same way each time, so it is how they arrive and not an
+            extraction artefact. <strong>The Live links are intact; only Test is damaged.</strong>
+            The missing characters are <em style="font-style:normal">not</em> guessed: a wrong guess
+            could land on a live survey. Brendon is asked to paste one working Test link.
+          </dd></div>
+          <div class="row"><dt>Caveat on the idea itself</dt><dd>
+            150s is Elaine's own figure and agrees with her on 19 of 22 callers. A per-poll threshold
+            has to be validated against real data before it replaces that — more specific is not
+            automatically more correct.
+          </dd></div>
+        </dl>
+      </article>
 
 
       <article class="item worked">
         <div class="item-head">
           <h3>Measuring a shift from the call logs — built and tested</h3>
           <span class="tag t-worked">Working</span>
-          <span class="tag t-pending">Thresholds need calibrating</span>
+          <span class="tag t-worked">Calibrated</span>
         </div>
         <dl class="rows">
           <div class="row"><dt>What it does</dt><dd>
@@ -710,12 +813,13 @@ unless the file or its label changes.</div>
             Brendon chose <strong>report to me only</strong> for the first runs. A Routine,
             <span class="mono">Shift audit — 6pm Manila</span>, fires daily at 10:00 UTC — 6pm
             Manila, 10pm NZ until the clocks change on 27 September, 11pm after — into a fresh
-            session in the Custom-network cloud environment. <strong>That session has no
-            Slack.</strong> The scheduling API refuses to pin connectors to a Routine for this
-            organisation — tried, refused — and the Routine it did create came back flagged
-            "stores no MCP connectors". The API's own remedy: <strong>Brendon creates or edits it
-            in the claude.ai Routines UI</strong>, where Slack can be attached. Until then the 6pm
-            run sends the call-log half only, and says so. It checks out the branch,
+            session in the Custom-network cloud environment. The scheduling API refuses to pin
+            connectors to a Routine for this organisation — tried, refused — and the Routine came
+            back flagged "stores no MCP connectors". <strong>Resolved 12 September the way the API
+            said:</strong> Brendon attached Slack in the claude.ai Routines UI, and
+            <code>list_triggers</code> now returns <code>mcp_connections: [Slack]</code> on it.
+            First run Sunday 13 September, 6pm Manila. If Slack is ever missing again the prompt
+            still degrades to the call-log half and says so. It checks out the branch,
             curls Zoom before trusting it, runs
             <span class="mono">python3 -m business_agent.audit_day</span> for the day, reads
             <span class="mono">#results-pacificlinkglobal</span> for the declared half, fills what it
@@ -729,8 +833,8 @@ unless the file or its label changes.</div>
       <article class="item pending">
         <div class="item-head">
           <h3>Curia's own auditor — raw call logs, rebuilt and uploaded</h3>
-          <span class="tag t-worked">Dummy run passed</span>
-          <span class="tag t-pending">Scale is the open question</span>
+          <span class="tag t-worked">Routine live — first run Sun 13 Sep</span>
+          <span class="tag t-pending">Slow by design; Brendon chose it</span>
         </div>
         <dl class="rows">
           <div class="row"><dt>The job</dt><dd>
@@ -785,17 +889,84 @@ unless the file or its label changes.</div>
           <div class="row"><dt>The real open question is scale</dt><dd>
             File content has to pass <em style="font-style:normal">through the session</em> to
             reach Drive. Each caller's CSV is 30–70KB and there are about 22 a day; reading one
-            back is truncated above ~30KB and has to be done in halves. One file is easy, a day's
-            worth is slow and expensive, and that is a poor shape for something running every
-            evening. <strong>Flagged, not solved.</strong> The fallback is Brendon dragging the
-            generated folder in himself — about thirty seconds — or an Apps Script inside his own
-            account.
+            back is truncated above ~30KB and has to be done in halves. <strong>Measured on 12 September:</strong> 11 of the
+            22 files for 10 September were pushed through a session into a TEST folder, every one
+            byte-exact against the local file, in about 25 minutes — so a full day is roughly
+            45 minutes and 60 tool calls, nightly. Brendon was told the cost and the Apps Script
+            alternative, and chose to run it as a Routine anyway. <strong>Recorded as his decision,
+            not a recommendation.</strong> Delete the TEST folder once seen.
           </dd></div>
-          <div class="row"><dt>Still needs its connector</dt><dd>
-            The same wall as Slack: <strong>a Routine gets no connectors</strong>, so a scheduled
-            session cannot reach Drive at all. Until Brendon attaches them in the Routines UI this
-            stays a chat-session job. <code>agent/ops/routine_prompts.md</code> has both Routine
-            prompts ready to paste, with the settings and connectors each needs.
+          <div class="row"><dt>The Routine exists and has Drive</dt><dd>
+            <span class="mono">Curia call log upload (Sun–Thu)</span> was created 12 September —
+            same schedule and environment as the audit, <code>0 10 * * 0-4</code> — and Brendon
+            attached Google Drive in the Routines UI; <code>list_triggers</code> confirms
+            <code>mcp_connections: [Google-Drive]</code>. First run Sunday 13 September. It finds or
+            creates the month and <code>D/M</code> day folder, skips files already there, verifies
+            every upload's returned byte count against the local file and <strong>names any
+            mismatch</strong>, and stops rather than improvising if Zoom or Drive is missing. If
+            there are no calls it says "no shift" and uploads nothing.
+          </dd></div>
+          <div class="row"><dt>Which model</dt><dd>
+            Brendon asked. <strong>Sonnet 5 for the upload</strong> — no judgement in it, and the
+            byte-count check turns a weaker model's slip into a flagged mismatch rather than a
+            silent bad file. <strong>Fable stays on the audit and the roster</strong>, which read
+            free-text Slack posts and apply the never-merge-two-people rule. Not Haiku until
+            Sonnet has had two clean Sundays. Ask 12 is him setting it in the UI.
+          </dd></div>
+          <div class="row"><dt>Once Elaine stops</dt><dd>
+            This Routine becomes the <em style="font-style:normal">only</em> thing putting files in
+            front of Curia's auditor. If it fails on a Sunday, Curia get nothing and nobody notices
+            until they ask. Brendon is keeping her uploading for another day or two; watch the first
+            two runs land before she fully stops.
+          </dd></div>
+        </dl>
+      </article>
+
+
+      <article class="item pending">
+        <div class="item-head">
+          <h3>The roster from Slack votes — dummy run done, three decisions open</h3>
+          <span class="tag t-worked">On the dashboard</span>
+          <span class="tag t-pending">Not a Routine yet</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>The design, agreed 12 September</dt><dd>
+            One Routine, Saturday 10:00 UTC (6pm Manila, 10pm NZ). It reads the ✓/✗ reactions off
+            the five day messages in <code>#availability-pacificlinkglobal</code>, reads the Curia
+            schedule for the coming Sun–Thu (column B poll, column F headcount), ranks the available
+            callers, fills each day, <strong>sends Brendon the roster and a notification, and
+            waits</strong>. He replies "post it" and that same session posts to
+            <code>#roster-pacificlinkglobal</code> with the @mentions. In the same run it posts next
+            week's availability message, so the cycle feeds itself — the very first Saturday it can
+            only post the prompt, because nobody has reacted yet.
+          </dd></div>
+          <div class="row"><dt>The votes are real</dt><dd>
+            The availability message went up 11 September and <strong>34 to 41 people ticked ✓ per
+            day</strong>, 43 distinct voters. Every reaction was read by name, not counted.
+          </dd></div>
+          <div class="row"><dt>The ranking, as Brendon specified</dt><dd>
+            Completes per shift <em style="font-style:normal">and</em> time off the phone per
+            shift, combined — a rank on each, summed, lower is better. Built on the real Zoom logs of
+            Sun 6 – Thu 10 September: 98 caller-shifts, 35 callers. Kharen is first on both halves
+            (10.5 completes, 7.8 min away). <strong>Brendon chose to include the off-phone figure
+            knowing it reads up to 4× Elaine's on some callers.</strong> His call, recorded as such.
+          </dd></div>
+          <div class="row"><dt>What the dummy run showed</dt><dd>
+            Published to the <em style="font-style:normal">Pacific Link Roster Dashboard</em>, 22 a
+            night as a placeholder. <strong>17 people take all five nights; 17 of the 43 who voted
+            get none.</strong> <strong>10 said ✓ and have no call history to rank on</strong> —
+            Bryan Canton, Charlotte Gimpes, Hermi, Ian Christopher, Jellame Malicay, Kris, Marynel
+            Joy Reanturco, Rechiell W., Stefany Fojas, Thea Rejante — so a pure ranking can never
+            give a new starter a first shift. <strong>5 sit out on a name problem</strong> (see
+            Data gaps). And <strong>Nilyn lands at rank 27 on 48 minutes away</strong> — the one
+            caller whose off-phone figure is known to read ~4× Elaine's 18. If Elaine is right she
+            belongs in the top ten. That number is doing real work on a real person, and the
+            dashboard says so.
+          </dd></div>
+          <div class="row"><dt>Three decisions before it can be real</dt><dd>
+            <strong>Headcount and poll</strong> for 13–17 September (ask 8). <strong>The five
+            names</strong> (ask 9). <strong>A floor</strong> — everyone who ticks ✓ works at least
+            once a week, or the bottom slots rotate, or none (ask 10). Everything else is built.
           </dd></div>
         </dl>
       </article>
@@ -901,6 +1072,17 @@ unless the file or its label changes.</div>
             <strong>43 name pairs</strong> look like the same caller entered twice, which splits their
             history and flatters the half without the failures. Reported, never auto-merged.
           </dd></div>
+          <div class="row"><dt>Slack, 12 September</dt><dd>
+            Five availability voters cannot be tied to a Zoom name and so sit out of every roster
+            until settled: <strong>Jane</strong> — is Jane Labora (<code>janewareei919@gmail.com</code>),
+            <em style="font-style:normal">not</em> Zoom's <code>jane wary rose espanueva</code>, who
+            is a different person; <strong>boiserkaren21</strong> — probably Karen Boiser, but only
+            from the email handle, which is exactly how the Jane Wareei error happened;
+            <strong>Goldy Kaye</strong> — email says <code>goldy maglasang</code>, display name does
+            not; <strong>CJ</strong> — <code>jahm peralta</code> / CJ Peralta is an open near-miss;
+            <strong>Cha</strong> — Zoom has both <code>cha</code> and <code>chary jay sanchez</code>.
+            One word each from Brendon (ask 9).
+          </dd></div>
           <div class="row"><dt>Fix</dt><dd>
             Confirm each once; they're written to an alias file and never asked again.
           </dd></div>
@@ -984,13 +1166,17 @@ unless the file or its label changes.</div>
           <li class="yes"><span class="mk">✓</span><span><b>Build, test and ship the code</b><em>Full toolchain, 508 tests, everything pushed to GitHub.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Audit a shift from the call logs</b><em>Run end to end on 10 Sep: 22 callers scored on attempts, answered, completes, time away, time worked and shortfall.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Publish pages like this one</b><em>Dashboards, rosters, reports.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Read Zoom Phone call logs</b><em>Account-wide, via Server-to-Server OAuth. Needs a Custom-network environment allowing zoom.us — the connector cannot do it.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Read Curia's results page and schedule</b><em>Through Drive, as markdown. Read only — and the schedule truncates at 2022.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Run two scheduled jobs with connectors</b><em>Slack on the audit, Drive on the upload — attached by Brendon in the Routines UI, confirmed via list_triggers.</em></span></li>
         </ul>
       </div>
 
       <div class="panel">
         <header><span style="color:var(--blocked)">●</span> Can't do</header>
         <ul>
-                    <li class="yes"><span class="mk">✓</span><span><b>Read Zoom Phone call logs</b><em>Account-wide, via Server-to-Server OAuth. Needs a Custom-network environment allowing zoom.us — the connector cannot do it.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Write to a Google Sheet</b><em>The Sheets connector is gated behind Workspace Developer Preview enrolment on a Cloud project that is not Brendon's. Reading works via Drive. Apps Script is the route.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Open a cmix.com survey link</b><em>Not on the environment allowlist (curl returns 000), and the emailed Test links arrive with their = signs corrupted.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Share a SharePoint folder with anyone</b><em>No permission call exists in the connector. Folders get built by the agent, shared by hand — once each.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Remove anyone's Drive access</b><em>Granting only. The Apps Script covers it.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>See who voted in a WhatsApp poll</b><em>Not exposed by WhatsApp. Slack reactions solve this properly.</em></span></li>
@@ -1002,7 +1188,7 @@ unless the file or its label changes.</div>
           <li class="no"><span class="mk">✕</span><span><b>Use Slack Lists or canvases</b><em>Both are paid-plan features. Instructions live as pinned messages instead.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Send anything on its own</b><em>Your standing setting: draft everything, send nothing. Deliberate, and changeable.</em></span></li>
                     <li class="no"><span class="mk">✕</span><span><b>Attach a file to an Outlook email</b><em>Checked all three write tools. Gmail is the only route with attachments.</em></span></li>
-          <li class="no"><span class="mk">✕</span><span><b>Give a scheduled run a connector</b><em>The Routine API refuses the connectors parameter for this organisation, and the Routine it creates runs with none. Only the claude.ai Routines UI can attach Slack to it — that is yours to do.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Attach a connector to a Routine from a session</b><em>The API refuses for this organisation. Done instead in the claude.ai Routines UI, once per Routine — both Routines now have theirs.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Transfer large files through chat</b><em>Anything over roughly 5 call-sheet tabs has to go via the script or an upload.</em></span></li>
         </ul>
       </div>
@@ -1047,6 +1233,10 @@ unless the file or its label changes.</div>
       <div><b>6pm Manila Routine</b> — fresh cloud session, Sun–Thu, report to Brendon only</div>
       <div><b>Routine prompts</b> — both jobs written out ready to paste into the Routines UI</div>
       <div><b>Call log exporter</b> — Curia's per-caller CSVs rebuilt from the API; 36/36 number formats</div>
+      <div><b>Second Routine</b> — Curia call log upload, Sun–Thu, Drive attached, first run 13 Sep</div>
+      <div><b>Bulk upload measured</b> — 11 of 22 files through a session, all byte-exact, ~25 min</div>
+      <div><b>Curia results page mapped</b> — columns, day/month dates, three of eight already producible</div>
+      <div><b>Dummy roster</b> — 13–17 Sep from 43 Slack votes, ranked on 6–10 Sep logs, on the dashboard</div>
     </div>
   </section>
 
@@ -1054,8 +1244,9 @@ unless the file or its label changes.</div>
   <section>
     <div class="section-head">
       <h2>Tomorrow, in order</h2>
-      <p>Nine things only you can do. Item 8 is the one that unblocks the most — until the two
-      connectors are attached, the nightly Routine can neither read Slack nor write to Drive.</p>
+      <p>Thirteen things only you can do. The two connectors are attached and both Routines fire
+      Sunday — that ask is gone. Items 8 to 10 are what stand between the dummy roster and a real
+      one.</p>
     </div>
     <ol class="asks">
       <li><b>1. Upload the Orientation Module and the FAQs</b><span class="mono">Orientation Module (1).pptx</span> (9MB) and <span class="mono">Curia Staff FAQS May 2024 (2).doc</span>, from the 19 February email, into <span class="mono">/sites/callsheets/Shared Documents/Resources</span>. The pptx is over the connector's 1MB upload cap, so this one cannot be done for you. Then paste both links into the resources post in Slack: the version live now has <b style="display:inline">no links at all</b> on items 1 and 2, and there is a duplicate copy of the post to delete. The links only open for callers once item 2 is done.</li>
@@ -1065,8 +1256,12 @@ unless the file or its label changes.</div>
       <li><b>5. Fix the folders named from a guess</b><span class="mono">Juvylyn Abe</span> and <span class="mono">Karen Boiser</span> were inferred from email handles because they never set a Slack display name. Ask them to set Profile &rarr; Full name and the folders get corrected automatically. <b style="display:inline">Jane is already fixed</b> — that folder now reads <span class="mono">Jane Labora</span>, so the earlier <span class="mono">Jane Wareei</span> entry here was stale. Note Zoom shows a <b style="display:inline">third</b> spelling, <span class="mono">Jane Wary Rose Espanueva</span>, which may or may not be the same person.</li>
       <li><b>6. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</li>
       <li><b>7. Add <span class="mono">NA</span> to the results format before the next shift posts</b>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</li>
-      <li><b>8. Attach Slack and Google Drive to the 6pm Routine, in the Routines UI</b>The Routine <span class="mono">Shift audit — 6pm Manila (Sun–Thu)</span> fires at 10:00 UTC, but it was created from a session and the API will not hand a session's connectors to a Routine for this organisation — so it runs with <b style="display:inline">none</b>. Open it in the claude.ai Routines UI and attach <b style="display:inline">Slack</b> (for the declared numbers) and <b style="display:inline">Google Drive</b> (to upload Curia's call logs). Until you do, each run sends you the call-log half only and uploads nothing. Five minutes, once — and it is the single thing gating the whole loop running unattended.</li>
-      <li><b>9. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
+      <li><b>8. Paste columns A, B and F of the Curia schedule for 13–17 September</b>Five rows: date, poll, PL staff confirmed. The schedule cannot be read past 2022 through the connector, so the dummy roster is running on a placeholder of 22 a night and "Poll TBC". These five rows turn it into the real one. Longer term this is the Apps Script's job.</li>
+      <li><b>9. Settle five Slack names, one word each</b><span class="mono">Jane</span> (Jane Labora — confirm she is <b style="display:inline">not</b> Zoom's Jane Wary Rose Espanueva), <span class="mono">boiserkaren21</span> (Karen Boiser?), <span class="mono">Goldy Kaye</span> (Goldy Maglasang?), <span class="mono">CJ</span> (Jahm Peralta?), <span class="mono">Cha</span> (Chary Jay Sanchez, or someone else?). All five ticked ✓ and sit out of every roster until you say. Same person / not — nothing more.</li>
+      <li><b>10. Decide on a roster floor</b>With none, the dummy run gives the same 17 people all five nights and 17 voters nothing, and a new starter can never get a first shift because there is no history to rank them on. Options: everyone who ticks ✓ works at least once a week; or the bottom five slots rotate; or no floor. One line from you and it is built either way.</li>
+      <li><b>11. Add <span class="mono">cmix.com</span> to the Pacific Link environment's allowlist, and paste one working Test link</b>The environment only allows zoom.us, so no survey can be opened from it. And the Test links in Curia's emails arrive corrupted — every <span class="mono">=</span> in the query string is a control character — so one pasted from wherever the callers get it is needed. The Live link is never opened. Only worth doing if you want the per-poll threshold idea pursued.</li>
+      <li><b>12. Set the upload Routine's model to Sonnet 5</b>In the Routines UI, on <span class="mono">Curia call log upload (Sun–Thu)</span>. Mechanical job, and the byte-count check catches a slip. Leave the audit and the roster on Fable. Or say the word and it is set from here.</li>
+      <li><b>13. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
     </ol>
 
     <div class="section-head" style="margin-top:40px">
@@ -1074,7 +1269,7 @@ unless the file or its label changes.</div>
       <p>These are what the whole build has been for. Both are the agent's work, not yours.</p>
     </div>
     <ol class="asks">
-      <li><b>Saturday 6pm Manila — build the roster</b>Read the &#10003;/&#10007; reactions off the five day messages, rank against audit history, fill Curia's slots per day, draft five roster posts with real @mentions. You approve, then it goes out. The name-to-account match gets shown to you first.</li>
+      <li><b>Saturday 6pm Manila — build the roster</b>Design agreed 12 September and a dummy run is on the dashboard: read the &#10003;/&#10007; reactions off the five day messages, rank on completes and time away, fill Curia's slots per day from columns B and F, draft the roster with real @mentions, notify you, and post only when you reply. The same run puts up next week's availability message. Becomes a Routine the moment asks 8, 9 and 10 are answered.</li>
       <li><b>Cut the call sheets from the number pools</b>Contiguous 200-number blocks, leading zeros repaired, high-water marks written back, used rows shaded green — all built and tested. What is new is the delivery: straight into each caller's SharePoint folder rather than one shared workbook. That works the moment item 1 and item 2 are done.</li>
     </ol>
   </section>
@@ -1098,6 +1293,7 @@ unless the file or its label changes.</div>
       <div><b>The 150-second threshold is right</b> — it is the figure Elaine's manual audit already uses, and completes agree with her on 19 of 22 callers.</div>
       <div><b>Eight caller names settled</b> — including both Jeans, and Khars. A shared first name is treated as ambiguous and matched to nobody.</div>
       <div><b>The Curia exporter is verified</b> — row counts match her hand export exactly and 36 of 36 number formats agree.</div>
+      <div><b>Routines get their connectors through the UI</b> — the API refuses; Brendon attached Slack to the audit and Drive to the upload on 12 September, both confirmed via <code>list_triggers</code>.</div>
     </div>
 
     <div class="section-head" style="margin-top:40px">
@@ -1138,7 +1334,10 @@ unless the file or its label changes.</div>
     calls answered), the reading of <code>notSupported</code> as harmless, and the claim that the
     Zoom allowlist stays on once configured — it is per environment. All three are left visible
     above with what was wrong about them. The counters were also off — they now
-    match the articles below them: 3 blocked, 2 working but still tuning, 8 awaiting a decision — 13 open, plus 9 closed and removed.
+    match the articles below them: 5 blocked, 2 working but still tuning, 9 awaiting a decision — 16 open, plus 10 closed and removed.
+    Two small corrections on 12 September, 2.20pm: the lede said six entries were closed in the
+    trim when the list held nine, and the measurement entry still carried a "thresholds need
+    calibrating" tag one article after saying calibration was settled. Both fixed.
   </footer>
 
 </div>
