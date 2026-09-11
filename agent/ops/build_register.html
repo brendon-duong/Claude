@@ -286,21 +286,23 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 12 September 2026, 6.10am</div>
+    <div class="eyebrow">Build register · updated 12 September 2026, 7.15am · trimmed to open work</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
-      A running record of the Pacific Link agent: what it already does unattended, what it
-      can't do and why, and the decisions waiting on a person. Written to be handed to
-      someone technical — the constraints are stated with the actual API behaviour that
-      causes them, so nobody has to rediscover them.
+      What is still open on the Pacific Link agent, and why. Written to be handed to someone
+      technical — every constraint is stated with the API behaviour that causes it, so nobody
+      rediscovers it. <strong>Trimmed on 12 September:</strong> six entries that were fully
+      solved came out and are listed in one line each at the bottom, along with the three
+      claims this register got wrong. Everything still on this page is work someone has to do.
     </p>
-    <div class="meta">13,000 lines · 566 tests passing · branch claude/business-agent-dev-9jxs55</div>
+    <div class="meta">13,036 lines · 566 tests passing · branch claude/business-agent-dev-9jxs55</div>
 
     <div class="tally">
       <div><span class="dot" style="background:var(--blocked)"></span><b>3</b> hard blockers</div>
-      <div><span class="dot" style="background:var(--waiting)"></span><b>6</b> need a decision</div>
-      <div><span class="dot" style="background:var(--live)"></span><b>10</b> solved</div>
-      <div><span class="dot" style="background:var(--sky)"></span><b>10</b> to do tomorrow</div>
+      <div><span class="dot" style="background:var(--sky)"></span><b>2</b> working, still tuning</div>
+      <div><span class="dot" style="background:var(--waiting)"></span><b>8</b> need a decision</div>
+      <div><span class="dot" style="background:var(--live)"></span><b>9</b> closed &amp; removed</div>
+      <div><span class="dot" style="background:var(--waiting)"></span><b>9</b> waiting on you</div>
     </div>
   </header>
 
@@ -319,46 +321,7 @@
 
       
 
-      <article class="item worked">
-        <div class="item-head">
-          <h3>Getting call sheets to callers — solved and proven</h3>
-          <span class="tag t-worked">Working</span>
-        </div>
-        <dl class="rows">
-          <div class="row"><dt>How</dt><dd>
-            One workbook per caller, attached to a Gmail draft. <strong>Tested end to end</strong>:
-            Kharen's 200 numbers, 8.5KB, opened cleanly with the leading zeros intact.
-          </dd></div>
-          <div class="row"><dt>Why not work email</dt><dd>
-            The work account is Microsoft (<code>brendon@pacificlinkglobal.com</code>) and it is
-            connected — but <strong>none of the three Outlook write tools can attach a file</strong>.
-            Gmail's draft call takes attachments up to 25MB.
-          </dd></div>
-          <div class="row"><dt>Now going further</dt><dd>
-            Email delivers a file; it does not bring one back, and callers have to record outcomes
-            as they work. So call sheets move to <strong>SharePoint</strong>, where they are edited
-            in place — which is what already happens today, just without one workbook shared to
-            everybody. "Anyone with the link, can edit" needs no Microsoft account, and unlike
-            Google Drive the links are <strong>revocable and can expire</strong>.
-          </dd></div>
-          <div class="row"><dt>Shape</dt><dd>
-            One folder per caller, <strong>shared once, permanently</strong>. Poll and date live in
-            the filename, so a caller working two polls in a day sees two clearly-named files.
-            Twenty shares, once, instead of forty every day.
-          </dd></div>
-          <div class="row"><dt>Isolation</dt><dd>
-            Not in the main site — that one holds invoices, contracts and GST receipts. A separate
-            SharePoint site keeps external sharing switched on in one place only.
-            <strong>Site creation is manual</strong>: there is no such call in the connector.
-            Everything inside it — folders, uploads, updates, reading back what callers typed —
-            is automatic.
-          </dd></div>
-          <div class="row"><dt>Side benefit</dt><dd>
-            Each caller receives <strong>only their own numbers</strong>. The shared 20-tab workbook
-            exposed everyone's list to everyone.
-          </dd></div>
-        </dl>
-      </article>
+      
 
       <article class="item blocked">
         <div class="item-head">
@@ -421,169 +384,9 @@
         </dl>
       </article>
 
-      <article class="item worked">
-        <div class="item-head">
-          <h3>Seeing who is available — solved twice over</h3>
-          <span class="tag t-worked">Solved</span>
-        </div>
-        <dl class="rows">
-          <div class="row"><dt>Why</dt><dd>
-            A poll arrives through the API as <code>type: "poll_creation"</code> carrying the question
-            and options — and nothing else. There is no voter list on the object. This is WhatsApp,
-            not the connector; no plan upgrade changes it.
-          </dd></div>
-          <div class="row"><dt>Instead</dt><dd>
-            Text replies <em style="font-style:normal">are</em> readable, and every reply already
-            carries its sender. So the question goes out as an ordinary message and
-            <code>from_chat_replies</code> reads the answers — <code>13 14 15</code>,
-            <code>Sun Mon Tue</code>, <code>Mon-Thu</code>, <code>all week</code>,
-            <code>Mon Tue Wed but not Wed</code>, <code>not available</code>.
-            <strong>Better than a poll</strong>: nobody types their own name, which is where the
-            spelling mess was being created.
-          </dd></div>
-          <div class="row"><dt>Better still</dt><dd>
-            Standing patterns read from six months of audit history cover
-            <strong>4 of the 5 days without asking anyone anything</strong>. The weekly question
-            shrinks to the days that come up short.
-          </dd></div>
-          <div class="row"><dt>Ruled out</dt><dd>
-            <code>lharries/whatsapp-mcp</code> — its own README warns it is subject to the
-            <strong>lethal trifecta</strong>: private data, untrusted content from 90 group members,
-            and the ability to send. It is also local-only, so it could not reach a chat session.
-            The <strong>WhatsApp Business API</strong> is official and safe, but cannot do group
-            chats and takes the number over from the normal app.
-          </dd></div>
-          <div class="row"><dt>Slack fixes it</dt><dd>
-            The Slack connector is now live — 27 tools. <code>slack_get_reactions</code> returns
-            <strong>the users who reacted</strong>, with names and ids. So an emoji reaction is a
-            readable, attributed vote: post the days, people tap, the agent reads exactly who
-            tapped what. That is the thing WhatsApp refused to give — and no poll app, no Simple
-            Poll, no Polly, no paid tier.
-          </dd></div>
-          <div class="row"><dt>Proven live</dt><dd>
-            Tested end to end on <strong>10 September</strong>, not assumed. Five day messages were
-            posted to <code>#availbility-pacificlinkglobal</code>, both emoji pre-seeded on each, and
-            the reactions read back:
-            <span class="mono">:white_check_mark: &times; 1 — Brendon Duong (U0C0U8P4T0W)</span>.
-            Emoji, count <em style="font-style:normal">and</em> the named voter. The loop works.
-          </dd></div>
-          <div class="row"><dt>Design that fell out of it</dt><dd>
-            <strong>One message per day</strong>, not one per week. That yields three states per
-            person per day — tapped yes, tapped no, tapped nothing — and the third is the valuable
-            one: it separates a caller having a quiet week from a caller who has drifted off.
-            Both emoji are <strong>pre-seeded</strong> so voting is one tap rather than a hunt
-            through the emoji picker, which is where mobile adoption dies. Cost: the agent's own
-            tap counts in every total and must be subtracted.
-          </dd></div>
-          <div class="row"><dt>Ruled out</dt><dd>
-            <strong>Slack Lists</strong> and <strong>canvases</strong> — both unavailable on a free
-            workspace. The instructions therefore live as pinned messages, which the 90-day limit
-            below will eventually eat, so they need re-posting.
-          </dd></div>
-          <div class="row"><dt>What protects us</dt><dd>
-            Read-only, plus <strong>draft everything, send nothing</strong>. Untrusted text can reach
-            the agent; nothing leaves without a person reading it. That setting is doing real
-            security work and should stay.
-          </dd></div>
-        </dl>
-      </article>
+      
 
-      <article class="item pending">
-        <div class="item-head">
-          <h3>Zoom Phone call logs — reachable, and the audit is unblocked</h3>
-          <span class="tag t-worked">Working</span>
-          <span class="tag t-pending">Pool write-back still needs the script</span>
-        </div>
-        <dl class="rows">
-          <div class="row"><dt>Works unattended</dt><dd>
-            Download the pool from Drive (any size) &rarr; read it, whatever shape it arrives in
-            &rarr; allocate contiguous 200-number blocks &rarr; repair leading zeros &rarr; build one
-            workbook per caller &rarr; upload it into that caller's SharePoint folder. All built, all
-            tested.
-          </dd></div>
-          <div class="row"><dt>The one gap</dt><dd>
-            <strong>Marking the source pool</strong> — shading used rows green and writing the
-            high-water mark back. Two routes and both are shut:
-          </dd></div>
-          <div class="row"><dt>Zoom, solved</dt><dd>
-            <strong>Confirmed working 11 September.</strong> The agent can read the
-            account's call logs and see who made which calls — the data the audit rests on.
-            Three separate walls had to come down, and each looked like the previous one:
-          </dd></div>
-          <div class="row"><dt>1. Licence</dt><dd>
-            The Claude Zoom connector returns
-            <span class="mono">403 "User does not have a valid license"</span> — its search API
-            needs a tier this account lacks, and Zoom Meetings fails identically. Its empty result
-            sets were that same wall failing quietly. <strong>Not the route.</strong> Zoom's own
-            Phone API is a separate entitlement, covered by the 53 Zoom Phone licences.
-          </dd></div>
-          <div class="row"><dt>2. Credential</dt><dd>
-            A <strong>Server-to-Server OAuth app</strong> with <code>phone:read:admin</code>,
-            built in Brendon's own Zoom admin. Read-only on purpose: while this is being tested,
-            nothing the agent does can change a caller's phone setup.
-          </dd></div>
-          <div class="row"><dt>3. The one that cost the evening</dt><dd>
-            <strong>Cloud sessions sit behind a network allowlist, and Zoom was not on it.</strong>
-            <span class="mono">CONNECT tunnel failed, 403</span> for <code>zoom.us:443</code> — the
-            request died before any credential was checked, so it looked exactly like a bad key.
-            Fixed by a cloud environment set to <strong>Custom</strong> network access listing
-            <code>zoom.us</code> and <code>api.zoom.us</code>. <strong>This should have been the
-            first thing tested</strong>, before an hour went into building credentials.
-          </dd></div>
-          <div class="row"><dt>And it is per environment</dt><dd>
-            Not a switch that, once flipped, stays flipped everywhere. A session on
-            <strong>11 September</strong> held all three <code>ZOOM_*</code> variables and was
-            <em style="font-style:normal">still</em> refused at CONNECT on both hosts — it simply was
-            not started in the Custom environment. <strong>Having the credentials proves nothing
-            about reachability.</strong> One curl settles it; a tunnel error is the wrong
-            environment, not a bad key, and live-API work has to be started from the Custom one.
-          </dd></div>
-          <div class="row"><dt>Two traps</dt><dd>
-            Environment variables are copied in <strong>once, at container start</strong>, so the
-            session that sets them can never see them — the work continues in a new one. And the
-            settings gear does not appear on a running session's chip; the way through is
-            <strong>Add cloud environment</strong>, whose creation form carries the same fields.
-          </dd></div>
-          <div class="row"><dt>Name mapping, measured</dt><dd>
-            Of the 37 Zoom display names, <strong>19 match a call sheet folder exactly</strong>,
-            10 are near-misses a person has to confirm (<code>Jayzel Pureza</code> /
-            <code>Jayzel Gabunada Pureza</code>, <code>Jahm Peralta</code> / <code>CJ Peralta</code>,
-            <code>Eunilyn Lisondra</code> / <code>Nilyn Lisondra</code> and similar), and
-            <strong>7 have no folder at all</strong> — including <code>Jane Wary Rose
-            Espanueva</code>, a <em style="font-style:normal">third</em> Jane spelling not yet known
-            to be Jane Labora. Reported, never auto-merged, per the standing rule.
-          </dd></div>
-          <div class="row"><dt>One name settled</dt><dd>
-            Zoom's <code>Khars -</code> — trailing hyphen and all — is
-            <strong>Kharen Mae Pihana</strong>, confirmed by Brendon. She is top of the week on
-            completes. Sixteen names still open.
-          </dd></div>
-          <div class="row"><dt>Sheets API</dt><dd>
-            Separately, and still refused as of <strong>11 September</strong>:
-          </dd></div>
-        </dl>
-        <div class="quote">Access to this tool requires that your Google Cloud project (454021123290)
-is enrolled in the Google Workspace Developer Preview Program.</div>
-        <dl class="rows">
-          <div class="row"><dt>Round-trip</dt><dd>
-            Editing the .xlsx locally and putting it back fails on size: SharePoint uploads cap at
-            <strong>1MB</strong> and Curia's pools run to <strong>3–4MB</strong>. Reading them is
-            fine; writing them back is not.
-          </dd></div>
-          <div class="row"><dt>What covers it</dt><dd>
-            <code>ops/allocate_callsheet.gs</code> — runs inside Brendon's own account with no size
-            cap and full Sheets access, shades the rows and renames the pool. Put it on an
-            <strong>Apps Script time-based trigger</strong> and even that step stops needing a person.
-            This is now the <em style="font-style:normal">only</em> step in the whole cycle that
-            still needs one.
-          </dd></div>
-          <div class="row"><dt>The real unlock</dt><dd>
-            Sharing is a <strong>one-off</strong>, not a per-day cost. Once a caller's folder is
-            shared, every future call sheet dropped into it is visible with no further action. Thirty
-            shares tomorrow buys unattended delivery from then on.
-          </dd></div>
-        </dl>
-      </article>
+      
 
 
       <article class="item worked">
@@ -689,102 +492,7 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
         </dl>
       </article>
 
-      <article class="item pending">
-        <div class="item-head">
-          <h3>The first real shift measurement — and the three defects it exposed</h3>
-          <span class="tag t-worked">Ran</span>
-          <span class="tag t-worked">All three fixed</span>
-        </div>
-        <dl class="rows">
-          <div class="row"><dt>What ran</dt><dd>
-            The full per-caller measurement over <strong>10 September, Wellington Bays</strong> —
-            attempts, answered, completes, time away, time worked, shortfall. Not a spot check:
-            every caller on the day, scored by the same rules.
-          </dd></div>
-          <div class="row"><dt>The day</dt><dd>
-            <strong>22 callers worked the shift</strong>: 5,412 outbound attempts, 2,526 answered,
-            <strong>197 completes</strong>. Top of the day is <code>Karen Redaniel Boiser</code> on
-            15, then <code>Mariel Angelica Aresco</code> 14 and <code>Jasmine Magdayao</code> 13.
-          </dd></div>
-          <div class="row"><dt>The number that matters</dt><dd>
-            <strong>10 of the 22 are more than 30 minutes short</strong> of three hours on the
-            phone. Two are more than an hour short — <code>Eunilyn Lisondra</code> (1h24m short,
-            1h21m away from the phone) and <code>Florence Bularon</code> (1h12m). This is the first
-            time that has been measured rather than declared, and it is the whole point of the
-            build. <strong>It is also unverified against anything</strong>: nobody has yet checked a
-            single one of these against what the caller said they did, because the declared half is
-            unreadable (see the entry below).
-          </dd></div>
-          <div class="row"><dt>Defect 1 — a phantom caller</dt><dd>
-            Zoom writes <code>caller_name: "Anonymous"</code> on an inbound call from a withheld
-            number. <code>by_caller</code> groups on <code>caller_name</code> regardless of
-            direction, so five withheld inbound calls to three different extensions were collected
-            into a <strong>caller called "Anonymous"</strong> who appeared in the table with a
-            2h59m shortfall. Nobody by that name exists. On a shift report handed to a person, an
-            invented caller is worse than a missing one.
-          </dd></div>
-          <div class="row"><dt>Why it is there</dt><dd>
-            For an <em style="font-style:normal">outbound</em> call <code>caller_name</code> is the
-            agent; for an <em style="font-style:normal">inbound</em> one it is the member of the
-            public ringing in. Grouping both together attributes the wrong half. Today it is nearly
-            harmless — only 6 of 207 inbound rows carry a name at all — but the shape is wrong, and
-            it also silently dropped one of Jasmine Magdayao's calls into her own total.
-            <strong>Fixed, 12 September, on Brendon's go:</strong> calls are grouped on
-            <code>owner.name</code>, the Zoom user who owns the call leg whichever way it rang.
-            That reproduces Elaine's call counts on 21 of 22 callers, and the phantom is gone. It
-            also lifted completes to <strong>19 of 22 exact</strong> against her (207 to her 204),
-            because she counts an answered inbound call over 150s as a survey — a ring-back that
-            came good. Each of those has a test now.
-          </dd></div>
-          <div class="row"><dt>Defect 2 — a window that runs backwards</dt><dd>
-            <code>Princess Matildo</code> and <code>Chary Jay Sanchez</code> each made exactly one
-            call, at <strong>10:37 Manila</strong>, to the same number a second apart — a phone
-            test, not a shift. But <code>started_at()</code> floors to 1:30pm while
-            <code>finished_at()</code> stays at 10:37, so each was reported with the window
-            <span class="mono">13:30–10:37</span> and a full <strong>three-hour shortfall</strong>.
-            <code>span()</code> clamps to zero so the arithmetic never breaks — it just reads as a
-            three-hour no-show for someone who was never rostered.
-          </dd></div>
-          <div class="row"><dt>Fixed too</dt><dd>
-            A caller whose calls <strong>all</strong> fall before the earliest start is not on
-            shift: no start, no end, no window, and the report lists them without scoring them.
-            The two 10:37 test calls now read as exactly that.
-          </dd></div>
-          <div class="row"><dt>Defect 3 — found by fixing defect 1</dt><dd>
-            The moment inbound calls counted toward the agent, a <strong>missed</strong> call to
-            Cherry Jean Raagas's extension at 7:53am became a "488 min break" and zeroed her
-            shift; one to Karen Boiser's at 6:18pm stretched her window by two hours. A phone
-            ringing at an empty desk is not evidence the desk was occupied. So a call now proves
-            <strong>presence</strong> only if it is outbound or an inbound one that was answered,
-            and every time measure runs on presence calls inside the window. Counts still use
-            every call. Six tests cover it, including the after-hours case.
-          </dd></div>
-          <div class="row"><dt>And it improved the number that did not reconcile</dt><dd>
-            With ring-backs counted as presence, off-phone time moved <strong>toward</strong>
-            Elaine on almost every caller: Lovely Salva 14 min against her 15 (was 26), Florence
-            Bularon 35 against 37, Mary Joy Villacura 9 against her 4-minute break (was 33),
-            Kharen 7 against nothing noted (was 37). Part of the gap in the calibration entry was
-            never judgement — it was ring-backs. What remains (Nilyn 51 vs 18, Gerard 42 vs 20,
-            Jean Carla 23 vs 9) is. Shortfall over 30 minutes is now <strong>9 of 22</strong>, not 10.
-          </dd></div>
-          <div class="row"><dt>Name matching, tightened</dt><dd>
-            The first pass matched <code>Jean Sumarago</code> to the roster's bare <code>Jean</code>
-            on a prefix rule. There are <strong>two Jeans</strong>, so that is exactly the merge the
-            standing rule forbids. The matcher now collects <em style="font-style:normal">every</em>
-            plausible candidate and, where there is more than one, matches to
-            <strong>neither</strong>. On 10 September: 13 exact, 1 settled (<code>Khars -</code>),
-            6 with a single candidate awaiting a yes/no, <strong>1 ambiguous</strong>
-            (<code>Jean Sumarago</code> — <code>Jean</code> or <code>Jean Carla Sumarago</code>),
-            and 3 that resemble nothing (<code>Jane Wary Rose Espanueva</code>,
-            <code>Florence Bularon</code>, <code>Chary Jay Sanchez</code>).
-          </dd></div>
-          <div class="row"><dt>Standing caveat</dt><dd>
-            The roster used here is the <strong>48 call sheet folder names</strong>, because
-            <code>team.csv</code> is stale and the caller directory does not exist yet. That is a
-            proxy, not a roster — it is labelled as such rather than treated as truth.
-          </dd></div>
-        </dl>
-      </article>
+      
 
       <article class="item worked">
         <div class="item-head">
@@ -1156,67 +864,9 @@ unless the file or its label changes.</div>
         </dl>
       </article>
 
-      <article class="item pending">
-        <div class="item-head">
-          <h3>A SharePoint site is invisible until it holds something</h3>
-          <span class="tag t-pending">Waiting on indexing</span>
-        </div>
-        <dl class="rows">
-          <div class="row"><dt>Why</dt><dd>
-            The M365 connector finds sites only through the <strong>tenant search index</strong> —
-            that is, through their contents. An empty site has no contents, so it cannot be seen at
-            all, however correct its URL.
-          </dd></div>
-          <div class="row"><dt>And it can't be looked up by URL</dt><dd>
-            Asking for a site by address returns <code>itemNotFound</code>. That was worth proving
-            rather than assuming: the same request against the <em style="font-style:normal">old</em>
-            site, which certainly exists, failed identically. <strong>So the 404 says nothing about
-            whether a site exists</strong> — the connector simply has no URL-to-site path. There is
-            also no site-creation tool, so the site itself must be made by hand.
-          </dd></div>
-          <div class="row"><dt>Consequence</dt><dd>
-            A person has to create one folder by hand before the agent can build the other twenty.
-            <code>/sites/callsheets</code> was created correctly and appeared after
-            <strong>roughly two hours and eight sweeps</strong> — nothing was wrong, the index was
-            simply slow. Budget hours, not minutes, before assuming a new site is misconfigured.
-            Once visible, folder creation, cross-site copy and read-back all worked first time.
-          </dd></div>
-        </dl>
-      </article>
+      
 
-      <article class="item worked">
-        <div class="item-head">
-          <h3>Spreadsheet contents are not searchable — and the upload was fine</h3>
-          <span class="tag t-worked">Resolved</span>
-          <span class="tag t-pending">Changes how files get found</span>
-        </div>
-        <dl class="rows">
-          <div class="row"><dt>Retracted</dt><dd>
-            The uploaded call sheet was being reported as <em style="font-style:normal">possibly
-            corrupt</em> and carried on the open list as unverified, on two pieces of evidence. Both
-            were over-read. It never reached this register as a finding, and it is now closed.
-          </dd></div>
-          <div class="row"><dt>The size difference</dt><dd>
-            8,570 bytes sent, 17,170 reported. <strong>Normal.</strong> SharePoint repacks an xlsx on
-            upload and adds its own document properties; a small workbook roughly doubling is
-            expected. Truncation would come back <em style="font-style:normal">smaller</em>, not larger.
-          </dd></div>
-          <div class="row"><dt>The extraction refusal</dt><dd>
-            Graph returns <code>notSupported</code> for the file's text. That is the
-            <strong>connector's extraction path</strong> failing, which it does routinely for
-            spreadsheets — it says nothing about whether Excel can open the file. And Brendon had
-            already opened it, which is the only test that counts.
-          </dd></div>
-          <div class="row"><dt>The finding that does matter</dt><dd>
-            A content search for <span class="mono">Wellington Bays</span> across the whole tenant
-            returned old Zoom invoices and <strong>not the call sheet</strong> — despite it sitting in
-            an indexed folder modified that morning. So <strong>spreadsheet contents are not
-            searchable</strong> to the agent. Files can be listed and a sheet read when its location
-            is already known, but a call sheet cannot be found by what is inside it. The agent must
-            therefore <strong>track file locations itself</strong> rather than rediscovering them.
-          </dd></div>
-        </dl>
-      </article>
+      
 
       
 
@@ -1404,7 +1054,8 @@ unless the file or its label changes.</div>
   <section>
     <div class="section-head">
       <h2>Tomorrow, in order</h2>
-      <p>Everything Google has dropped off except one cleanup. SharePoint is the path now.</p>
+      <p>Nine things only you can do. Item 8 is the one that unblocks the most — until the two
+      connectors are attached, the nightly Routine can neither read Slack nor write to Drive.</p>
     </div>
     <ol class="asks">
       <li><b>1. Upload the Orientation Module and the FAQs</b><span class="mono">Orientation Module (1).pptx</span> (9MB) and <span class="mono">Curia Staff FAQS May 2024 (2).doc</span>, from the 19 February email, into <span class="mono">/sites/callsheets/Shared Documents/Resources</span>. The pptx is over the connector's 1MB upload cap, so this one cannot be done for you. Then paste both links into the resources post in Slack: the version live now has <b style="display:inline">no links at all</b> on items 1 and 2, and there is a duplicate copy of the post to delete. The links only open for callers once item 2 is done.</li>
@@ -1412,11 +1063,10 @@ unless the file or its label changes.</div>
       <li><b>3. Share the 48 caller folders</b>Every folder is built and named — 48 of them, not the 30 estimated earlier. Use <b style="display:inline">Specific people</b>, never "Anyone with the link", and share each caller's own folder rather than the parent. Thirty shares, once, and never again — after that, new call sheets drop into an already-shared folder with no further action. The agent cannot do this step: the connector has no sharing call.</li>
       <li><b>4. Create the Agent Memory folder</b>Under <span class="mono">PacificLinkGlobal/Shared Documents/General/</span>, with the contacts file in it. A write there was refused by a safety guard, so it needs you. Until it exists, every new session starts knowing nobody. Not in the callsheets site — that one is about to be externally shared.</li>
       <li><b>5. Fix the folders named from a guess</b><span class="mono">Juvylyn Abe</span> and <span class="mono">Karen Boiser</span> were inferred from email handles because they never set a Slack display name. Ask them to set Profile &rarr; Full name and the folders get corrected automatically. <b style="display:inline">Jane is already fixed</b> — that folder now reads <span class="mono">Jane Labora</span>, so the earlier <span class="mono">Jane Wareei</span> entry here was stale. Note Zoom shows a <b style="display:inline">third</b> spelling, <span class="mono">Jane Wary Rose Espanueva</span>, which may or may not be the same person.</li>
-      <li><b>6. "Auto Recorded" — answered, and you can stop worrying about it</b>Nothing to do here any more. Treating it as "a human picked up" produces <b style="display:inline">197 completes on 10 September against Elaine's 204</b>, agreeing exactly on 16 of 22 callers. If the assumption were wrong the numbers would not land within 3% of a hand count. Left here only so nobody reopens it.</li>
-      <li><b>7. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</li>
-      <li><b>8. Add <span class="mono">NA</span> to the results format before the next shift posts</b>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</li>
-      <li><b>9. Attach Slack and Google Drive to the 6pm Routine, in the Routines UI</b>The Routine <span class="mono">Shift audit — 6pm Manila (Sun–Thu)</span> fires at 10:00 UTC, but it was created from a session and the API will not hand a session's connectors to a Routine for this organisation — so it runs with <b style="display:inline">none</b>. Open it in the claude.ai Routines UI and attach <b style="display:inline">Slack</b> (for the declared numbers) and <b style="display:inline">Google Drive</b> (to upload Curia's call logs). Until you do, each run sends you the call-log half only and uploads nothing. Five minutes, once — and it is the single thing gating the whole loop running unattended.</li>
-      <li><b>10. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
+      <li><b>6. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</li>
+      <li><b>7. Add <span class="mono">NA</span> to the results format before the next shift posts</b>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</li>
+      <li><b>8. Attach Slack and Google Drive to the 6pm Routine, in the Routines UI</b>The Routine <span class="mono">Shift audit — 6pm Manila (Sun–Thu)</span> fires at 10:00 UTC, but it was created from a session and the API will not hand a session's connectors to a Routine for this organisation — so it runs with <b style="display:inline">none</b>. Open it in the claude.ai Routines UI and attach <b style="display:inline">Slack</b> (for the declared numbers) and <b style="display:inline">Google Drive</b> (to upload Curia's call logs). Until you do, each run sends you the call-log half only and uploads nothing. Five minutes, once — and it is the single thing gating the whole loop running unattended.</li>
+      <li><b>9. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
     </ol>
 
     <div class="section-head" style="margin-top:40px">
@@ -1429,6 +1079,55 @@ unless the file or its label changes.</div>
     </ol>
   </section>
 
+  <!-- ================= CLOSED ================= -->
+  <section>
+    <div class="section-head">
+      <h2>Closed — removed from the list above</h2>
+      <p>
+        Each of these had its own entry until 12 September. They are done, and kept to one line
+        so nobody reopens them or rediscovers the constraint the hard way.
+      </p>
+    </div>
+    <div class="built">
+      <div><b>Zoom Phone call logs are reachable</b> — Server-to-Server OAuth, and a cloud environment with <code>zoom.us</code> on its network allowlist. The connector never could; do not retry it.</div>
+      <div><b>Call sheets reach callers</b> — proven end to end by Gmail attachment, then superseded by per-caller SharePoint folders.</div>
+      <div><b>Availability is readable</b> — Slack emoji reactions, one message per day, returning the named voter. Tested live 10 September.</div>
+      <div><b>A new SharePoint site is invisible until indexed</b> — <code>/sites/callsheets</code> took about two hours. Budget hours, not minutes.</div>
+      <div><b>Spreadsheet contents are not searchable</b> — track file locations; traverse from the drive <code>root</code> alias rather than searching.</div>
+      <div><b>Three measurement defects, all fixed</b> — group on the Zoom owner, count only calls that prove presence, and do not score anyone whose calls all fall before 1:30pm.</div>
+      <div><b>The 150-second threshold is right</b> — it is the figure Elaine's manual audit already uses, and completes agree with her on 19 of 22 callers.</div>
+      <div><b>Eight caller names settled</b> — including both Jeans, and Khars. A shared first name is treated as ambiguous and matched to nobody.</div>
+      <div><b>The Curia exporter is verified</b> — row counts match her hand export exactly and 36 of 36 number formats agree.</div>
+    </div>
+
+    <div class="section-head" style="margin-top:40px">
+      <h2>Three things this register got wrong</h2>
+      <p>Kept visible on purpose. A register that quietly deletes its mistakes cannot be trusted on the rest.</p>
+    </div>
+    <div class="items">
+      <article class="item worked">
+        <div class="item-head"><h3>Corrections</h3><span class="tag t-worked">All fixed</span></div>
+        <dl class="rows">
+          <div class="row"><dt>ANSWERED</dt><dd>
+            Listed <code>Connected</code>, <code>Answered</code> and <code>Call connected</code> — a
+            guess at Zoom's vocabulary. Two never appear and the third caps at 7 seconds, so the
+            module scored <strong>zero completes for every caller on every day</strong>, silently.
+            <code>Auto Recorded</code> is the answered state.
+          </dd></div>
+          <div class="row"><dt>notSupported</dt><dd>
+            Read as routine spreadsheet behaviour. Right about Excel, wrong about the consequence:
+            it is why a call sheet's contents cannot be read at all.
+          </dd></div>
+          <div class="row"><dt>The Zoom allowlist</dt><dd>
+            Written as though it stayed on once configured. <strong>It is per environment.</strong>
+            A session holding all three credentials still got 403 at CONNECT because it was not
+            started in the Custom one.
+          </dd></div>
+        </dl>
+      </article>
+    </div>
+  </section>
+
   <footer>
     Every limit above was checked against the live tools rather than assumed — the permission
     string, the poll object, the connector registry, the upload size and now the Zoom call log
@@ -1439,7 +1138,7 @@ unless the file or its label changes.</div>
     calls answered), the reading of <code>notSupported</code> as harmless, and the claim that the
     Zoom allowlist stays on once configured — it is per environment. All three are left visible
     above with what was wrong about them. The counters were also off — they now
-    match the articles below them (3 blocked, 10 working, 6 awaiting a decision, 19 in total).
+    match the articles below them: 3 blocked, 2 working but still tuning, 8 awaiting a decision — 13 open, plus 9 closed and removed.
   </footer>
 
 </div>

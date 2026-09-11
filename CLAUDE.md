@@ -52,6 +52,15 @@ re-ask questions Brendon has already answered.
     blocked. Until it exists, ask him for the current contacts.csv rather
     than guessing, and do not rebuild the roster from team.csv.
 
+### The build register was trimmed on 12 September
+
+Nine solved entries were removed from `build_register.html` and reduced to one
+line each under **Closed**, on Brendon's instruction to strip anything that no
+longer needs work. Three claims the register got wrong are kept **visible** in
+their own Corrections entry — `ANSWERED`, the reading of `notSupported`, and
+the Zoom allowlist being per environment. Do not delete those; a register that
+hides its mistakes cannot be trusted on the rest.
+
 ### The call sheet library: how to list it, and what is actually in it
 
 Checked live 11 Sep 2026.
@@ -497,6 +506,17 @@ bytes, 170 rows. **Delete that folder once checked.**
 
 `agent/ops/routine_prompts.md` holds both Routine prompts ready to paste into
 the claude.ai Routines UI, with the settings and the connectors each needs.
+
+**Uploading a full day through a session is the wrong shape and was stopped.**
+On 12 Sep an attempt to upload all 22 files got one done and abandoned the
+rest. The arithmetic: 880KB of CSV, and every byte has to pass through the
+session twice — once read (Bash truncates above ~30KB, so a 45KB file needs
+two or three reads) and once written into `create_file`. That is roughly 60
+tool calls and 450K tokens for one day, every day, to produce something
+Brendon can drag into Drive in thirty seconds. **The mechanism is proven and
+the scale is not.** Do not grind it out again without asking; the routes worth
+taking are a folder he drags in, or an Apps Script inside his own account with
+no size cap, the same shape as `allocate_callsheet.gs`.
 
 ## How Brendon works
 
