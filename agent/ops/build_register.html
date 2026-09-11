@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 11 September 2026, 11.55pm</div>
+    <div class="eyebrow">Build register · updated 12 September 2026, 12.15am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -651,10 +651,10 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             <code>Auto Recorded</code> 15,669 (median 14s, max 2,841s) &middot;
             <code>Call Cancel</code> 11,457 (all 0s) &middot;
             <code>Call connected</code> 5,579 (median 3s, <strong>max 7s</strong>) &middot;
-            <code>Call failed</code> 5. So the module scores <strong>0 completes for every caller
-            on every day</strong>, and <code>talk_seconds</code> and <code>short_answers</code>
-            with it. The timing work — breaks, idle time, time worked, shortfall — does not depend
-            on <code>answered</code> and is unaffected.
+            <code>Call failed</code> 5. On the old set the module scored <strong>0 completes for
+            every caller on every day</strong>, and <code>talk_seconds</code> and
+            <code>short_answers</code> with it. The timing work — breaks, idle time, time worked,
+            shortfall — never read <code>answered</code> and was never affected.
           </dd></div>
           <div class="row"><dt>Now fixed</dt><dd>
             <code>ANSWERED</code> is <code>{"Auto Recorded", "Connected", "Answered"}</code>:
