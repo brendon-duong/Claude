@@ -70,6 +70,15 @@ directory or into this file. That is the whole of the memory.
 - **Mary V** is Mary Joy Villacura; **Mary T** is Mary Joy Tongson. Two
   people. The short forms are what go on call sheet tabs and rosters.
 - **Kris Dolz** is `dolzkris210@gmail.com` — previously unmatched.
+- **Lia Villapaz and Pernelia Villapaz are the same person.** Pernelia is the
+  name on record, Lia is what she goes by. Her audit history is split across
+  both spellings, which flatters whichever half has fewer failures — the two
+  need joining in the audit sheet.
+- **Jane** is Jane **Labora** (`janewareei919@gmail.com`), not Jane Wareei —
+  that was inferred from her email handle and was wrong.
+- **Kendall is Hermi.** `kendall.acsva@gmail.com` is Hermi Jeb Edroso.
+- Two different Jeans: **Jean** (`jeannax23@gmail.com`) and **Jean Carla
+  Sumarago** (`jeancarlasumarago@gmail.com`). Never merge.
 - `team.csv` is stale: only 10 of its 33 names are still active, and ~33
   people invoicing now are missing from it. The invoice list is closer to
   the truth. Awaiting Brendon's decision to switch over.
