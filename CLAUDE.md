@@ -276,6 +276,58 @@ folder, confirmed by Brendon. The other 16 are still open.
 
 There is still no CLI entry point.
 
+## The declared half is moving to Slack
+
+`#results-pacificlinkglobal` (`C0C0ZU714JG`). Checked live 11 Sep 2026.
+Brendon's pinned format:
+
+    Kharen — Sun 13 Sept — 12 completed, 3 ring backs, 41 refused
+
+Name · date · completed · ring backs · refused, one message per shift, same
+day. Corrections come as a new message starting `Correction:`, never a delete.
+Two shifts in a day means two messages.
+
+**This unblocks the audit's declared half** — it does not depend on the call
+sheets, which are unreadable and unfiled. But three things are true and easy to
+get wrong:
+
+- **The channel is empty.** Zero results posted as of 11 September; it was set
+  up the day before and holds only joins and the pinned instructions. The
+  parser has never seen a real post. **Do not assume the format holds until
+  real messages exist** — people will write `12 completed` and `12 Completed`
+  and `completed: 12` and put the date in three formats.
+- **There is no total-calls figure in it.** Elaine's sheet compares *two*
+  declared numbers against the logs: completed surveys **and total number of
+  calls**. Completed + ring backs + refused is not total calls — it omits no
+  answers, cancels and failures, which on 10 September were the majority of
+  every caller's rows. So the Slack format as written reproduces Elaine's
+  completed-survey column and **cannot** reproduce her total-calls column. If
+  that check matters, the format needs a fourth number; if it does not, drop
+  that column rather than leaving it to be filled by guesswork.
+- **Slack is a fourth spelling of every name**, after Zoom, the call sheet
+  folders and Elaine's sheet: `boiserkaren21`, `Jane`, `Nilyn`, `Josephus`,
+  `Goldy Kaye`, `Jasyl`, `MARY JOY VILLACURA`. **But Slack also exposes the
+  email address**, and that is the first unambiguous join key this project has
+  had — `janewareei919@gmail.com` ties the Slack `Jane` to the Jane Labora
+  record above. Build the identity map on email, not on display names.
+
+### Messaging callers about their own numbers — not yet
+
+Brendon's intent (11 Sep) is to run the audit about an hour after the shift
+ends and message a caller automatically about time off the phone. The timing
+works: Zoom logs are complete immediately and results land at shift end.
+
+**The blocker is the number itself.** Time off the phone is the one metric that
+does *not* reconcile with Elaine's manual audit — this module reads up to four
+times higher on the same caller and day (Eunilyn 81 minutes against her 18).
+Completes agree 16 of 22; off-phone agrees on one caller in six. Sending
+someone an automated message saying they were off the phone for 43 minutes,
+when the existing manual method says 20, is an accusation built on the least
+reliable figure in the system, delivered to an employee, with no person in the
+loop. Get the off-phone measure reconciled first, then draft, then let Brendon
+send. **Draft everything, send nothing still applies and has not been
+relaxed.**
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,

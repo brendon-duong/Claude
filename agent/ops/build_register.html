@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 12 September 2026, 2.20am</div>
+    <div class="eyebrow">Build register · updated 12 September 2026, 3.05am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -298,9 +298,9 @@
 
     <div class="tally">
       <div><span class="dot" style="background:var(--blocked)"></span><b>3</b> hard blockers</div>
-      <div><span class="dot" style="background:var(--waiting)"></span><b>5</b> need a decision</div>
-      <div><span class="dot" style="background:var(--live)"></span><b>8</b> solved</div>
-      <div><span class="dot" style="background:var(--sky)"></span><b>9</b> to do tomorrow</div>
+      <div><span class="dot" style="background:var(--waiting)"></span><b>6</b> need a decision</div>
+      <div><span class="dot" style="background:var(--live)"></span><b>9</b> solved</div>
+      <div><span class="dot" style="background:var(--sky)"></span><b>10</b> to do tomorrow</div>
     </div>
   </header>
 
@@ -897,6 +897,92 @@ unless the file or its label changes.</div>
 
       <article class="item pending">
         <div class="item-head">
+          <h3>The declared half has a route — Slack, not the call sheets</h3>
+          <span class="tag t-worked">Unblocks the audit</span>
+          <span class="tag t-pending">Untested; one column missing</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Why it matters</dt><dd>
+            The audit needs what a caller <em style="font-style:normal">declared</em>, and the entry
+            below says that has no source: the call sheets are unreadable and 47 of 48 folders are
+            empty. <strong><code>#results-pacificlinkglobal</code> sidesteps that entirely.</strong>
+            The declared numbers do not have to come out of a spreadsheet at all.
+          </dd></div>
+          <div class="row"><dt>The format</dt><dd>
+            Pinned by Brendon:
+            <span class="mono">Kharen — Sun 13 Sept — 12 completed, 3 ring backs, 41 refused</span>.
+            One message per shift, same day, corrections posted as a new
+            <span class="mono">Correction:</span> message rather than a delete.
+          </dd></div>
+          <div class="row"><dt>It is empty</dt><dd>
+            <strong>Zero results posted</strong> as of 11 September — the channel was created the
+            day before and holds joins and the instructions. The parser has never seen a real
+            message. Nothing here is proven until a shift's worth of posts exists, and free-text
+            numbers from ~40 people will not arrive as neatly as the pinned example.
+          </dd></div>
+          <div class="row"><dt>One column cannot be built from it</dt><dd>
+            Elaine checks <em style="font-style:normal">two</em> declared figures against the logs:
+            completed surveys <strong>and total number of calls</strong>. Completed + ring backs +
+            refused is <strong>not</strong> total calls — it leaves out no answers, cancels and
+            failures, which on 10 September were the majority of every caller's rows. So the format
+            as written reproduces her completed column and not her call-count column. Either the
+            format gains a fourth number, or that check goes away — it should not be left to be
+            filled in by guesswork.
+          </dd></div>
+          <div class="row"><dt>The join key, at last</dt><dd>
+            Slack is a <strong>fourth</strong> spelling of every name after Zoom, the call sheet
+            folders and Elaine's sheet — <code>boiserkaren21</code>, <code>Jane</code>,
+            <code>Nilyn</code>, <code>MARY JOY VILLACURA</code>. But it also exposes the
+            <strong>email address</strong>, which is the first unambiguous identifier this project
+            has had. <code>janewareei919@gmail.com</code> ties the Slack <code>Jane</code> to the
+            Jane Labora record. Build the identity map on email; stop matching display names.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item pending">
+        <div class="item-head">
+          <h3>Messaging a caller about their own numbers — not on this metric yet</h3>
+          <span class="tag t-pending">Needs a decision</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>The intent</dt><dd>
+            Run the audit about an hour after the shift ends — finish 5pm, audit 6pm — and message
+            a caller automatically about time off the phone. <strong>The timing is sound.</strong>
+            Zoom logs are complete the moment the shift ends and results land the same day, so an
+            hour is comfortable.
+          </dd></div>
+          <div class="row"><dt>The problem is the number</dt><dd>
+            Time off the phone is <strong>the one figure that does not reconcile</strong> with the
+            manual audit. Completes agree on 16 of 22 callers; off-phone agrees on one in six, and
+            this module reads up to <strong>four times higher</strong> on the same caller and day
+            — Eunilyn at 81 minutes against Elaine's 18. Every other number in the system has been
+            checked against a hand count and holds. This one has been checked and does not.
+          </dd></div>
+          <div class="row"><dt>Why that is the wrong thing to automate first</dt><dd>
+            "You were off the phone for 43 minutes" is an accusation, not a statistic. Sent
+            automatically, to an employee, with no person reading it first, built on the least
+            reliable figure in the build — and if the existing manual method says 20 minutes, the
+            caller is right and the agent is wrong. <strong>One of those messages costs more trust
+            than the whole audit saves.</strong>
+          </dd></div>
+          <div class="row"><dt>The order to do it in</dt><dd>
+            Reconcile the off-phone measure first — decide what a break <em style="font-style:normal">is</em>,
+            since Elaine's figure is a judgement and not a floor. Then draft the messages. Then
+            Brendon sends them, or approves a batch. <strong>Draft everything, send nothing has not
+            been relaxed</strong>, and this is exactly the case it exists for: untrusted-adjacent
+            output going to ~40 people about their own pay and standing.
+          </dd></div>
+          <div class="row"><dt>What is safe now</dt><dd>
+            The same loop with <strong>completes</strong> rather than off-phone time — that figure
+            is calibrated, 96.6% against the hand count. And the whole thing drafted for Brendon to
+            read and send, which costs him one action a day rather than twenty.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item pending">
+        <div class="item-head">
           <h3>Slack free plan: 90 days of history</h3>
           <span class="tag t-pending">Plan for it</span>
         </div>
@@ -1212,7 +1298,8 @@ unless the file or its label changes.</div>
       <li><b>6. "Auto Recorded" — answered, and you can stop worrying about it</b>Nothing to do here any more. Treating it as "a human picked up" produces <b style="display:inline">197 completes on 10 September against Elaine's 204</b>, agreeing exactly on 16 of 22 callers. If the assumption were wrong the numbers would not land within 3% of a hand count. Left here only so nobody reopens it.</li>
       <li><b>7. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</li>
       <li><b>8. Two defects in the shift measurement — say go and they go in</b>First: <b style="display:inline">group on <span class="mono">owner.name</span></b>, not the caller name. Zoom names an inbound call after whoever rang in, which invented a caller called "Anonymous" and reads low against Elaine on every single person. Grouping her way matches her call counts on 21 of 22, so this one is no longer a judgement call — it is just not applied yet, because it moves every call count. Second: a caller whose only calls fall <b style="display:inline">before 1:30pm</b> gets a backwards window and a full three-hour shortfall — two people made one test call at 10:37 and were scored as three-hour no-shows. Both are small.</li>
-      <li><b>9. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
+      <li><b>9. Decide the results format before the next shift posts</b><span class="mono">#results-pacificlinkglobal</span> asks for <b style="display:inline">completed, ring backs, refused</b>. That is not a total call count — it leaves out no answers, cancels and failures, which were the majority of every caller's rows on 10 September. Elaine's audit checks declared total calls against the logs; with this format that check cannot be reproduced. Either add a fourth number to the pinned message, or accept that the column goes. Worth settling now, while the channel is still empty — changing the format after people have learned one is much harder than setting it.</li>
+      <li><b>10. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
     </ol>
 
     <div class="section-head" style="margin-top:40px">
@@ -1235,7 +1322,7 @@ unless the file or its label changes.</div>
     calls answered), the reading of <code>notSupported</code> as harmless, and the claim that the
     Zoom allowlist stays on once configured — it is per environment. All three are left visible
     above with what was wrong about them. The counters were also off — they now
-    match the articles below them (3 blocked, 8 working, 5 awaiting a decision, 16 in total).
+    match the articles below them (3 blocked, 9 working, 6 awaiting a decision, 18 in total).
   </footer>
 
 </div>
