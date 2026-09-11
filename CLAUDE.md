@@ -350,6 +350,24 @@ not to be sent to a caller until it is settled against Elaine's judgement.
 Manage it with `list_triggers` / `update_trigger`; the first real test is the
 first shift that posts results.
 
+### The second Routine — Curia's call log upload
+
+**`trig_01JuNxDGwHQovzFDYuA2Dyna`, "Curia call log upload (Sun–Thu)"**, created
+12 Sep 2026 on Brendon's instruction. Same schedule and environment as the
+audit: `0 10 * * 0-4`, `env_01Tbj77FEPUKBePCjAFhG2Jn`. It runs
+`calllog_export`, finds or creates the month and `D/M` day folder under the 2026
+folder, and uploads one CSV per caller, verifying each returned `fileSize`
+against the local byte count.
+
+It was created from a session, so like the audit Routine it came back with **no
+connectors** and needs **Google Drive ticked in the Routines UI**. The audit
+Routine's Slack was attached that way on 12 Sep and `list_triggers` now shows it
+— that is the confirmed working path.
+
+**Brendon was told the cost and chose to run it anyway.** 22 files a night, every
+byte through the session twice, roughly 45 minutes a run. The Apps Script remains
+the better shape and he knows it; this is the interim.
+
 ## Curia's call sheet codes — what a caller writes against each number
 
 From Brendon, 11 Sep 2026. These are the four marks callers put on a call sheet
@@ -517,6 +535,71 @@ Brendon can drag into Drive in thirty seconds. **The mechanism is proven and
 the scale is not.** Do not grind it out again without asking; the routes worth
 taking are a folder he drags in, or an Apps Script inside his own account with
 no size cap, the same shape as `allocate_callsheet.gs`.
+
+## Curia's results page — the sheet Curia read
+
+`https://docs.google.com/spreadsheets/d/1H5xMVXnqBohxLDOcWHXNgPbeN0BoZ3BQWKzxZAlyRAQ`
+— "PL FOR CURIA STAFF RESULTS RECORD". Read live 12 Sep 2026. This is the
+**declared** half, formatted for Curia, and Brendon wants it automated.
+
+Two banded column groups: **"1: PL to complete"** and **"2: Curia to complete"**.
+
+| Column | Source |
+|---|---|
+| Staff Member | roster name, full |
+| Date | `11/1` — **day/month, no leading zeros**, same convention as the Drive day folder |
+| Phone | the caller's Zoom DID, e.g. `04 887 6326` — **this is in the call logs already** |
+| Poll | survey name, e.g. `NZNP 1000`, `Corp 1000`, `ACT 500`, `Whanganui` |
+| GNA · RB · R · C | declared by the caller — Curia's four codes |
+| Total No. of calls made | `GNA + RB + R + C` |
+| Shift Notes | free text, e.g. "Had breaks between 2:13 - 2:18" |
+| Status | **Curia's**, not ours — "processed for audit 01/03/26". Never write it. |
+
+Rows are grouped by date with a **Total row** per day summing GNA/RB/R/C and
+total calls. Blank spacer row between days.
+
+Three of these are already producible: **Phone** from the call log `From`
+field, **Total** by arithmetic, and **Shift Notes** from the audit's own break
+detection, which finds breaks in exactly that start–end shape. GNA/RB/R/C come
+from Slack. Only **Poll** needs a source — Curia's survey email names it.
+
+**Writing to it is blocked.** The Google Sheets connector returns:
+
+    Access to this tool requires that your Google Cloud project (454021123290)
+    be enrolled in the Google Workspace Developer Preview Program.
+
+Confirmed live on both `get_values` and `get_spreadsheet`, 12 Sep 2026. Not a
+permissions problem on the sheet and not fixable from a session.
+
+**Reading it works** — `mcp__Google_Drive__read_file_content` on the sheet ID
+returns the whole thing as markdown tables. So the connector can read the sheet
+and cannot write it.
+
+Do **not** try to write it with `Google_Drive__update_file`. That replaces file
+content wholesale and would destroy the merged header bands, the per-day totals
+and Curia's own Status column, on a live document Curia read. The routes are an
+Apps Script in Brendon's own account, enrolling that Cloud project, or a
+paste-ready block he pastes in himself.
+
+## Curia's survey links arrive by email
+
+From `curiaresearch@gmail.com`, forwarded from David Farrar
+(`david@curia.co.nz`), subject lines like "Fwd: NZ tonight", "Fwd: Kapiti poll",
+"Fwd: ACT link". Confirmed 12 Sep 2026. Each carries two links:
+
+    Live: https://survey.cmix.com/<id>/<id>/en-US
+    Test: https://test.cmix.com/#/?cmixPrj...
+
+Brendon's idea is to read the survey and derive a per-survey expected length, so
+the completes threshold stops being a flat 150s for every poll. Worth doing.
+
+**Never open the Live link.** It is Curia's real data collection — fetching it
+can register as a partial response and pollute the dataset they are paid to
+produce. The **Test** link is the one built for this. Ask before opening either.
+
+Note the 150s flat threshold is Elaine's own and currently agrees with her on 19
+of 22 callers. A per-survey threshold has to be validated against real data
+before it replaces that, not assumed to be better because it is more specific.
 
 ## How Brendon works
 
