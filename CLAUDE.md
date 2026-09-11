@@ -647,6 +647,38 @@ Note the 150s flat threshold is Elaine's own and currently agrees with her on 19
 of 22 callers. A per-survey threshold has to be validated against real data
 before it replaces that, not assumed to be better because it is more specific.
 
+## The Curia schedule — how many callers a shift needs
+
+**`1klLUYXNLTk-AaqVf-FdsHMto-6q83kuzbjdlz5ucwGk`**, "Curia 2026 Schedule",
+owned by `dpfdpf@gmail.com` (David Farrar), shared with Brendon. Found 12 Sep
+2026. This is the source for **how many callers each shift wants**, which is
+what a roster has to be built against.
+
+Columns, in order:
+
+    Date · Poll · Online target · Phone target · Curia Staff Wanted ·
+    PL Staff Confirmed · Extra PL Staff Required Day of Shift ·
+    PL Staff Total Worked · Curia Staff Rostered on · Curia Staff Worked ·
+    Curia Staff No. of Phone Completes · PL Staff No. of Phone Completes ·
+    Poll Analysis · Curia Comps/Staff · PL Comps/Staff
+
+Dates read `Monday 11-Apr-22` — weekday, then `DD-MMM-YY`. A day with no poll
+has a blank Poll cell; a holiday has the holiday's name in it
+("Good Friday", "ANZAC Day", "No poll as long weekend"). **That is how the
+Routine should detect a day with no shift** — not by assuming Sun–Thu always
+runs.
+
+`PL Staff Confirmed` and `Extra PL Staff Required Day of Shift` are the two
+numbers that say how many Pacific Link callers a given day needs.
+
+**Reading it is incomplete.** `Google_Drive__read_file_content` returns the
+sheet from April 2022 and truncates partway through September 2022 — it never
+reaches 2026, even though the file was modified 11 Sep 2026. Either the
+workbook has a tab per year and only the first came back, or one long sheet is
+being cut off. The Sheets API would solve it and is blocked (see the results
+page section). **Unresolved — ask Brendon which tab holds the current rows, or
+reach it through Apps Script.**
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,
