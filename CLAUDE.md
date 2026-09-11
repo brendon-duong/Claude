@@ -102,12 +102,22 @@ which the 53 Zoom Phone licences cover. The app is built and activated:
     ZOOM_CLIENT_ID=rkYU0tiVRfCQa9S7GpUL1g
     ZOOM_CLIENT_SECRET  — environment variable, never in a message
 
-**First thing to do in a session where those are set:** call
-`calls_for_day(date(2026, 9, 10))` and report what comes back — how many calls,
-which caller names, the answered-vs-attempted split, and whether the Manila day
-boundary put the 2pm–5pm shift on the right date. 10 September is Wellington
-Bays, a day people worked. If it returns rows, the audit is buildable. There is
-no CLI entry point yet; it was not worth writing against output nobody had seen.
+**This works as of 11 September.** The agent can read the account's call logs
+and see who made which calls. Getting there needed one thing beyond the
+credentials, and it is the part that will catch a future session out:
+
+**Cloud sessions sit behind a network allowlist and Zoom is not on it by
+default.** A session in a `Trusted` environment gets
+`CONNECT tunnel failed, 403` for `zoom.us:443` — the request dies before any
+credential is checked, so it looks exactly like a bad key. It needs a cloud
+environment set to **Custom** network access listing `zoom.us` and
+`api.zoom.us`. If Zoom calls fail, test reachability with curl before
+suspecting the credentials.
+
+Two related traps: environment variables are copied in once at container
+start, so the session that sets them can never see them; and the settings
+gear does not appear on a running session's chip — use **Add cloud
+environment** instead, whose creation form has the same fields.
 
 Expect the Zoom display names not to match roster names — the same mismatch as
 Slack. That is a mapping to build, not a failure.

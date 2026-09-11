@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 11 September 2026, 3.35am</div>
+    <div class="eyebrow">Build register · updated 11 September 2026, 11.00pm</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -299,7 +299,7 @@
     <div class="tally">
       <div><span class="dot" style="background:var(--blocked)"></span><b>2</b> hard blockers</div>
       <div><span class="dot" style="background:var(--waiting)"></span><b>3</b> need a decision</div>
-      <div><span class="dot" style="background:var(--live)"></span><b>7</b> solved</div>
+      <div><span class="dot" style="background:var(--live)"></span><b>8</b> solved</div>
       <div><span class="dot" style="background:var(--sky)"></span><b>6</b> to do tomorrow</div>
     </div>
   </header>
@@ -490,9 +490,9 @@
 
       <article class="item pending">
         <div class="item-head">
-          <h3>Fully automatic call sheets — where the chain breaks</h3>
-          <span class="tag t-worked">6 of 7 steps automatic</span>
-          <span class="tag t-pending">1 step needs a script</span>
+          <h3>Zoom Phone call logs — reachable, and the audit is unblocked</h3>
+          <span class="tag t-worked">Working</span>
+          <span class="tag t-pending">Pool write-back still needs the script</span>
         </div>
         <dl class="rows">
           <div class="row"><dt>Works unattended</dt><dd>
@@ -505,8 +505,43 @@
             <strong>Marking the source pool</strong> — shading used rows green and writing the
             high-water mark back. Two routes and both are shut:
           </dd></div>
+          <div class="row"><dt>Zoom, solved</dt><dd>
+            <strong>Confirmed working 11 September.</strong> The agent can read the
+            account's call logs and see who made which calls — the data the audit rests on.
+            Three separate walls had to come down, and each looked like the previous one:
+          </dd></div>
+          <div class="row"><dt>1. Licence</dt><dd>
+            The Claude Zoom connector returns
+            <span class="mono">403 "User does not have a valid license"</span> — its search API
+            needs a tier this account lacks, and Zoom Meetings fails identically. Its empty result
+            sets were that same wall failing quietly. <strong>Not the route.</strong> Zoom's own
+            Phone API is a separate entitlement, covered by the 53 Zoom Phone licences.
+          </dd></div>
+          <div class="row"><dt>2. Credential</dt><dd>
+            A <strong>Server-to-Server OAuth app</strong> with <code>phone:read:admin</code>,
+            built in Brendon's own Zoom admin. Read-only on purpose: while this is being tested,
+            nothing the agent does can change a caller's phone setup.
+          </dd></div>
+          <div class="row"><dt>3. The one that cost the evening</dt><dd>
+            <strong>Cloud sessions sit behind a network allowlist, and Zoom was not on it.</strong>
+            <span class="mono">CONNECT tunnel failed, 403</span> for <code>zoom.us:443</code> — the
+            request died before any credential was checked, so it looked exactly like a bad key.
+            Fixed by a cloud environment set to <strong>Custom</strong> network access listing
+            <code>zoom.us</code> and <code>api.zoom.us</code>. <strong>This should have been the
+            first thing tested</strong>, before an hour went into building credentials.
+          </dd></div>
+          <div class="row"><dt>Two traps</dt><dd>
+            Environment variables are copied in <strong>once, at container start</strong>, so the
+            session that sets them can never see them — the work continues in a new one. And the
+            settings gear does not appear on a running session's chip; the way through is
+            <strong>Add cloud environment</strong>, whose creation form carries the same fields.
+          </dd></div>
+          <div class="row"><dt>Still to do</dt><dd>
+            Map Zoom display names to roster names — the same mismatch as Slack — and calibrate the
+            150-second completion threshold against a week whose real completes are known.
+          </dd></div>
           <div class="row"><dt>Sheets API</dt><dd>
-            Re-tested <strong>11 September</strong>, still refused:
+            Separately, and still refused as of <strong>11 September</strong>:
           </dd></div>
         </dl>
         <div class="quote">Access to this tool requires that your Google Cloud project (454021123290)
@@ -521,6 +556,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             <code>ops/allocate_callsheet.gs</code> — runs inside Brendon's own account with no size
             cap and full Sheets access, shades the rows and renames the pool. Put it on an
             <strong>Apps Script time-based trigger</strong> and even that step stops needing a person.
+            This is now the <em style="font-style:normal">only</em> step in the whole cycle that
+            still needs one.
           </dd></div>
           <div class="row"><dt>The real unlock</dt><dd>
             Sharing is a <strong>one-off</strong>, not a per-day cost. Once a caller's folder is
@@ -777,7 +814,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
       <div class="panel">
         <header><span style="color:var(--blocked)">●</span> Can't do</header>
         <ul>
-                    <li class="no"><span class="mk">✕</span><span><b>Share a SharePoint folder with anyone</b><em>No permission call exists in the connector. Folders get built by the agent, shared by hand — once each.</em></span></li>
+                    <li class="yes"><span class="mk">✓</span><span><b>Read Zoom Phone call logs</b><em>Account-wide, via Server-to-Server OAuth. Needs a Custom-network environment allowing zoom.us — the connector cannot do it.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Share a SharePoint folder with anyone</b><em>No permission call exists in the connector. Folders get built by the agent, shared by hand — once each.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Remove anyone's Drive access</b><em>Granting only. The Apps Script covers it.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>See who voted in a WhatsApp poll</b><em>Not exposed by WhatsApp. Slack reactions solve this properly.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Create a SharePoint site</b><em>Folders and files only. You make the site once; the rest is automatic.</em></span></li>
