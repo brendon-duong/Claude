@@ -276,6 +276,29 @@ folder, confirmed by Brendon. The other 16 are still open.
 
 There is still no CLI entry point.
 
+## Curia's call sheet codes — what a caller writes against each number
+
+From Brendon, 11 Sep 2026. These are the four marks callers put on a call sheet
+row, and they are Curia's vocabulary, not ours.
+
+| Code | Means | Call it again? |
+|---|---|---|
+| `NA` | The number does not ring at all — dead or invalid | No |
+| `RB` | Ring back. It dialled and nobody picked up | **Yes**, later |
+| `R` | Refusal. They were reached and declined the survey | **Never** |
+| `C` | Completed. They took part and finished the survey | No |
+
+`NA` and `RB` are easy to conflate and must not be: `NA` never rang, `RB` rang
+and went unanswered. One is a bad number, the other is a person who was out.
+Only `RB` goes back into the pool.
+
+**This closes the total-calls gap.** A caller's total calls is
+`C + RB + R + NA`. The Slack results format asks for completed, ring backs and
+refused — three of the four — so adding `NA` makes the declared total
+reproducible and restores Elaine's second check. Without it the declared total
+cannot be computed at all, because `NA` was the largest category on 10
+September.
+
 ## The declared half is moving to Slack
 
 `#results-pacificlinkglobal` (`C0C0ZU714JG`). Checked live 11 Sep 2026.

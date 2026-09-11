@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 12 September 2026, 3.05am</div>
+    <div class="eyebrow">Build register · updated 12 September 2026, 3.30am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -920,14 +920,14 @@ unless the file or its label changes.</div>
             message. Nothing here is proven until a shift's worth of posts exists, and free-text
             numbers from ~40 people will not arrive as neatly as the pinned example.
           </dd></div>
-          <div class="row"><dt>One column cannot be built from it</dt><dd>
+          <div class="row"><dt>One column cannot be built from it — and the fix is one word</dt><dd>
             Elaine checks <em style="font-style:normal">two</em> declared figures against the logs:
-            completed surveys <strong>and total number of calls</strong>. Completed + ring backs +
-            refused is <strong>not</strong> total calls — it leaves out no answers, cancels and
-            failures, which on 10 September were the majority of every caller's rows. So the format
-            as written reproduces her completed column and not her call-count column. Either the
-            format gains a fourth number, or that check goes away — it should not be left to be
-            filled in by guesswork.
+            completed surveys <strong>and total number of calls</strong>. Curia's call sheet has
+            four marks — <code>C</code> completed, <code>RB</code> ring back, <code>R</code>
+            refused, <code>NA</code> never rang — and the pinned format asks for three of them.
+            Total calls is <code>C + RB + R + NA</code>. Without <code>NA</code> the declared total
+            cannot be built, and <code>NA</code> was the largest category on 10 September. Adding
+            it to the pinned example restores the check. Recorded as ask 9.
           </dd></div>
           <div class="row"><dt>The join key, at last</dt><dd>
             Slack is a <strong>fourth</strong> spelling of every name after Zoom, the call sheet
@@ -1298,7 +1298,7 @@ unless the file or its label changes.</div>
       <li><b>6. "Auto Recorded" — answered, and you can stop worrying about it</b>Nothing to do here any more. Treating it as "a human picked up" produces <b style="display:inline">197 completes on 10 September against Elaine's 204</b>, agreeing exactly on 16 of 22 callers. If the assumption were wrong the numbers would not land within 3% of a hand count. Left here only so nobody reopens it.</li>
       <li><b>7. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</li>
       <li><b>8. Two defects in the shift measurement — say go and they go in</b>First: <b style="display:inline">group on <span class="mono">owner.name</span></b>, not the caller name. Zoom names an inbound call after whoever rang in, which invented a caller called "Anonymous" and reads low against Elaine on every single person. Grouping her way matches her call counts on 21 of 22, so this one is no longer a judgement call — it is just not applied yet, because it moves every call count. Second: a caller whose only calls fall <b style="display:inline">before 1:30pm</b> gets a backwards window and a full three-hour shortfall — two people made one test call at 10:37 and were scored as three-hour no-shows. Both are small.</li>
-      <li><b>9. Decide the results format before the next shift posts</b><span class="mono">#results-pacificlinkglobal</span> asks for <b style="display:inline">completed, ring backs, refused</b>. That is not a total call count — it leaves out no answers, cancels and failures, which were the majority of every caller's rows on 10 September. Elaine's audit checks declared total calls against the logs; with this format that check cannot be reproduced. Either add a fourth number to the pinned message, or accept that the column goes. Worth settling now, while the channel is still empty — changing the format after people have learned one is much harder than setting it.</li>
+      <li><b>9. Add <span class="mono">NA</span> to the results format before the next shift posts</b>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</li>
       <li><b>10. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
     </ol>
 
