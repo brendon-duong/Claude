@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 11 September 2026, 11.00pm</div>
+    <div class="eyebrow">Build register · updated 11 September 2026, 11.10pm</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -294,12 +294,12 @@
       someone technical — the constraints are stated with the actual API behaviour that
       causes them, so nobody has to rediscover them.
     </p>
-    <div class="meta">6,117 lines · 447 tests passing · branch claude/business-agent-dev-9jxs55</div>
+    <div class="meta">7,467 lines · 505 tests passing · branch claude/business-agent-dev-9jxs55</div>
 
     <div class="tally">
       <div><span class="dot" style="background:var(--blocked)"></span><b>2</b> hard blockers</div>
       <div><span class="dot" style="background:var(--waiting)"></span><b>3</b> need a decision</div>
-      <div><span class="dot" style="background:var(--live)"></span><b>8</b> solved</div>
+      <div><span class="dot" style="background:var(--live)"></span><b>9</b> solved</div>
       <div><span class="dot" style="background:var(--sky)"></span><b>6</b> to do tomorrow</div>
     </div>
   </header>
@@ -538,7 +538,8 @@
           </dd></div>
           <div class="row"><dt>Still to do</dt><dd>
             Map Zoom display names to roster names — the same mismatch as Slack — and calibrate the
-            150-second completion threshold against a week whose real completes are known.
+            150-second completion threshold against a week whose real completes are known. What the
+            logs are then turned into is the next entry.
           </dd></div>
           <div class="row"><dt>Sheets API</dt><dd>
             Separately, and still refused as of <strong>11 September</strong>:
@@ -563,6 +564,63 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             Sharing is a <strong>one-off</strong>, not a per-day cost. Once a caller's folder is
             shared, every future call sheet dropped into it is visible with no further action. Thirty
             shares tomorrow buys unattended delivery from then on.
+          </dd></div>
+        </dl>
+      </article>
+
+
+      <article class="item worked">
+        <div class="item-head">
+          <h3>Measuring a shift from the call logs — built and tested</h3>
+          <span class="tag t-worked">Working</span>
+          <span class="tag t-pending">Thresholds need calibrating</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>What it does</dt><dd>
+            <code>business_agent/calllogs.py</code> groups a day's Zoom Phone calls per caller and
+            reports, for each: attempts, answered, talk time, <strong>completes</strong>, short
+            answers, each break and their total, time actually worked, and how far short of a full
+            shift. <strong>52 tests</strong>, all of which run with no Zoom connection at all.
+            This is the half of Elaine's audit that was manual.
+          </dd></div>
+          <div class="row"><dt>Completes</dt><dd>
+            Zoom cannot say whether a questionnaire was finished — only that someone picked up and
+            stayed on. So length stands in for it: an answered call of <strong>150 seconds or
+            more</strong> counts as a complete. That is Brendon's figure and it is a parameter, not
+            a law: too low and a polite refusal counts, too high and genuinely quick respondents are
+            thrown away. <strong>Calibrate it against a week whose real completes are known.</strong>
+          </dd></div>
+          <div class="row"><dt>The trap that drove the design</dt><dd>
+            One of Pernelia's calls ran <strong>6 minutes 27 seconds</strong>. Measuring the gap
+            between one call <em style="font-style:normal">starting</em> and the next would have
+            booked those six minutes as time away from the phone — punishing her for the longest
+            conversation of the day. Breaks are therefore measured <strong>from the end of one call
+            to the start of the next</strong>, and time inside a call is never idle however long it
+            ran. Overlapping calls are handled with a running latest-end, so a short call finishing
+            inside a longer one cannot invent a gap that never happened.
+          </dd></div>
+          <div class="row"><dt>The idle floor</dt><dd>
+            A gap under <strong>60 seconds</strong> is not a break — it is hanging up, reading the
+            next number and dialling. Counting those would make the <em style="font-style:normal">fastest</em>
+            caller read as the idlest, because a fast caller has more of them. Brendon set the floor
+            at 60s (it was 120s). Breaks are returned individually as well as totalled: three
+            twenty-minute breaks and forty two-minute ones add to the same number and mean
+            completely different things.
+          </dd></div>
+          <div class="row"><dt>Three hours, not a clock window</dt><dd>
+            A shift is <strong>three hours of calling</strong>, so lateness is not the measure — the
+            length is. The clock starts at a caller's own first call, floored at
+            <strong>1:30pm Manila</strong> so one stray call at noon cannot run the three hours out
+            before the work began, and it ends when the last call <em style="font-style:normal">ends</em>,
+            not when it starts. Shortfall is measured against time worked rather than elapsed time,
+            so three hours cannot be covered by one call, a disappearance and another call.
+          </dd></div>
+          <div class="row"><dt>Next</dt><dd>
+            Run it against a real day — <strong>10 September, Wellington Bays</strong> — and check
+            three things: that the caller names come back, that the answered-vs-attempted split looks
+            like a real afternoon, and that the Manila day boundary put the 2–5pm shift on the right
+            date. There is no CLI entry point yet; writing one against output nobody has seen would
+            have been guessing.
           </dd></div>
         </dl>
       </article>
@@ -806,7 +864,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
           <li class="yes"><span class="mk">✓</span><span><b>Read and post in Slack</b><em>Channels, threads, users — and reactions, with the names of who reacted.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Run a readable availability poll</b><em>Emoji reactions on one message per day. Proven live — returns the named voter, not just a count.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Compose WhatsApp posts with real @mentions</b><em>Drafted, not sent. 91% of rostered callers resolve to a number automatically.</em></span></li>
-          <li class="yes"><span class="mk">✓</span><span><b>Build, test and ship the code</b><em>Full toolchain, 447 tests, everything pushed to GitHub.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Build, test and ship the code</b><em>Full toolchain, 505 tests, everything pushed to GitHub.</em></span></li>
+          <li class="yes"><span class="mk">✓</span><span><b>Audit a shift from the call logs</b><em>Completes, breaks, total time away and shortfall against three hours — the manual audit, without the manual part.</em></span></li>
           <li class="yes"><span class="mk">✓</span><span><b>Publish pages like this one</b><em>Dashboards, rosters, reports.</em></span></li>
         </ul>
       </div>
@@ -859,6 +918,7 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
       <div><b>Wellington Bays 400</b> — 4,000 numbers allocated across two pools, 10 September</div>
       <div><b>SharePoint delivery</b> — folder created, call sheet uploaded, ready for the isolated site</div>
       <div><b>Slack availability poll</b> — reaction loop tested live; emoji, count and named voter read back</div>
+      <div><b>Shift measurement</b> — completes, breaks, time worked and shortfall from Zoom call logs</div>
       <div><b>Slack onboarding</b> — four pinnable channel guides drafted, unsent, one per channel</div>
     </div>
   </section>
