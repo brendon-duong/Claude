@@ -445,3 +445,133 @@ class TestCallsForDay(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestWhoACallBelongsTo(unittest.TestCase):
+    """The agent is the Zoom owner. `caller_name` is only that on the way out."""
+
+    def test_the_owner_is_the_agent_whichever_way_the_call_went(self):
+        inbound = parse_call({**row("Anonymous"), "direction": "inbound",
+                              "owner": {"name": "Lovely Salva", "extension_number": 1033}})
+        self.assertEqual(inbound.agent, "Lovely Salva")
+
+    def test_a_withheld_inbound_number_does_not_become_a_caller(self):
+        # Five of these on 10 September 2026 were collected into a caller called
+        # "Anonymous" with a three-hour shortfall. Nobody by that name exists.
+        rows = [
+            {**row("Anonymous"), "direction": "inbound", "owner": {"name": "Khars -"}},
+            {**row("Anonymous", when="2026-09-13T06:20:00Z"), "direction": "inbound",
+             "owner": {"name": "Josephus Chris Parages"}},
+        ]
+        grouped = by_caller([parse_call(r) for r in rows], DAY)
+        self.assertNotIn("anonymous", grouped)
+        self.assertEqual(sorted(grouped), ["josephus chris parages", "khars -"])
+
+    def test_an_inbound_call_counts_toward_the_agents_total(self):
+        # That is how Elaine counts total calls: every row that is the
+        # agent's, both directions. Grouping this way matches her on 21 of 22.
+        rows = [
+            {**row("Lia Villapaz"), "owner": {"name": "Lia Villapaz"}},
+            {**row("+6421000000", when="2026-09-13T06:20:00Z"), "direction": "inbound",
+             "owner": {"name": "Lia Villapaz"}},
+        ]
+        grouped = by_caller([parse_call(r) for r in rows], DAY)
+        self.assertEqual(grouped["lia villapaz"].attempts, 2)
+
+    def test_without_an_owner_an_outbound_row_falls_back_to_the_caller(self):
+        self.assertEqual(parse_call(row("Lia Villapaz")).agent, "Lia Villapaz")
+
+    def test_without_an_owner_an_inbound_row_belongs_to_nobody(self):
+        inbound = parse_call({**row("Anonymous"), "direction": "inbound"})
+        self.assertEqual(inbound.agent, "")
+        self.assertEqual(by_caller([inbound], DAY), {})
+
+    def test_a_flat_owner_name_is_read_too(self):
+        self.assertEqual(parse_call({**row(""), "owner_name": "Leizel Chun"}).owner, "Leizel Chun")
+
+
+class TestNeverReachingTheShift(unittest.TestCase):
+    """One test call at 10:37 is not a shift, and must not read like a no-show."""
+
+    def only_before(self):
+        # 02:37 UTC is 10:37 Manila — three hours before the earliest start.
+        return ShiftCalls("Princess Matildo", DAY, (call(hour=2, minute=37, seconds=3),))
+
+    def test_is_not_on_shift(self):
+        self.assertFalse(self.only_before().on_shift)
+
+    def test_has_no_window_so_it_cannot_run_backwards(self):
+        # Before: started_at floored to 13:30 while finished_at stayed at
+        # 10:37, and the report printed the window 13:30–10:37.
+        shift = self.only_before()
+        self.assertIsNone(shift.started_at())
+        self.assertIsNone(shift.finished_at())
+        self.assertEqual(shift.span(), timedelta(0))
+
+    def test_the_calls_are_still_counted(self):
+        self.assertEqual(self.only_before().attempts, 1)
+
+    def test_a_caller_inside_the_window_is_on_shift(self):
+        self.assertTrue(ShiftCalls("Lia", DAY, (call(hour=7),)).on_shift)
+
+    def test_a_stray_early_call_plus_a_real_shift_is_still_on_shift(self):
+        shift = ShiftCalls("Lia", DAY, (call(hour=4), call(hour=7)))
+        self.assertTrue(shift.on_shift)
+        self.assertEqual((shift.started_at().hour, shift.started_at().minute), EARLIEST_START)
+
+
+class TestWhatCountsAsBeingThere(unittest.TestCase):
+    """Counts use every call. Time uses only the calls that prove presence."""
+
+    def working(self):
+        # 1:30pm to 4:30pm Manila, a call every three minutes, no real gap.
+        return [call(hour=5 + (30 + m) // 60, minute=(30 + m) % 60, seconds=150)
+                for m in range(0, 181, 3)]
+
+    def missed_inbound(self, hour, minute):
+        return Call(caller="+6421000000", caller_number="+6421000000", callee_number="1033",
+                    started=datetime(2026, 9, 13, hour, minute, tzinfo=timezone.utc),
+                    seconds=0, result="No Answer", direction="inbound", owner="Lia")
+
+    def test_a_missed_inbound_call_in_the_morning_is_not_a_break(self):
+        # 23:53 UTC the day before is 7:53am Manila. Before this rule it opened
+        # a 331-minute "break" and zeroed the whole shift.
+        early = Call(caller="x", caller_number="x", callee_number="1033",
+                     started=datetime(2026, 9, 12, 23, 53, tzinfo=timezone.utc),
+                     seconds=0, result="No Answer", direction="inbound", owner="Lia")
+        shift = ShiftCalls("Lia", DAY, tuple(self.working()) + (early,))
+        self.assertEqual(shift.idle_time(), timedelta(0))
+        self.assertEqual(shift.shortfall(), timedelta(0))
+
+    def test_a_missed_inbound_call_after_the_shift_does_not_extend_it(self):
+        # 10:18 UTC is 6:18pm Manila, well after the last outbound call.
+        shift = ShiftCalls("Lia", DAY, tuple(self.working()) + (self.missed_inbound(10, 18),))
+        self.assertEqual((shift.finished_at().hour, shift.finished_at().minute), (16, 32))
+        self.assertEqual(shift.idle_time(), timedelta(0))
+
+    def test_an_answered_inbound_call_is_presence(self):
+        # Someone rang back and the caller picked up: they were there.
+        picked_up = Call(caller="+6421000000", caller_number="+6421000000", callee_number="1033",
+                         started=datetime(2026, 9, 13, 10, 18, tzinfo=timezone.utc),
+                         seconds=200, result="Auto Recorded", direction="inbound", owner="Lia")
+        shift = ShiftCalls("Lia", DAY, tuple(self.working()) + (picked_up,))
+        self.assertTrue(picked_up.presence)
+        self.assertEqual((shift.finished_at().hour, shift.finished_at().minute), (18, 21))
+        self.assertEqual(shift.completes(), 62)   # and it counts as a survey
+
+    def test_every_call_still_counts_toward_attempts(self):
+        shift = ShiftCalls("Lia", DAY, tuple(self.working()) + (self.missed_inbound(10, 18),))
+        self.assertEqual(shift.attempts, 62)
+        self.assertEqual(shift.activity, 61)
+
+    def test_only_missed_calls_is_no_activity_and_no_shift(self):
+        shift = ShiftCalls("Lia", DAY, (self.missed_inbound(7, 0),))
+        self.assertEqual(shift.activity, 0)
+        self.assertFalse(shift.on_shift)
+
+    def test_a_stray_noon_call_still_pins_the_clock_and_charges_the_wait(self):
+        # Kept exactly as it was: the clock starts at 1:30, and the wait until
+        # the first real call at 3pm is time away.
+        shift = ShiftCalls("Lia", DAY, (call(hour=4, minute=0, seconds=60), call(hour=7, minute=0, seconds=60)))
+        self.assertEqual((shift.started_at().hour, shift.started_at().minute), EARLIEST_START)
+        self.assertEqual(shift.idle_time(), timedelta(hours=1, minutes=30))

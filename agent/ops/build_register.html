@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 12 September 2026, 3.30am</div>
+    <div class="eyebrow">Build register · updated 12 September 2026, 4.40am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -294,7 +294,7 @@
       someone technical — the constraints are stated with the actual API behaviour that
       causes them, so nobody has to rediscover them.
     </p>
-    <div class="meta">11,659 lines · 508 tests passing · branch claude/business-agent-dev-9jxs55</div>
+    <div class="meta">12,446 lines · 543 tests passing · branch claude/business-agent-dev-9jxs55</div>
 
     <div class="tally">
       <div><span class="dot" style="background:var(--blocked)"></span><b>3</b> hard blockers</div>
@@ -597,7 +597,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             <code>business_agent/calllogs.py</code> groups a day's Zoom Phone calls per caller and
             reports, for each: attempts, answered, talk time, <strong>completes</strong>, short
             answers, each break and their total, time actually worked, and how far short of a full
-            shift. <strong>55 tests</strong>, all of which run with no Zoom connection at all.
+            shift. <strong>77 tests</strong> on the module, 543 across the agent, all of which run with no
+            Zoom connection at all.
             This is the half of Elaine's audit that was manual.
           </dd></div>
           <div class="row"><dt>Completes</dt><dd>
@@ -690,9 +691,9 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
 
       <article class="item pending">
         <div class="item-head">
-          <h3>The first real shift measurement — and two defects it exposed</h3>
+          <h3>The first real shift measurement — and the three defects it exposed</h3>
           <span class="tag t-worked">Ran</span>
-          <span class="tag t-pending">Two fixes need a decision</span>
+          <span class="tag t-worked">All three fixed</span>
         </div>
         <dl class="rows">
           <div class="row"><dt>What ran</dt><dd>
@@ -728,11 +729,12 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             public ringing in. Grouping both together attributes the wrong half. Today it is nearly
             harmless — only 6 of 207 inbound rows carry a name at all — but the shape is wrong, and
             it also silently dropped one of Jasmine Magdayao's calls into her own total.
-            <strong>The fix is now evidenced, not proposed:</strong> group on
-            <code>owner.name</code>, which is the Zoom user who owns the call leg whichever way it
-            rang. That reproduces Elaine's call counts on 21 of 22 callers — see the calibration
-            entry below — and the phantom disappears with it. Still not applied: it moves every
-            call count on every published figure, so it is Brendon's to say go.
+            <strong>Fixed, 12 September, on Brendon's go:</strong> calls are grouped on
+            <code>owner.name</code>, the Zoom user who owns the call leg whichever way it rang.
+            That reproduces Elaine's call counts on 21 of 22 callers, and the phantom is gone. It
+            also lifted completes to <strong>19 of 22 exact</strong> against her (207 to her 204),
+            because she counts an answered inbound call over 150s as a survey — a ring-back that
+            came good. Each of those has a test now.
           </dd></div>
           <div class="row"><dt>Defect 2 — a window that runs backwards</dt><dd>
             <code>Princess Matildo</code> and <code>Chary Jay Sanchez</code> each made exactly one
@@ -743,11 +745,27 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             <code>span()</code> clamps to zero so the arithmetic never breaks — it just reads as a
             three-hour no-show for someone who was never rostered.
           </dd></div>
-          <div class="row"><dt>Proposed fix</dt><dd>
-            A caller whose calls <strong>all</strong> fall before the earliest start has not worked
-            the shift and should be listed separately rather than scored against three hours.
-            Also not applied. Both defects are in the report shown to Brendon with the rows pulled
-            out, so no wrong number reached him.
+          <div class="row"><dt>Fixed too</dt><dd>
+            A caller whose calls <strong>all</strong> fall before the earliest start is not on
+            shift: no start, no end, no window, and the report lists them without scoring them.
+            The two 10:37 test calls now read as exactly that.
+          </dd></div>
+          <div class="row"><dt>Defect 3 — found by fixing defect 1</dt><dd>
+            The moment inbound calls counted toward the agent, a <strong>missed</strong> call to
+            Cherry Jean Raagas's extension at 7:53am became a "488 min break" and zeroed her
+            shift; one to Karen Boiser's at 6:18pm stretched her window by two hours. A phone
+            ringing at an empty desk is not evidence the desk was occupied. So a call now proves
+            <strong>presence</strong> only if it is outbound or an inbound one that was answered,
+            and every time measure runs on presence calls inside the window. Counts still use
+            every call. Six tests cover it, including the after-hours case.
+          </dd></div>
+          <div class="row"><dt>And it improved the number that did not reconcile</dt><dd>
+            With ring-backs counted as presence, off-phone time moved <strong>toward</strong>
+            Elaine on almost every caller: Lovely Salva 14 min against her 15 (was 26), Florence
+            Bularon 35 against 37, Mary Joy Villacura 9 against her 4-minute break (was 33),
+            Kharen 7 against nothing noted (was 37). Part of the gap in the calibration entry was
+            never judgement — it was ring-backs. What remains (Nilyn 51 vs 18, Gerard 42 vs 20,
+            Jean Carla 23 vs 9) is. Shortfall over 30 minutes is now <strong>9 of 22</strong>, not 10.
           </dd></div>
           <div class="row"><dt>Name matching, tightened</dt><dd>
             The first pass matched <code>Jean Sumarago</code> to the roster's bare <code>Jean</code>
@@ -805,13 +823,15 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             evidence rather than an argument.</strong> Still not changed — it moves every call
             count — but the decision no longer needs a judgement call.
           </dd></div>
-          <div class="row"><dt>What does NOT reconcile</dt><dd>
-            <strong>Cumulative off-phone time</strong>, and no single gap floor makes it. Hers runs
-            lower: Lovely Salva 15 min against 26 at a 60s floor and 9 at 120s; Gerard Siason 20
-            against 43 and 14; Eunilyn 18 against 81 and 57. Florence Bularon is the one that lands
-            (37 against 38). <strong>It is a human judgement, not a parameter.</strong> Brendon's
-            60s floor is his own call and stands — but the two numbers must never be presented as
-            the same measure, and the floor must not be bent to chase hers.
+          <div class="row"><dt>What did NOT reconcile — and then half did</dt><dd>
+            <strong>Cumulative off-phone time.</strong> As first measured, hers ran lower on nearly
+            everyone and no gap floor closed it. Then the presence fix above counted answered
+            ring-backs as time at the phone, and most of the gap went: Lovely Salva 14 against her
+            15, Florence 35 against 37, Mary Joy Villacura 9 against a 4-minute break. What is
+            left — Nilyn 51 against 18, Gerard Siason 42 against 20, Jean Carla Sumarago 23
+            against 9 — is her measuring start-to-start and deciding what a break is.
+            <strong>That part is judgement, not a parameter.</strong> Brendon's 60s floor stands;
+            the floor is not to be bent to chase hers, and the two are not the same measure.
           </dd></div>
           <div class="row"><dt>Break detection agrees</dt><dd>
             Independently, and this is the reassuring part. Elaine has Jean Carla Sumarago breaking
@@ -977,6 +997,23 @@ unless the file or its label changes.</div>
             The same loop with <strong>completes</strong> rather than off-phone time — that figure
             is calibrated, 96.6% against the hand count. And the whole thing drafted for Brendon to
             read and send, which costs him one action a day rather than twenty.
+          </dd></div>
+          <div class="row"><dt>Scheduled, 12 September</dt><dd>
+            Brendon chose <strong>report to me only</strong> for the first runs. A Routine,
+            <span class="mono">Shift audit — 6pm Manila</span>, fires daily at 10:00 UTC — 6pm
+            Manila, 10pm NZ until the clocks change on 27 September, 11pm after — into a fresh
+            session in the Custom-network cloud environment. <strong>That session has no
+            Slack.</strong> The scheduling API refuses to pin connectors to a Routine for this
+            organisation — tried, refused — and the Routine it did create came back flagged
+            "stores no MCP connectors". The API's own remedy: <strong>Brendon creates or edits it
+            in the claude.ai Routines UI</strong>, where Slack can be attached. Until then the 6pm
+            run sends the call-log half only, and says so. It checks out the branch,
+            curls Zoom before trusting it, runs
+            <span class="mono">python3 -m business_agent.audit_day</span> for the day, reads
+            <span class="mono">#results-pacificlinkglobal</span> for the declared half, fills what it
+            can, and sends Brendon the sheet and a short summary. <strong>No computer of his is
+            involved</strong>, which was his question. It posts nothing, commits nothing, and edits
+            nothing. The first honest test is the first shift that posts results.
           </dd></div>
         </dl>
       </article>
@@ -1241,6 +1278,7 @@ unless the file or its label changes.</div>
           <li class="no"><span class="mk">✕</span><span><b>Use Slack Lists or canvases</b><em>Both are paid-plan features. Instructions live as pinned messages instead.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Send anything on its own</b><em>Your standing setting: draft everything, send nothing. Deliberate, and changeable.</em></span></li>
                     <li class="no"><span class="mk">✕</span><span><b>Attach a file to an Outlook email</b><em>Checked all three write tools. Gmail is the only route with attachments.</em></span></li>
+          <li class="no"><span class="mk">✕</span><span><b>Give a scheduled run a connector</b><em>The Routine API refuses the connectors parameter for this organisation, and the Routine it creates runs with none. Only the claude.ai Routines UI can attach Slack to it — that is yours to do.</em></span></li>
           <li class="no"><span class="mk">✕</span><span><b>Transfer large files through chat</b><em>Anything over roughly 5 call-sheet tabs has to go via the script or an upload.</em></span></li>
         </ul>
       </div>
@@ -1279,7 +1317,10 @@ unless the file or its label changes.</div>
       <div><b>Slack onboarding</b> — four pinnable channel guides drafted, unsent, one per channel</div>
       <div><b>Live call-log pull</b> — 33,875 calls for 1–11 Sep, 37 callers, Manila boundary verified</div>
       <div><b>First measured shift</b> — 10 Sep scored per caller; 10 of 22 over 30 min short</div>
-      <div><b>Calibration against the manual audit</b> — completes 16/22 exact, call counts 21/22</div>
+      <div><b>Calibration against the manual audit</b> — completes 19/22 exact, call counts 21/22</div>
+      <div><b>audit_day CLI</b> — one day in Elaine's seven columns, xlsx and JSON, offline-testable</div>
+      <div><b>Settled names</b> — roster and every confirmed spelling in code; a shared first name is ambiguous</div>
+      <div><b>6pm Manila Routine</b> — fresh cloud session daily, Zoom + Slack, report to Brendon only</div>
     </div>
   </section>
 
@@ -1297,8 +1338,8 @@ unless the file or its label changes.</div>
       <li><b>5. Fix the folders named from a guess</b><span class="mono">Juvylyn Abe</span> and <span class="mono">Karen Boiser</span> were inferred from email handles because they never set a Slack display name. Ask them to set Profile &rarr; Full name and the folders get corrected automatically. <b style="display:inline">Jane is already fixed</b> — that folder now reads <span class="mono">Jane Labora</span>, so the earlier <span class="mono">Jane Wareei</span> entry here was stale. Note Zoom shows a <b style="display:inline">third</b> spelling, <span class="mono">Jane Wary Rose Espanueva</span>, which may or may not be the same person.</li>
       <li><b>6. "Auto Recorded" — answered, and you can stop worrying about it</b>Nothing to do here any more. Treating it as "a human picked up" produces <b style="display:inline">197 completes on 10 September against Elaine's 204</b>, agreeing exactly on 16 of 22 callers. If the assumption were wrong the numbers would not land within 3% of a hand count. Left here only so nobody reopens it.</li>
       <li><b>7. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</li>
-      <li><b>8. Two defects in the shift measurement — say go and they go in</b>First: <b style="display:inline">group on <span class="mono">owner.name</span></b>, not the caller name. Zoom names an inbound call after whoever rang in, which invented a caller called "Anonymous" and reads low against Elaine on every single person. Grouping her way matches her call counts on 21 of 22, so this one is no longer a judgement call — it is just not applied yet, because it moves every call count. Second: a caller whose only calls fall <b style="display:inline">before 1:30pm</b> gets a backwards window and a full three-hour shortfall — two people made one test call at 10:37 and were scored as three-hour no-shows. Both are small.</li>
-      <li><b>9. Add <span class="mono">NA</span> to the results format before the next shift posts</b>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</li>
+      <li><b>8. Add <span class="mono">NA</span> to the results format before the next shift posts</b>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</li>
+      <li><b>9. Attach Slack to the 6pm Routine, in the Routines UI</b>The Routine <span class="mono">Shift audit — 6pm Manila</span> exists and will fire at 10:00 UTC tomorrow, but it was created from a session and the API will not hand a session's connectors to a Routine for this organisation — so it runs with none. Open it in the claude.ai Routines UI and attach <b style="display:inline">Slack</b>. Until you do, each 6pm run sends you the call-log half only, and the declared half from <span class="mono">#results-pacificlinkglobal</span> has to be merged by hand or in a chat session. Five minutes, once.</li>
       <li><b>10. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
     </ol>
 

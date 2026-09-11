@@ -234,19 +234,40 @@ the same 22 callers. Comparing it to what this module produced:
 
 **Elaine counts every call log row by Zoom `owner.name`, both directions.** That
 was tested, not assumed: grouping that way reproduces her "Total Number of Calls
-in Call Logs" on 21 of 22 callers (the 22nd is off by one). `by_caller` currently
-groups on `caller_name`, which is the agent on outbound calls and the member of
-the public on inbound ones — so it undercounts against Elaine and invents a
-caller named `Anonymous` out of withheld inbound numbers. **`owner.name` is the
-right grouping key and is evidenced.** Not yet changed.
+in Call Logs" on 21 of 22 callers (the 22nd is off by one). **`by_caller` now
+groups on `Call.agent`, which is `owner.name`** — applied 12 Sep 2026 on
+Brendon's go. `caller_name` is the fallback only for an outbound row with no
+owner; an inbound row with no owner belongs to nobody, so a withheld number can
+no longer become a caller called `Anonymous`.
 
-- **Cumulative off-phone time does NOT reconcile**, and no single gap floor
-  makes it. Hers is consistently lower: Lovely Salva 15 min against 26 at a 60s
-  floor and 9 at 120s; Gerard Siason 20 against 43 and 14; Eunilyn 18 against 81
-  and 57. Florence Bularon is the one that matches (37 against 38). It is a
-  human judgement, not a parameter. Brendon's 60s floor is his own decision and
-  stands; do not tune it to chase Elaine's number, and do not present the two as
-  the same measure.
+Counting inbound rows moved **completes to 19 of 22 exact (207 against her
+204)**, up from 16 — Elaine counts an answered inbound call over 150s as a
+completed survey, which is a ring-back coming good. It also exposed the next
+trap:
+
+**A missed inbound call is not presence.** The moment inbound rows counted
+toward the agent, a missed call to Cherry Jean Raagas's extension at 7:53am
+became a "488 min break" and zeroed her shift. So `Call.presence` is true for an
+outbound call or an *answered* inbound one, and **every time measure —
+`breaks`, `idle_time`, `span`, `worked`, `shortfall`, `started_at`,
+`finished_at` — runs on `ShiftCalls.present`**: presence calls at or after the
+1:30pm floor. Counts (`attempts`, `answered`, `completes`) still use every call.
+A stray noon call still pins the clock to 1:30 and the wait is still charged.
+
+- **Cumulative off-phone time now reconciles much better, and what is left is
+  judgement.** With ring-backs counted as presence: Lovely Salva 14 min against
+  Elaine's 15 (was 26); Florence Bularon 35 against 37; Mary Joy Villacura 9
+  against her "4 min break" (was 33); Kharen 7 against none noted (was 37).
+  Still apart: Nilyn 51 against 18 (was 81), Gerard Siason 42 against 20, Jean
+  Carla Sumarago 23 against 9. Those remaining gaps are her measuring
+  start-to-start and deciding what counts. Brendon's 60s floor stands; do not
+  tune it to chase her number, and do not present the two as the same measure.
+- **Someone whose only presence calls are before 1:30pm is not on shift.**
+  `ShiftCalls.on_shift` is false, `started_at`/`finished_at` are `None`, and the
+  report lists them without scoring them. Two people made one test call each at
+  10:37 on 10 September; they are no longer three-hour no-shows. An extension
+  that only *received* unanswered calls has `activity == 0` and is not a caller
+  at all — counted in a footer, never named.
 - Individual break detection is sound: Elaine has Jean Carla Sumarago breaking
   at 2:18–2:22 and this module finds 2:17–2:22; she has Gerard Siason starting
   at 3:28 and so does this. Her breaks read shorter, consistent with her
@@ -274,7 +295,46 @@ a **third** Jane spelling and is not yet known to be Jane Labora.
 The one name resolved so far: Zoom's `Khars -` is the `Kharen Mae Pihana`
 folder, confirmed by Brendon. The other 16 are still open.
 
-There is still no CLI entry point.
+### The CLI, and the 6pm run
+
+`python3 -m business_agent.audit_day [YYYY-MM-DD] [--xlsx PATH] [--json PATH]`
+— run from `agent/`. No date means today in Manila. Prints the shift table,
+the off-shift list, the names a person has to settle, and Elaine's Details
+lines; writes her seven-column layout as xlsx and the same as JSON. The three
+declared columns are left blank on purpose — they come from Slack, and the JSON
+has `declared_completed`, `declared_calls`, `discrepancy` as `null` for the
+merge step to fill. Tested offline through the same `fetch` stub as
+`calls_for_day`; proven live on 10 September.
+
+`business_agent/names.py` holds the roster as it stands (the 48 call sheet
+folder names plus two people Elaine audits who have no folder) and every
+Zoom/Elaine spelling Brendon has confirmed. Names only. `match()` returns
+exact, settled, one candidate, ambiguous or unmatched — and **a shared first
+name is ambiguous** (`Jean S` is `Jean` or `Jean Carla Sumarago`, so it is
+neither). Extend `ALIASES` only on a decision from Brendon, never by inference.
+
+**A Routine named "Shift audit — 6pm Manila" fires daily at 10:00 UTC** —
+6pm Manila, 10pm NZ until the clocks change on 27 Sep 2026, 11pm after — into a
+fresh session in the `Pacific Link` cloud environment
+(`env_01Tbj77FEPUKBePCjAFhG2Jn`, the one with `zoom.us` allowlisted).
+**That session has no connectors — no Slack.** This is certain, not a guess:
+`create_trigger` refuses the `connectors` parameter for this organisation, and
+the created Routine (`trig_01FBfhpRM9zCJp5ygLHrfzKN`) came back with the
+warning that it "stores no MCP connectors, so the sessions it fires will run
+without connector tools". The remedy the API names is for **Brendon to create
+or edit the Routine in the claude.ai Routines UI**, where Slack can be attached
+— a session cannot pass a connector it was not itself granted through that
+path. Until he does, the 6pm run produces the **call-log half only**; the
+prompt already tells it to say so and send that half alone. The declared half
+stays a manual merge. It checks out this branch, curls Zoom before trusting it, runs
+the CLI for today, reads `#results-pacificlinkglobal` for the declared half,
+fills the three declared columns where it can, and sends Brendon the xlsx and
+a short summary. It posts nothing anywhere, commits nothing, and does not edit
+the modules. Brendon chose "report to me only" for its first runs; anything
+addressed to a caller is a later decision, and off-phone time in particular is
+not to be sent to a caller until it is settled against Elaine's judgement.
+Manage it with `list_triggers` / `update_trigger`; the first real test is the
+first shift that posts results.
 
 ## Curia's call sheet codes — what a caller writes against each number
 

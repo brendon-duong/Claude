@@ -116,10 +116,45 @@ class Call:
     seconds: int
     result: str
     direction: str = "outbound"
+    # The Zoom Phone user whose leg of the call this is — the agent, whichever
+    # way the call went. `caller` is not that: see `agent` below.
+    owner: str = ""
 
     @property
     def answered(self) -> bool:
         return self.result in ANSWERED
+
+    @property
+    def agent(self) -> str:
+        """The person this call is scored against.
+
+        Zoom names an outbound call after the agent and an inbound one after
+        whoever rang in. So `caller` is the agent only half the time, and on
+        10 September 2026 five inbound calls from a withheld number were
+        collected into a caller called "Anonymous" who does not exist.
+
+        `owner` is the agent every time. Grouping on it reproduces Elaine's
+        manual call counts on 21 of 22 callers for that day; grouping on
+        `caller` reads low on every one of them. `caller` remains the fallback
+        for an outbound row from an API version that sends no owner at all —
+        and an inbound row with no owner belongs to nobody.
+        """
+        if self.owner:
+            return self.owner
+        return self.caller if self.direction == "outbound" else ""
+
+    @property
+    def presence(self) -> bool:
+        """Whether this call proves the caller was at the phone.
+
+        An outbound call does — someone dialled it. An inbound call does only
+        if it was answered. A missed or failed inbound call is the phone
+        ringing at an empty desk; on 10 September 2026 one of those at 7:53am
+        and another at 6:18pm turned a full shift into "488 min break, 0
+        minutes worked" the moment inbound rows started counting toward the
+        agent. Counts use every call; anything to do with time uses these.
+        """
+        return self.direction == "outbound" or self.answered
 
     @property
     def day(self) -> date:
@@ -188,12 +223,15 @@ class ShiftCalls:
         so a call that finishes inside a longer one cannot invent a gap that
         never happened.
         """
-        if len(self.calls) < 2:
+        ordered = sorted(self.present, key=lambda c: c.started)
+        if not ordered:
             return []
-        ordered = sorted(self.calls, key=lambda c: c.started)
         spans: list[tuple[datetime, datetime]] = []
-        latest_end = ordered[0].started + timedelta(seconds=ordered[0].seconds)
-        for call in ordered[1:]:
+        # The clock may start before the first call — a stray noon call pins
+        # it to 1:30pm — and that stretch is time away like any other. The
+        # start is treated as a zero-length call so it is measured the same way.
+        latest_end = self.started_at()
+        for call in ordered:
             if call.started > latest_end:
                 spans.append((latest_end, call.started))
             finished = call.started + timedelta(seconds=call.seconds)
@@ -228,27 +266,67 @@ class ShiftCalls:
             (length for _, length in self.breaks(minimum)), default=timedelta(0)
         )
 
+    @staticmethod
+    def _floor(when: datetime) -> datetime:
+        """The earliest permitted start on the Manila day of `when`."""
+        local = when.astimezone(MANILA)
+        return local.replace(
+            hour=EARLIEST_START[0], minute=EARLIEST_START[1], second=0, microsecond=0
+        )
+
+    @property
+    def present(self) -> tuple[Call, ...]:
+        """The calls that prove the caller was there, inside the window.
+
+        Everything about time — breaks, idle, span, worked, shortfall — is
+        measured on these and nothing else. A missed inbound call at 7:53am is
+        not a break that ran until 1:25pm; a test call at 10:37 is not the
+        start of a shift.
+        """
+        return tuple(
+            c for c in self.calls if c.presence and c.started >= self._floor(c.started)
+        )
+
+    @property
+    def activity(self) -> int:
+        """How many calls prove presence at all, any time of day."""
+        return sum(1 for c in self.calls if c.presence)
+
+    @property
+    def on_shift(self) -> bool:
+        """Whether the caller was at the phone inside the window at all.
+
+        On 10 September 2026 two people each made one call at 10:37 Manila —
+        to the same number, a second apart, a phone test — and came out with
+        the window 13:30–10:37 and a three-hour shortfall. They had not worked
+        the shift; they had not been rostered. A report lists them and does
+        not score them, and this is what it branches on.
+        """
+        return bool(self.present)
+
     def started_at(self) -> datetime | None:
         """When the shift clock starts, in Manila time.
 
         A caller's own first call, or the earliest permitted start if they
         began before it. Dialling once at noon and stopping must not let the
-        three hours expire before the work begins.
+        three hours expire before the work begins. Someone who never reached
+        the window at all has no start: see `on_shift`.
         """
-        if not self.calls:
+        if not self.on_shift:
             return None
-        first = min(c.started for c in self.calls).astimezone(MANILA)
-        floor = first.replace(
-            hour=EARLIEST_START[0], minute=EARLIEST_START[1], second=0, microsecond=0
-        )
-        return max(first, floor)
+        first = min(c.started for c in self.calls if c.presence).astimezone(MANILA)
+        return max(first, self._floor(first))
 
     def finished_at(self) -> datetime | None:
-        """The end of the last call, in Manila time — not the start of it."""
-        if not self.calls:
+        """The end of the last call, in Manila time — not the start of it.
+
+        None when the shift never started, so a window can never read
+        backwards.
+        """
+        if not self.on_shift:
             return None
         return max(
-            (c.started + timedelta(seconds=c.seconds) for c in self.calls)
+            (c.started + timedelta(seconds=c.seconds) for c in self.present)
         ).astimezone(MANILA)
 
     def span(self) -> timedelta:
@@ -269,6 +347,10 @@ class ShiftCalls:
 
         Measured against `worked` rather than `span`, so a caller cannot cover
         three hours by making one call, disappearing, and making another.
+
+        A caller who never reached the window is short by all of it — that
+        is true, and it is not the same as a three-hour no-show by someone
+        rostered. Check `on_shift` before reading this as one.
         """
         return max(timedelta(hours=hours) - self.worked(minimum), timedelta(0))
 
@@ -380,6 +462,13 @@ def parse_call(row: dict) -> Call | None:
     except ValueError:
         seconds = 0
 
+    # The live API nests the owner: {"owner": {"name": ..., "extension_number": ...}}.
+    # An older shape sends it flat as owner_name. Either is the agent.
+    owner_raw = row.get("owner")
+    owner = str(owner_raw.get("name") or "") if isinstance(owner_raw, dict) else ""
+    if not owner:
+        owner = first("owner_name")
+
     return Call(
         caller=first("caller_name", "caller_did_number", "owner_name"),
         caller_number=first("caller_number", "caller_did_number"),
@@ -388,6 +477,7 @@ def parse_call(row: dict) -> Call | None:
         seconds=max(seconds, 0),
         result=first("result", "status", "call_result"),
         direction=first("direction", default="outbound"),
+        owner=owner,
     )
 
 
@@ -409,14 +499,19 @@ def calls_for_day(day: date, *, fetch=None, token: str = "") -> list[Call]:
 
 
 def by_caller(calls: list[Call], day: date) -> dict[str, ShiftCalls]:
-    """Group a day's calls by who made them."""
+    """Group a day's calls by the agent they belong to.
+
+    Keyed on `Call.agent` — the Zoom owner — not on who Zoom lists as the
+    caller. Both directions are kept: that is how Elaine counts a caller's
+    total calls, and it is the count her audit compares against.
+    """
     grouped: dict[str, list[Call]] = {}
     for call in calls:
-        if not call.caller:
+        if not call.agent:
             continue
-        grouped.setdefault(call.caller.strip().lower(), []).append(call)
+        grouped.setdefault(call.agent.strip().lower(), []).append(call)
     return {
-        key: ShiftCalls(caller=rows[0].caller, day=day, calls=tuple(rows))
+        key: ShiftCalls(caller=rows[0].agent, day=day, calls=tuple(rows))
         for key, rows in grouped.items()
     }
 
