@@ -83,6 +83,35 @@ directory or into this file. That is the whole of the memory.
   people invoicing now are missing from it. The invoice list is closer to
   the truth. Awaiting Brendon's decision to switch over.
 
+## In flight: auditing shifts from Zoom Phone call logs
+
+The goal is to make the manual audit redundant. `business_agent/calllogs.py`
+reads Zoom Phone call logs and groups them per caller per day; 32 tests cover
+it and all run without Zoom.
+
+**The Claude Zoom connector cannot do this.** Asking it returns
+`403 "User does not have a valid license"` — its search API needs a tier this
+account lacks, and Zoom Meetings fails identically, so it is not phone-specific.
+Empty result sets from `zoom_phone_call` are that same wall failing quietly.
+Do not spend time retrying the connector.
+
+The route is Zoom's own Phone API with a Server-to-Server OAuth credential,
+which the 53 Zoom Phone licences cover. The app is built and activated:
+
+    ZOOM_ACCOUNT_ID=TOsH5AVeRhi_dqyWx007JQ
+    ZOOM_CLIENT_ID=rkYU0tiVRfCQa9S7GpUL1g
+    ZOOM_CLIENT_SECRET  — environment variable, never in a message
+
+**First thing to do in a session where those are set:** call
+`calls_for_day(date(2026, 9, 10))` and report what comes back — how many calls,
+which caller names, the answered-vs-attempted split, and whether the Manila day
+boundary put the 2pm–5pm shift on the right date. 10 September is Wellington
+Bays, a day people worked. If it returns rows, the audit is buildable. There is
+no CLI entry point yet; it was not worth writing against output nobody had seen.
+
+Expect the Zoom display names not to match roster names — the same mismatch as
+Slack. That is a mapping to build, not a failure.
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,
