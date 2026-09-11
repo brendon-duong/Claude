@@ -6,6 +6,7 @@ import unittest
 from datetime import date, datetime, timedelta, timezone
 
 from business_agent.calllogs import (
+    COMPLETE_SECONDS,
     MANILA,
     Call,
     ShiftCalls,
@@ -123,6 +124,45 @@ class TestOneCallersShift(unittest.TestCase):
             call(minute=5, seconds=45, result="No Answer"),
         ))
         self.assertEqual(shift.talk_seconds, 200)
+
+    def test_a_long_answered_call_counts_as_a_complete(self):
+        shift = ShiftCalls("Lia", DAY, (call(seconds=200), call(minute=5, seconds=180)))
+        self.assertEqual(shift.completes(), 2)
+
+    def test_a_short_answered_call_is_not_a_complete(self):
+        # Somebody picked up and got rid of them. That is a refusal, not a
+        # survey, and counting it would let a caller inflate by dialling fast.
+        shift = ShiftCalls("Lia", DAY, (call(seconds=20), call(minute=5, seconds=45)))
+        self.assertEqual(shift.completes(), 0)
+        self.assertEqual(shift.short_answers(), 2)
+
+    def test_an_unanswered_call_is_never_a_complete_however_long(self):
+        # A call that rang for four minutes reached nobody.
+        shift = ShiftCalls("Lia", DAY, (call(seconds=240, result="No Answer"),))
+        self.assertEqual(shift.completes(), 0)
+        self.assertEqual(shift.short_answers(), 0)
+
+    def test_a_call_exactly_on_the_threshold_counts(self):
+        shift = ShiftCalls("Lia", DAY, (call(seconds=COMPLETE_SECONDS),))
+        self.assertEqual(shift.completes(), 1)
+
+    def test_one_second_under_the_threshold_does_not(self):
+        shift = ShiftCalls("Lia", DAY, (call(seconds=COMPLETE_SECONDS - 1),))
+        self.assertEqual(shift.completes(), 0)
+
+    def test_the_threshold_can_be_changed_per_call(self):
+        # It is a parameter because it has to be calibrated, not guessed once.
+        shift = ShiftCalls("Lia", DAY, (call(seconds=100), call(minute=5, seconds=200)))
+        self.assertEqual(shift.completes(threshold=90), 2)
+        self.assertEqual(shift.completes(threshold=150), 1)
+        self.assertEqual(shift.completes(threshold=300), 0)
+
+    def test_completes_and_short_answers_together_are_every_answered_call(self):
+        shift = ShiftCalls("Lia", DAY, (
+            call(seconds=200), call(minute=5, seconds=20),
+            call(minute=10, result="No Answer"),
+        ))
+        self.assertEqual(shift.completes() + shift.short_answers(), shift.answered)
 
     def test_the_longest_gap_is_measured_end_to_start(self):
         # 06:00 for 60s, then 06:30 -> a 29-minute gap, not 30.

@@ -55,6 +55,16 @@ ANSWERED = frozenset({"Connected", "Answered", "Call connected"})
 # day boundary has to be moved or a 2pm-5pm shift spills across two UTC dates.
 MANILA = timezone(timedelta(hours=8))
 
+# How long a connected call has to run before it is treated as a finished
+# survey. Zoom cannot say whether a questionnaire was completed — only that
+# someone picked up and stayed on the line — so length stands in for it.
+#
+# This is a threshold, not a measurement. Set it too low and a polite refusal
+# counts as a complete; too high and genuinely quick respondents are thrown
+# away. 150s is Brendon's figure and it is a parameter for a reason: it should
+# be calibrated against a week where the real completes are already known.
+COMPLETE_SECONDS = 150
+
 
 class ZoomError(RuntimeError):
     """Zoom refused. The message carries its own words, not a guess at them."""
@@ -109,6 +119,28 @@ class ShiftCalls:
     @property
     def last_call(self) -> datetime | None:
         return max((c.started for c in self.calls), default=None)
+
+    def completes(self, threshold: int = COMPLETE_SECONDS) -> int:
+        """Answered calls long enough to have been a finished survey.
+
+        An estimate, and deliberately a conservative one: a call has to be
+        both answered and at least `threshold` seconds long. A twenty-second
+        answered call is a refusal or a wrong number, not a survey.
+        """
+        return sum(
+            1 for call in self.calls if call.answered and call.seconds >= threshold
+        )
+
+    def short_answers(self, threshold: int = COMPLETE_SECONDS) -> int:
+        """Answered, but too short to be a survey.
+
+        Worth counting separately rather than lumping in with no-answers: a
+        caller with many of these reached people and lost them, which is a
+        different problem from a caller nobody picked up for.
+        """
+        return sum(
+            1 for call in self.calls if call.answered and call.seconds < threshold
+        )
 
     def longest_gap(self) -> timedelta:
         """The biggest stretch with no call started.
