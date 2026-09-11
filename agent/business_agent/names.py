@@ -61,6 +61,30 @@ ALIASES: dict[str, str] = {
 }
 
 
+# What each caller's CSV is called in Curia's Drive folder. Their auditor reads
+# these next to the files Elaine has been uploading since March, so the spelling
+# has to match hers or the same person appears twice across two days.
+#
+# Hers are the Zoom display name in every case but one, and two of them arrive
+# lowercase because that is how the caller set their Zoom profile. Brendon asked
+# for full names, so those two are title-cased here and everything else is left
+# exactly as Curia already have it.
+EXPORT_FILENAME: dict[str, str] = {
+    "katherine boiser": "Katherine Boiser",
+    "richelle mino": "Richelle Mino",
+    # Elaine files Khars under Ybas; the roster folder says Kharen Mae Pihana.
+    # Both come from a person, neither from a guess, and they disagree on the
+    # surname. Curia's existing files say Ybas, so that is what keeps their
+    # folder consistent — but it is NOT settled. See CLAUDE.md.
+    "khars -": "Kharen Ybas",
+}
+
+
+def export_filename(zoom_name: str) -> str:
+    """The name this caller's CSV carries in Curia's Drive folder."""
+    return EXPORT_FILENAME.get(zoom_name.strip().lower(), zoom_name.strip())
+
+
 def base(name: str) -> str:
     """A name without its bracketed nickname, lowercased, for comparison."""
     return name.split("(")[0].strip().lower()

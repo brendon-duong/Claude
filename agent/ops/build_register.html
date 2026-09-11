@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 12 September 2026, 5.20am</div>
+    <div class="eyebrow">Build register · updated 12 September 2026, 6.10am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -294,7 +294,7 @@
       someone technical — the constraints are stated with the actual API behaviour that
       causes them, so nobody has to rediscover them.
     </p>
-    <div class="meta">12,846 lines · 561 tests passing · branch claude/business-agent-dev-9jxs55</div>
+    <div class="meta">13,000 lines · 566 tests passing · branch claude/business-agent-dev-9jxs55</div>
 
     <div class="tally">
       <div><span class="dot" style="background:var(--blocked)"></span><b>3</b> hard blockers</div>
@@ -1020,9 +1020,9 @@ unless the file or its label changes.</div>
 
       <article class="item pending">
         <div class="item-head">
-          <h3>Curia's own auditor — raw call logs, rebuilt from the API</h3>
-          <span class="tag t-worked">Built &amp; verified</span>
-          <span class="tag t-pending">Nothing uploaded yet</span>
+          <h3>Curia's own auditor — raw call logs, rebuilt and uploaded</h3>
+          <span class="tag t-worked">Dummy run passed</span>
+          <span class="tag t-pending">Scale is the open question</span>
         </div>
         <dl class="rows">
           <div class="row"><dt>The job</dt><dd>
@@ -1052,17 +1052,42 @@ unless the file or its label changes.</div>
             <code>0273</code> as three. That was found by a rebuilt file disagreeing with a real
             one, not by reasoning.
           </dd></div>
-          <div class="row"><dt>Two decisions before anything is uploaded</dt><dd>
-            <strong>28 files or 22.</strong> The API finds 28 people with calls on 10 September;
-            Elaine uploads 22, leaving out six who made one call each and were never on shift.
-            And <strong>filenames</strong> — she names them by Zoom display name except Khars,
-            whom she writes as <code>Kharen Ybas.csv</code>.
+          <div class="row"><dt>Both decisions settled</dt><dd>
+            <strong>22 files</strong>, the people who worked the shift, as Elaine uploads it — not
+            the 28 the phone system saw. And <strong>full names</strong>: the two lowercase Zoom
+            names are title-cased and <code>Khars -</code> becomes <code>Kharen Ybas</code>, which
+            is what Curia already hold. The full name is written <em style="font-style:normal">inside</em>
+            the file too — Zoom's <code>Khars -</code> otherwise renders as
+            <code>Khars - - Ext. 1030</code>, which an auditor should not have to decode.
           </dd></div>
-          <div class="row"><dt>And it cannot be scheduled yet</dt><dd>
-            The same wall as Slack: <strong>a Routine gets no connectors</strong>, so the 6pm
-            session cannot write to Drive either. Until Brendon attaches them in the Routines UI,
-            uploading is a chat-session job. <strong>Nothing has been written to that folder</strong> —
-            Curia's auditor reads it, so the first upload is his call.
+          <div class="row"><dt>Dummy run passed</dt><dd>
+            One file uploaded into a folder named <code>TEST 10-9 (agent rebuild — safe to
+            delete)</code>. It landed as real <code>text/csv</code>, 26,448 bytes, 170 rows — not
+            silently converted to a Google Sheet. <strong>Sharing is inherited and reaches
+            Curia</strong>: the file's permissions list <code>curiaresearch@gmail.com</code> as a
+            writer without anything being shared by hand. A file dropped in the right folder is
+            visible to their auditor immediately.
+          </dd></div>
+          <div class="row"><dt>The size gap is the missing column</dt><dd>
+            Elaine's file is 31,155 bytes against this one's 26,448. That 4.7KB is exactly the
+            <code>Device</code> column — 170 rows of <code>Windows_Client(7.1.5.43453)</code> the
+            API does not return. <strong>Not truncation</strong>, and worth knowing before anyone
+            reads the difference as a fault.
+          </dd></div>
+          <div class="row"><dt>The real open question is scale</dt><dd>
+            File content has to pass <em style="font-style:normal">through the session</em> to
+            reach Drive. Each caller's CSV is 30–70KB and there are about 22 a day; reading one
+            back is truncated above ~30KB and has to be done in halves. One file is easy, a day's
+            worth is slow and expensive, and that is a poor shape for something running every
+            evening. <strong>Flagged, not solved.</strong> The fallback is Brendon dragging the
+            generated folder in himself — about thirty seconds — or an Apps Script inside his own
+            account.
+          </dd></div>
+          <div class="row"><dt>Still needs its connector</dt><dd>
+            The same wall as Slack: <strong>a Routine gets no connectors</strong>, so a scheduled
+            session cannot reach Drive at all. Until Brendon attaches them in the Routines UI this
+            stays a chat-session job. <code>agent/ops/routine_prompts.md</code> has both Routine
+            prompts ready to paste, with the settings and connectors each needs.
           </dd></div>
         </dl>
       </article>
@@ -1369,7 +1394,8 @@ unless the file or its label changes.</div>
       <div><b>Calibration against the manual audit</b> — completes 19/22 exact, call counts 21/22</div>
       <div><b>audit_day CLI</b> — one day in Elaine's seven columns, xlsx and JSON, offline-testable</div>
       <div><b>Settled names</b> — roster and every confirmed spelling in code; a shared first name is ambiguous</div>
-      <div><b>6pm Manila Routine</b> — fresh cloud session daily, Sun–Thu, report to Brendon only</div>
+      <div><b>6pm Manila Routine</b> — fresh cloud session, Sun–Thu, report to Brendon only</div>
+      <div><b>Routine prompts</b> — both jobs written out ready to paste into the Routines UI</div>
       <div><b>Call log exporter</b> — Curia's per-caller CSVs rebuilt from the API; 36/36 number formats</div>
     </div>
   </section>

@@ -84,11 +84,12 @@ def format_nz(number: str, location: str = "") -> str:
         return raw if not suffix else f"{raw}{suffix}"
 
     national = "0" + raw[3:]
-    if not national.isdigit():
-        return raw
-
-    groups = _group_nz(national)
-    return f"{groups}{suffix}" if groups else raw
+    groups = _group_nz(national) if national.isdigit() else ""
+    if groups:
+        return f"{groups}{suffix}"
+    # The console prints a number it cannot group with a leading space and no
+    # country — ` +6410091`. Copied because these files sit next to hers.
+    return f" {raw}"
 
 
 def _group_nz(national: str) -> str:
@@ -104,7 +105,12 @@ def _group_nz(national: str) -> str:
         if n == 10:
             return f"{national[:3]} {national[3:6]} {national[6:]}"
         if n == 11:
-            return f"{national[:3]} {national[3:7]} {national[7:]}"
+            # 020 is its own numbering scheme and splits 3-4-4
+            # (`020 4005 3130`); the rest split 3-3-5 (`027 365 36523`,
+            # `029 020 40106`). Both shapes come from real exports.
+            if national[:3] == "020":
+                return f"{national[:3]} {national[3:7]} {national[7:]}"
+            return f"{national[:3]} {national[3:6]} {national[6:]}"
         if n == 9:
             return f"{national[:3]} {national[3:6]} {national[6:]}"
     return ""
@@ -118,13 +124,20 @@ def hhmmss(seconds: int) -> str:
 
 
 def _party(row: dict, side: str) -> str:
-    """One end of a call: the agent as name + extension + DID, or a number."""
+    """One end of a call: the agent as name + extension + DID, or a number.
+
+    The agent is written under their full name, not their Zoom display name.
+    Zoom shows one caller as `Khars -`, trailing hyphen and all, which renders
+    as `Khars - - Ext. 1030` — an auditor should not have to decode that.
+    """
+    from .names import export_filename
+
     owner = row.get("owner") or {}
     number = row.get(f"{side}_number") or ""
     # The agent's own leg carries the extension as its number.
     if number and owner.get("extension_number") and str(number) == str(owner["extension_number"]):
         did = row.get(f"{side}_did_number") or ""
-        parts = [owner.get("name", ""), f"Ext. {owner['extension_number']}"]
+        parts = [export_filename(owner.get("name", "")), f"Ext. {owner['extension_number']}"]
         if did:
             parts.append(format_nz(did).split(" - ")[0])
         return " - ".join(p for p in parts if p)
@@ -204,25 +217,45 @@ def check_formatting(exported_csv: str, rebuilt_csv: str) -> dict:
     return result
 
 
-def write_day(day: date, out_dir: str, *, fetch=None, token: str = "") -> list[str]:
+def write_day(day: date, out_dir: str, *, on_shift_only: bool = True,
+              fetch=None, token: str = "") -> list[str]:
     """One CSV per caller for `day`, written into `out_dir`. Returns the paths.
 
-    Filenames are the Zoom display name, which is what Elaine's files use —
-    `katherine boiser.csv`, lowercase and all. Matching her naming matters more
-    than tidiness: Curia's auditor reads these alongside the older ones.
+    Filenames come from `names.export_filename`, which matches what Curia
+    already hold. `on_shift_only` keeps it to the people who actually worked,
+    the way Elaine uploads it; pass False for every extension the phone system
+    saw.
     """
     import os
 
     from .calllogs import _zoom_fetch, access_token
 
+    from .calllogs import by_caller, parse_call
+    from .names import export_filename
+
     fetcher = fetch or _zoom_fetch
     if fetch is None and not token:
         token = access_token()
     rows = fetcher(day, token)
+
+    if on_shift_only:
+        # Elaine uploads the people who worked the shift, not everyone the
+        # phone system saw. On 10 September that is 22 of 28: six others made
+        # a single call each, hours before the window, and were never rostered.
+        calls = [c for c in (parse_call(r) for r in rows) if c]
+        working = {
+            name for name, shift in by_caller(calls, day).items() if shift.on_shift
+        }
+        keep = {n for n in by_agent(rows) if n.strip().lower() in working}
+    else:
+        keep = set(by_agent(rows))
+
     os.makedirs(out_dir, exist_ok=True)
     written = []
     for name, agent_rows in sorted(by_agent(rows).items()):
-        safe = name.replace("/", "-").strip()
+        if name not in keep:
+            continue
+        safe = export_filename(name).replace("/", "-").strip()
         path = os.path.join(out_dir, f"{safe}.csv")
         with open(path, "w", newline="") as fh:
             fh.write(rows_to_csv(agent_rows))
@@ -241,9 +274,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("day", nargs="?", help="YYYY-MM-DD, Manila. Default: today in Manila.")
     ap.add_argument("--out", default=".", help="directory to write the CSVs into")
+    ap.add_argument("--everyone", action="store_true",
+                    help="include people who made calls but never worked the shift")
     args = ap.parse_args(argv)
     day = date.fromisoformat(args.day) if args.day else today_manila()
-    paths = write_day(day, args.out)
+    paths = write_day(day, args.out, on_shift_only=not args.everyone)
     print(f"{day.isoformat()} — {len(paths)} caller(s), Drive folder {folder_name(day)}/")
     for path in paths:
         with open(path) as fh:

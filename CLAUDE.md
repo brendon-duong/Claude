@@ -313,7 +313,12 @@ exact, settled, one candidate, ambiguous or unmatched — and **a shared first
 name is ambiguous** (`Jean S` is `Jean` or `Jean Carla Sumarago`, so it is
 neither). Extend `ALIASES` only on a decision from Brendon, never by inference.
 
-**A Routine named "Shift audit — 6pm Manila" fires daily at 10:00 UTC** —
+**Shifts run Sunday to Thursday only** (Brendon, 12 Sep). Curia's own Drive
+folder corroborates it: September has day folders for 1, 2, 3, 6, 7, 8, 9 and
+10 — exactly Sun–Thu. Friday and Saturday have no shift.
+
+**A Routine named "Shift audit — 6pm Manila (Sun–Thu)"
+(`trig_01FBfhpRM9zCJp5ygLHrfzKN`) fires at 10:00 UTC, Sunday to Thursday** —
 6pm Manila, 10pm NZ until the clocks change on 27 Sep 2026, 11pm after — into a
 fresh session in the `Pacific Link` cloud environment
 (`env_01Tbj77FEPUKBePCjAFhG2Jn`, the one with `zoom.us` allowlisted).
@@ -422,7 +427,7 @@ shift, one caller at a time.
 
 `business_agent/calllog_export.py` builds the same files from the API:
 
-    python3 -m business_agent.calllog_export [YYYY-MM-DD] --out DIR
+    python3 -m business_agent.calllog_export [YYYY-MM-DD] --out DIR [--everyone]
 
 **This is not the audit.** Nothing in it judges anyone; it is the call log,
 reproduced. `audit_day` is the module that scores a shift.
@@ -445,22 +450,53 @@ unify them.
 
 Number grouping is libphonenumber's and cannot be restated as a rule. Only
 `0210` and `0274` group as four digits; `0211`, `0212` and `0273` group as
-three. **Do not add a prefix to `_FOUR_DIGIT` on a hunch** — check it against a
-real exported file first, and `check_formatting` measures a rebuild against one.
+three. Eleven-digit mobiles split by scheme: `020` goes 3-4-4
+(`020 4005 3130`), everything else 3-3-5 (`027 365 36523`, `029 020 40106`).
+A number the console cannot group at all it prints with a **leading space** and
+no country — ` +6410091`. Every one of those was found by a rebuilt file
+disagreeing with a real one, never by reasoning. **Do not add a prefix to
+`_FOUR_DIGIT` on a hunch** — check it against a real exported file first, and
+`check_formatting` measures a rebuild against one.
 
-Two open decisions, both Brendon's:
+Both settled by Brendon 12 Sep:
 
-- **28 files or 22.** The API finds 28 people with calls on 10 September;
-  Elaine uploaded 22, leaving out six who made a single call each and were
-  never on shift. More faithful is 28; consistent with what Curia already hold
-  is 22.
-- **Filenames.** Elaine names them by Zoom display name (`katherine boiser.csv`,
-  lowercase and all) with one exception: `Khars -` she writes as
-  `Kharen Ybas.csv`. The exporter uses the Zoom name for everyone, so that one
-  file would arrive named `Khars -.csv`.
+- **22 files, not 28** — the people who worked the shift, as Elaine uploads it.
+  `write_day(..., on_shift_only=True)` is the default; `--everyone` overrides.
+- **Full names, hers where she has one.** `names.EXPORT_FILENAME` title-cases
+  the two lowercase Zoom names (`katherine boiser` → `Katherine Boiser`) and
+  maps `Khars -` → `Kharen Ybas`, which is what Curia already hold. The full
+  name is written **inside** the file too, not just on it — Zoom's `Khars -`
+  otherwise renders as `Khars - - Ext. 1030`, which an auditor should not have
+  to decode.
 
-**Nothing has been written into that Drive folder yet.** Curia's auditor reads
-it, so the first upload is Brendon's call, not a session's.
+**The `Kharen Ybas` / `Kharen Mae Pihana` surname clash is still unsettled.**
+Elaine's spelling is used because Curia's folder already has it. Ask before
+either reaches a contract or an invoice.
+
+### Dummy run, 12 Sep — it works, and Curia can see it
+
+`Eunilyn Lisondra.csv` was uploaded to a folder named
+`TEST 10-9 (agent rebuild — safe to delete)` inside September
+(`1Dz0TgR1m3uHpMzDjzMd8X2ex-LiWSAsg`). It landed as real `text/csv`, 26,448
+bytes, 170 rows. **Delete that folder once checked.**
+
+- **Sharing is inherited and reaches Curia.** The uploaded file's permissions
+  list `curiaresearch@gmail.com` as writer, along with Elaine, Logan and three
+  others. Nothing has to be shared by hand; a file dropped in the right folder
+  is visible to the auditor immediately.
+- **Size difference is expected and explained.** Elaine's file is 31,155 bytes
+  against this 26,448. The 4.7KB gap is the `Device` column — 170 rows of
+  `Windows_Client(7.1.5.43453)` that the API does not return. It is not
+  truncation.
+- **A real constraint on automating this.** File content has to pass through
+  the session to reach Drive, and each caller's CSV is 30–70KB with ~22 a day.
+  Reading one back through Bash is truncated above ~30KB and has to be read in
+  halves. It works, but it is slow and expensive as a daily job. If that proves
+  impractical the fallback is Brendon dragging the generated folder in himself,
+  or an Apps Script inside his own account. **Flagged, not solved.**
+
+`agent/ops/routine_prompts.md` holds both Routine prompts ready to paste into
+the claude.ai Routines UI, with the settings and the connectors each needs.
 
 ## How Brendon works
 

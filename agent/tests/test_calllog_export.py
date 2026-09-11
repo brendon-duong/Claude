@@ -47,10 +47,21 @@ class TestNumbersAsTheConsoleWritesThem(unittest.TestCase):
         ]:
             self.assertEqual(format_nz(raw, "New Zealand"), f"{want} - New Zealand", raw)
 
-    def test_an_unrecognisable_number_is_left_alone_not_guessed(self):
-        # A wrong grouping in an auditor's file is worse than none.
-        self.assertEqual(format_nz("+6410091"), "+6410091")
+    def test_an_unrecognisable_number_keeps_the_consoles_leading_space(self):
+        # A wrong grouping in an auditor's file is worse than none, and the
+        # console marks one it could not group with a leading space and no
+        # country: ` +6410091`. Copied so these files read like hers.
+        self.assertEqual(format_nz("+6410091"), " +6410091")
+        self.assertEqual(format_nz("+64022792802"), " +64022792802")
+
+    def test_a_number_from_outside_new_zealand_is_left_alone(self):
         self.assertEqual(format_nz("+15551234567"), "+15551234567")
+
+    def test_eleven_digit_mobiles_split_by_their_numbering_scheme(self):
+        # 020 is its own scheme; both shapes are copied from real exports.
+        self.assertEqual(format_nz("+642040053130"), "020 4005 3130")
+        self.assertEqual(format_nz("+642736536523"), "027 365 36523")
+        self.assertEqual(format_nz("+642902040106"), "029 020 40106")
 
     def test_an_extension_stays_bare(self):
         self.assertEqual(format_nz("1025"), "1025")
@@ -140,3 +151,19 @@ class TestComparingAgainstARealExport(unittest.TestCase):
         report = check_formatting(a, b)
         self.assertEqual(report["mismatches"]["To"], 1)
         self.assertEqual(report["examples"][0]["column"], "To")
+
+
+class TestTheAgentsFullName(unittest.TestCase):
+    """Brendon asked for full names; Zoom display names are not always one."""
+
+    def test_a_trailing_hyphen_display_name_does_not_reach_the_file(self):
+        csv = rows_to_csv([row(owner="Khars -", ext=1030)])
+        self.assertIn("Kharen Ybas - Ext. 1030", csv)
+        self.assertNotIn("Khars - - Ext.", csv)
+
+    def test_a_lowercase_display_name_is_written_properly(self):
+        csv = rows_to_csv([row(owner="katherine boiser", ext=1021)])
+        self.assertIn("Katherine Boiser - Ext. 1021", csv)
+
+    def test_a_name_that_is_already_full_is_untouched(self):
+        self.assertIn("Eunilyn Lisondra - Ext. 1025", rows_to_csv([row()]))
