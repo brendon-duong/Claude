@@ -426,13 +426,22 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             would wipe the merged header bands, every per-day Total row and Curia's Status column, on a
             live document their auditor reads. <strong>Not attempted, on purpose.</strong>
           </dd></div>
-          <div class="row"><dt>The schedule has the same problem from the other side</dt><dd>
-            <em style="font-style:normal">Curia 2026 Schedule</em> (David Farrar's file) is the source
-            for how many callers each shift wants — column A date, B poll, F "PL Staff Confirmed".
-            Read through Drive it returns <strong>April to September 2022 and truncates</strong> before
-            it reaches 2026, though the file was modified 11 September. Either a tab per year with only
-            the first returned, or one long sheet cut off. The Sheets API would fix it; that is the one
-            that is blocked. <strong>Columns B and F for 13–17 September are unread</strong> — ask 8.
+          <div class="row"><dt>Correction: the schedule <em style="font-style:normal">is</em> readable</dt><dd>
+            This entry said, three hours ago, that <em style="font-style:normal">Curia 2026 Schedule</em>
+            "cannot be read past 2022" and needed Apps Script. <strong>That was wrong, and it cost an
+            ask.</strong> <code>read_file_content</code> does truncate at September 2022 — but
+            <code>get_file_metadata</code> with <code>snippetVerbosity: MAX_ALLOWED</code> returns the
+            <strong>whole sheet as CSV</strong>, 58,000 characters, 2022 through 2026. It overflows the
+            tool result and lands in a file, which is then grepped. <strong>When a Drive read truncates,
+            try that before concluding the data is out of reach.</strong>
+          </dd></div>
+          <div class="row"><dt>So the week is known</dt><dd>
+            Read live 12 September, columns A, B and F: <strong>Sun Hutt South 400 (10) · Mon ACT 1000
+            (20) · Tue ACT 1000 (20) · Wed Rotorua 400 (10) + Tukituki 400 (10) · Thu WCT 400
+            (10)</strong> — 80 slots. A day with two polls uses a <strong>continuation row</strong>,
+            the second poll on its own line with the date cell empty, and the roster splits the callers
+            between them. This also confirms the poll names in the 9 September dashboard, which had been
+            flagged as unverified; they were right. <strong>Ask 8 is closed.</strong>
           </dd></div>
           <div class="row"><dt>The route</dt><dd>
             An Apps Script inside Brendon's own account writes to this sheet, reads the schedule and
@@ -952,9 +961,11 @@ unless the file or its label changes.</div>
             knowing it reads up to 4× Elaine's on some callers.</strong> His call, recorded as such.
           </dd></div>
           <div class="row"><dt>What the dummy run showed</dt><dd>
-            Published to the <em style="font-style:normal">Pacific Link Roster Dashboard</em>, 22 a
-            night as a placeholder. <strong>17 people take all five nights; 17 of the 43 who voted
-            get none.</strong> <strong>10 said ✓ and have no call history to rank on</strong> —
+            Published to the <em style="font-style:normal">Pacific Link Roster Dashboard</em>, now on
+            the real polls and headcounts — 80 slots, with Wednesday split ten and ten across Rotorua
+            and Tukituki. <strong>8 people take all five nights; 19 of the 43 who voted get none</strong>,
+            and 24 people cover the whole week. A <strong>3-shift-per-week cap spreads the same 80 slots
+            across 28 people and still fills every one</strong>; that comparison is on the page. <strong>10 said ✓ and have no call history to rank on</strong> —
             Bryan Canton, Charlotte Gimpes, Hermi, Ian Christopher, Jellame Malicay, Kris, Marynel
             Joy Reanturco, Rechiell W., Stefany Fojas, Thea Rejante — so a pure ranking can never
             give a new starter a first shift. <strong>5 sit out on a name problem</strong> (see
@@ -964,7 +975,7 @@ unless the file or its label changes.</div>
             dashboard says so.
           </dd></div>
           <div class="row"><dt>Three decisions before it can be real</dt><dd>
-            <strong>Headcount and poll</strong> for 13–17 September (ask 8). <strong>The five
+            <strike>Headcount and poll</strike> — read on 12 September, see above. <strong>The five
             names</strong> (ask 9). <strong>A floor</strong> — everyone who ticks ✓ works at least
             once a week, or the bottom slots rotate, or none (ask 10). Everything else is built.
           </dd></div>
@@ -1244,9 +1255,9 @@ unless the file or its label changes.</div>
   <section>
     <div class="section-head">
       <h2>Tomorrow, in order</h2>
-      <p>Thirteen things only you can do. The two connectors are attached and both Routines fire
-      Sunday — that ask is gone. Items 8 to 10 are what stand between the dummy roster and a real
-      one.</p>
+      <p>Twelve things only you can do — item 8 turned out not to be one of them and is struck
+      through below. <strong>Items 9 and 10 are now the only things between the draft roster and a
+      real one.</strong></p>
     </div>
     <ol class="asks">
       <li><b>1. Upload the Orientation Module and the FAQs</b><span class="mono">Orientation Module (1).pptx</span> (9MB) and <span class="mono">Curia Staff FAQS May 2024 (2).doc</span>, from the 19 February email, into <span class="mono">/sites/callsheets/Shared Documents/Resources</span>. The pptx is over the connector's 1MB upload cap, so this one cannot be done for you. Then paste both links into the resources post in Slack: the version live now has <b style="display:inline">no links at all</b> on items 1 and 2, and there is a duplicate copy of the post to delete. The links only open for callers once item 2 is done.</li>
@@ -1256,7 +1267,7 @@ unless the file or its label changes.</div>
       <li><b>5. Fix the folders named from a guess</b><span class="mono">Juvylyn Abe</span> and <span class="mono">Karen Boiser</span> were inferred from email handles because they never set a Slack display name. Ask them to set Profile &rarr; Full name and the folders get corrected automatically. <b style="display:inline">Jane is already fixed</b> — that folder now reads <span class="mono">Jane Labora</span>, so the earlier <span class="mono">Jane Wareei</span> entry here was stale. Note Zoom shows a <b style="display:inline">third</b> spelling, <span class="mono">Jane Wary Rose Espanueva</span>, which may or may not be the same person.</li>
       <li><b>6. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</li>
       <li><b>7. Add <span class="mono">NA</span> to the results format before the next shift posts</b>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</li>
-      <li><b>8. Paste columns A, B and F of the Curia schedule for 13–17 September</b>Five rows: date, poll, PL staff confirmed. The schedule cannot be read past 2022 through the connector, so the dummy roster is running on a placeholder of 22 a night and "Poll TBC". These five rows turn it into the real one. Longer term this is the Apps Script's job.</li>
+      <li><b>8. <strike>Paste the Curia schedule rows</strike> — done, and it was never yours to do</b>This asked you to paste columns A, B and F because the schedule "could not be read past 2022". It could: <span class="mono">get_file_metadata</span> with <span class="mono">MAX_ALLOWED</span> returns the whole sheet where <span class="mono">read_file_content</span> truncates. The week is read, the roster is on real polls and headcounts, and the ask should never have existed. Left here rather than deleted.</li>
       <li><b>9. Settle five Slack names, one word each</b><span class="mono">Jane</span> (Jane Labora — confirm she is <b style="display:inline">not</b> Zoom's Jane Wary Rose Espanueva), <span class="mono">boiserkaren21</span> (Karen Boiser?), <span class="mono">Goldy Kaye</span> (Goldy Maglasang?), <span class="mono">CJ</span> (Jahm Peralta?), <span class="mono">Cha</span> (Chary Jay Sanchez, or someone else?). All five ticked ✓ and sit out of every roster until you say. Same person / not — nothing more.</li>
       <li><b>10. Decide on a roster floor</b>With none, the dummy run gives the same 17 people all five nights and 17 voters nothing, and a new starter can never get a first shift because there is no history to rank them on. Options: everyone who ticks ✓ works at least once a week; or the bottom five slots rotate; or no floor. One line from you and it is built either way.</li>
       <li><b>11. Add <span class="mono">cmix.com</span> to the Pacific Link environment's allowlist, and paste one working Test link</b>The environment only allows zoom.us, so no survey can be opened from it. And the Test links in Curia's emails arrive corrupted — every <span class="mono">=</span> in the query string is a control character — so one pasted from wherever the callers get it is needed. The Live link is never opened. Only worth doing if you want the per-poll threshold idea pursued.</li>
@@ -1337,7 +1348,10 @@ unless the file or its label changes.</div>
     match the articles below them: 5 blocked, 2 working but still tuning, 9 awaiting a decision — 16 open, plus 10 closed and removed.
     Two small corrections on 12 September, 2.20pm: the lede said six entries were closed in the
     trim when the list held nine, and the measurement entry still carried a "thresholds need
-    calibrating" tag one article after saying calibration was settled. Both fixed.
+    calibrating" tag one article after saying calibration was settled. Both fixed. A third and
+    larger one at 3.05pm: this register declared the Curia schedule unreadable past 2022 and turned
+    that into an ask for Brendon. It was readable through a different call the whole time. The
+    entry and the ask are both struck through rather than removed.
   </footer>
 
 </div>

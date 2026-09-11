@@ -394,8 +394,8 @@ unverified.
 - the Zoom call logs of Sun 6 – Thu 10 Sep: 98 caller-shifts, 35 callers;
 - the ✅ reactions on the five day messages in `#availability-pacificlinkglobal`
   (34–41 per day, 43 distinct people);
-- a **placeholder** headcount of 22/day and "Poll TBC" on every day, because
-  columns B and F of the Curia schedule cannot be read for 2026.
+- **the real polls and headcounts**, once the schedule turned out to be readable
+  after all (above): 80 slots, not the 110 the first pass guessed at 22/day.
 
 **Ranking, as Brendon specified:** completes per shift *and* time off the phone
 per shift, combined — a Borda sum of the two ranks, lower is better, ties
@@ -405,8 +405,10 @@ to 4× Elaine's on some callers. The dashboard's "Clean" column was relabelled
 
 What the dummy run showed, all recorded on the page itself:
 
-- **17 people take all five nights; 17 of the 43 who voted get none.** No floor
-  was applied. Brendon has been asked whether he wants one.
+- **8 people take all five nights; 19 of the 43 who voted get none**, and 24
+  people cover all 80 slots. No floor was applied. A 3-shift-per-week cap
+  spreads the same 80 slots across 28 people and still fills every one — that
+  comparison is on the page. Brendon has been asked which he wants.
 - **10 voted ✅ and have no call history to rank on**, so a pure ranking can
   never give them a first shift: Bryan Canton, Charlotte Gimpes, Hermi, Ian
   Christopher, Jellame Malicay, Kris, Marynel Joy Reanturco, Rechiell W.,
@@ -663,7 +665,9 @@ from Slack. Only **Poll** needs a source — Curia's survey email names it.
     be enrolled in the Google Workspace Developer Preview Program.
 
 Confirmed live on both `get_values` and `get_spreadsheet`, 12 Sep 2026. Not a
-permissions problem on the sheet and not fixable from a session.
+permissions problem on the sheet and not fixable from a session. **Writing is
+genuinely blocked; reading is not** — see the schedule section for the
+`get_file_metadata` + `MAX_ALLOWED` route that returns a whole sheet.
 
 **Reading it works** — `mcp__Google_Drive__read_file_content` on the sheet ID
 returns the whole thing as markdown tables. So the connector can read the sheet
@@ -734,13 +738,37 @@ runs.
 `PL Staff Confirmed` and `Extra PL Staff Required Day of Shift` are the two
 numbers that say how many Pacific Link callers a given day needs.
 
-**Reading it is incomplete.** `Google_Drive__read_file_content` returns the
-sheet from April 2022 and truncates partway through September 2022 — it never
-reaches 2026, even though the file was modified 11 Sep 2026. Either the
-workbook has a tab per year and only the first came back, or one long sheet is
-being cut off. The Sheets API would solve it and is blocked (see the results
-page section). **Unresolved — ask Brendon which tab holds the current rows, or
-reach it through Apps Script.**
+**How to read it — this was got wrong once, do not repeat the mistake.**
+`Google_Drive__read_file_content` returns the sheet from April 2022 and
+truncates partway through September 2022, never reaching 2026. On 12 Sep that
+was written up here and in the register as "cannot be read past 2022" and
+"needs Apps Script". **That was wrong.** The whole sheet is reachable:
+
+    mcp__Google_Drive__get_file_metadata(fileId=..., snippetVerbosity="MAX_ALLOWED")
+
+returns the entire sheet as CSV in `contentSnippet` — ~58,000 characters,
+2022 through 2026. It overflows the tool result, so it is saved to a file under
+`tool-results/` and grepped from there rather than read inline. The same trick
+works on `search_files` with `snippetVerbosity: MAX_ALLOWED`.
+
+**So: when a Drive read truncates, try `get_file_metadata` with MAX_ALLOWED
+before concluding the data is unreachable.** Applies to the Curia results page
+too, and probably to any large Google Sheet.
+
+**A day with two polls uses a continuation row** — the second poll sits on its
+own row with the date cell empty:
+
+    Wednesday 16-Sep-26,Rotorua 400,100,300,10,10
+    Tukituki 400,100,300,10,10
+
+That is 20 PL callers on the Wednesday, ten per poll, and the roster has to
+split them. `curia.py` was already built for these continuation rows.
+
+The week of 13-17 Sep 2026, read live 12 Sep: **Sun Hutt South 400 (10) ·
+Mon ACT 1000 (20) · Tue ACT 1000 (20) · Wed Rotorua 400 (10) + Tukituki 400
+(10) · Thu WCT 400 (10)** — 80 slots. This independently confirms the poll
+names in the 9 Sep dashboard, which had been flagged here as unverified; they
+were right.
 
 ## How Brendon works
 
