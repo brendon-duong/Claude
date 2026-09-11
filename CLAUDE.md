@@ -411,6 +411,57 @@ loop. Get the off-phone measure reconciled first, then draft, then let Brendon
 send. **Draft everything, send nothing still applies and has not been
 relaxed.**
 
+## Curia's own auditor: raw call logs in Drive
+
+Curia audit Pacific Link independently and need the raw phone records. They
+live in Brendon's Drive at **`1ItFWjAuL_k9dpsZ4wR9Z6ixtcqUBvO-1`** — that ID is
+the **2026** folder, not a year index — as `Month / D-M / <Caller>.csv`. The day
+folder is named `10/9`, no leading zeros. A new year means a new year folder.
+Elaine has been exporting these by hand from the Zoom console after every
+shift, one caller at a time.
+
+`business_agent/calllog_export.py` builds the same files from the API:
+
+    python3 -m business_agent.calllog_export [YYYY-MM-DD] --out DIR
+
+**This is not the audit.** Nothing in it judges anyone; it is the call log,
+reproduced. `audit_day` is the module that scores a shift.
+
+Verified against Elaine's real export of 10 September: **row counts match
+exactly** (170 for Eunilyn Lisondra against her 170), and the phone-number
+formatter matches on **36 of 36** number shapes taken from that file.
+Sixteen of the eighteen columns are reproduced. Two caveats, both real:
+
+- **`Device` cannot be reproduced.** The console names the softphone build
+  (`Windows_Client(7.1.5.43453)`); the `call_logs` API returns it in no field.
+  The column is written empty rather than guessed.
+- **The API and the console spell two results differently** — `Call Cancel` for
+  `Call Cancelled`, `Call connected` for `Call Connected`. `EXPORT_RESULT` maps
+  them, so do not "fix" either vocabulary to match the other.
+
+Times in these files are **New Zealand**, not Manila — that is what the console
+exports and what Curia already hold. The shift audit is Manila. Do not
+unify them.
+
+Number grouping is libphonenumber's and cannot be restated as a rule. Only
+`0210` and `0274` group as four digits; `0211`, `0212` and `0273` group as
+three. **Do not add a prefix to `_FOUR_DIGIT` on a hunch** — check it against a
+real exported file first, and `check_formatting` measures a rebuild against one.
+
+Two open decisions, both Brendon's:
+
+- **28 files or 22.** The API finds 28 people with calls on 10 September;
+  Elaine uploaded 22, leaving out six who made a single call each and were
+  never on shift. More faithful is 28; consistent with what Curia already hold
+  is 22.
+- **Filenames.** Elaine names them by Zoom display name (`katherine boiser.csv`,
+  lowercase and all) with one exception: `Khars -` she writes as
+  `Kharen Ybas.csv`. The exporter uses the Zoom name for everyone, so that one
+  file would arrive named `Khars -.csv`.
+
+**Nothing has been written into that Drive folder yet.** Curia's auditor reads
+it, so the first upload is Brendon's call, not a session's.
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,

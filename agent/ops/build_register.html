@@ -286,7 +286,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 12 September 2026, 4.40am</div>
+    <div class="eyebrow">Build register · updated 12 September 2026, 5.20am</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       A running record of the Pacific Link agent: what it already does unattended, what it
@@ -294,12 +294,12 @@
       someone technical — the constraints are stated with the actual API behaviour that
       causes them, so nobody has to rediscover them.
     </p>
-    <div class="meta">12,446 lines · 543 tests passing · branch claude/business-agent-dev-9jxs55</div>
+    <div class="meta">12,846 lines · 561 tests passing · branch claude/business-agent-dev-9jxs55</div>
 
     <div class="tally">
       <div><span class="dot" style="background:var(--blocked)"></span><b>3</b> hard blockers</div>
       <div><span class="dot" style="background:var(--waiting)"></span><b>6</b> need a decision</div>
-      <div><span class="dot" style="background:var(--live)"></span><b>9</b> solved</div>
+      <div><span class="dot" style="background:var(--live)"></span><b>10</b> solved</div>
       <div><span class="dot" style="background:var(--sky)"></span><b>10</b> to do tomorrow</div>
     </div>
   </header>
@@ -1020,6 +1020,55 @@ unless the file or its label changes.</div>
 
       <article class="item pending">
         <div class="item-head">
+          <h3>Curia's own auditor — raw call logs, rebuilt from the API</h3>
+          <span class="tag t-worked">Built &amp; verified</span>
+          <span class="tag t-pending">Nothing uploaded yet</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>The job</dt><dd>
+            Curia audit Pacific Link <em style="font-style:normal">independently</em> and need the
+            raw phone records. They sit in Drive as <span class="mono">Year / Month / D-M /
+            &lt;Caller&gt;.csv</span>. Elaine has been exporting them from the Zoom console by
+            hand, one caller at a time, after every shift. <strong>This is not the audit</strong> —
+            nothing in it judges anyone.
+          </dd></div>
+          <div class="row"><dt>Verified, not assumed</dt><dd>
+            Rebuilt from the API and checked against her real 10 September export:
+            <strong>row counts match exactly</strong> — 170 for Eunilyn Lisondra against her 170 —
+            and the phone-number formatter matches on <strong>36 of 36</strong> number shapes
+            taken from that file. Sixteen of the eighteen columns reproduce.
+          </dd></div>
+          <div class="row"><dt>Two columns that cannot</dt><dd>
+            <strong><code>Device</code> is not in the API at all.</strong> The console names the
+            softphone build; <code>call_logs</code> returns it in no field, so the column is
+            written empty rather than guessed. And the API spells two results differently from the
+            console — <code>Call Cancel</code> for <code>Call Cancelled</code> — which is mapped,
+            not "corrected".
+          </dd></div>
+          <div class="row"><dt>A trap worth writing down</dt><dd>
+            These files are in <strong>New Zealand time</strong>; the shift audit is in Manila.
+            Both are right and they must not be unified. Number grouping is libphonenumber's:
+            <code>0210</code> and <code>0274</code> group as four digits, <code>0211</code> and
+            <code>0273</code> as three. That was found by a rebuilt file disagreeing with a real
+            one, not by reasoning.
+          </dd></div>
+          <div class="row"><dt>Two decisions before anything is uploaded</dt><dd>
+            <strong>28 files or 22.</strong> The API finds 28 people with calls on 10 September;
+            Elaine uploads 22, leaving out six who made one call each and were never on shift.
+            And <strong>filenames</strong> — she names them by Zoom display name except Khars,
+            whom she writes as <code>Kharen Ybas.csv</code>.
+          </dd></div>
+          <div class="row"><dt>And it cannot be scheduled yet</dt><dd>
+            The same wall as Slack: <strong>a Routine gets no connectors</strong>, so the 6pm
+            session cannot write to Drive either. Until Brendon attaches them in the Routines UI,
+            uploading is a chat-session job. <strong>Nothing has been written to that folder</strong> —
+            Curia's auditor reads it, so the first upload is his call.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item pending">
+        <div class="item-head">
           <h3>Slack free plan: 90 days of history</h3>
           <span class="tag t-pending">Plan for it</span>
         </div>
@@ -1320,7 +1369,8 @@ unless the file or its label changes.</div>
       <div><b>Calibration against the manual audit</b> — completes 19/22 exact, call counts 21/22</div>
       <div><b>audit_day CLI</b> — one day in Elaine's seven columns, xlsx and JSON, offline-testable</div>
       <div><b>Settled names</b> — roster and every confirmed spelling in code; a shared first name is ambiguous</div>
-      <div><b>6pm Manila Routine</b> — fresh cloud session daily, Zoom + Slack, report to Brendon only</div>
+      <div><b>6pm Manila Routine</b> — fresh cloud session daily, Sun–Thu, report to Brendon only</div>
+      <div><b>Call log exporter</b> — Curia's per-caller CSVs rebuilt from the API; 36/36 number formats</div>
     </div>
   </section>
 
@@ -1339,7 +1389,7 @@ unless the file or its label changes.</div>
       <li><b>6. "Auto Recorded" — answered, and you can stop worrying about it</b>Nothing to do here any more. Treating it as "a human picked up" produces <b style="display:inline">197 completes on 10 September against Elaine's 204</b>, agreeing exactly on 16 of 22 callers. If the assumption were wrong the numbers would not land within 3% of a hand count. Left here only so nobody reopens it.</li>
       <li><b>7. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</li>
       <li><b>8. Add <span class="mono">NA</span> to the results format before the next shift posts</b>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</li>
-      <li><b>9. Attach Slack to the 6pm Routine, in the Routines UI</b>The Routine <span class="mono">Shift audit — 6pm Manila</span> exists and will fire at 10:00 UTC tomorrow, but it was created from a session and the API will not hand a session's connectors to a Routine for this organisation — so it runs with none. Open it in the claude.ai Routines UI and attach <b style="display:inline">Slack</b>. Until you do, each 6pm run sends you the call-log half only, and the declared half from <span class="mono">#results-pacificlinkglobal</span> has to be merged by hand or in a chat session. Five minutes, once.</li>
+      <li><b>9. Attach Slack and Google Drive to the 6pm Routine, in the Routines UI</b>The Routine <span class="mono">Shift audit — 6pm Manila (Sun–Thu)</span> fires at 10:00 UTC, but it was created from a session and the API will not hand a session's connectors to a Routine for this organisation — so it runs with <b style="display:inline">none</b>. Open it in the claude.ai Routines UI and attach <b style="display:inline">Slack</b> (for the declared numbers) and <b style="display:inline">Google Drive</b> (to upload Curia's call logs). Until you do, each run sends you the call-log half only and uploads nothing. Five minutes, once — and it is the single thing gating the whole loop running unattended.</li>
       <li><b>10. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</li>
     </ol>
 
@@ -1363,7 +1413,7 @@ unless the file or its label changes.</div>
     calls answered), the reading of <code>notSupported</code> as harmless, and the claim that the
     Zoom allowlist stays on once configured — it is per environment. All three are left visible
     above with what was wrong about them. The counters were also off — they now
-    match the articles below them (3 blocked, 9 working, 6 awaiting a decision, 18 in total).
+    match the articles below them (3 blocked, 10 working, 6 awaiting a decision, 19 in total).
   </footer>
 
 </div>
