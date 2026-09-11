@@ -520,6 +520,62 @@ Do **not** replace this with round-robin (A, B, A, B…). Straight alternation
 hands every odd-numbered pick to the same poll and A ends up ahead by roughly
 half a rank on every round; the reversal is what cancels it.
 
+### The third Routine — the weekly roster draft
+
+**`trig_01RgT6rGxMXmu6XgtyQ96tse`, "Weekly roster draft — Saturday 6pm Manila"**,
+created 12 Sep 2026 on Brendon's instruction. `0 10 * * 6` — Saturday 10:00 UTC,
+which is 6pm Manila and the availability deadline itself. Same environment as the
+other two (`env_01Tbj77FEPUKBePCjAFhG2Jn`). **Model: `claude-fable-5-1`**, on
+Brendon's explicit ask that the roster run on Fable.
+
+**The roster post and the Saturday Routine are the same job.** A session once
+listed them as two separate tasks; Brendon corrected it. There is one weekly
+action: at the deadline, draft the roster and hand it to him.
+
+**It is the whole week, sent as one message per day.** Brendon, 12 Sep: "when I
+mean we post the roster on Saturday it's for the full week, but we will send
+them in separate messages." Five shift days means five messages, never one
+combined post. Each carries the day, the shift time, each poll with its callers
+as `<@USERID>` mentions, a ✅-to-acknowledge line, and a pointer to
+`#shift-changes-pacificlinkglobal` for anyone who cannot make it.
+
+It reads the Curia schedule for the week ahead (detecting no-shift days from a
+blank or holiday Poll cell rather than assuming Sun–Thu), reads the ✅ reactions,
+ranks on the 75/25 score from the week just finished, snake-drafts any two-poll
+day, and reports the per-poll balance so the split is checkable. It **posts
+nothing** — the drafts go to Brendon and he sends them.
+
+Like the other two it was created from a session and so **stores no connectors**.
+It needs **Slack and Google Drive** ticked in the claude.ai Routines UI — both,
+not one: Slack for the availability reactions and the user IDs, Drive for the
+schedule. The prompt tells it to stop and say so if either is missing.
+
+### Slack user IDs are the mention key, and the member list is the identity map
+
+`slack_list_channel_members` on `#roster-pacificlinkglobal` (`C0C1QK30EHE`) with
+`response_format: "detailed"` returns **user ID, real name and email** for every
+member, ~51 people over two pages. That single call is both the identity map and
+the source of the `<@USERID>` strings a roster needs. Use it rather than
+resolving names one at a time.
+
+Two things it settled or exposed, 12 Sep:
+
+- **Kharen's own Slack Real Name is `Kharen Ybas`** — and her email is
+  `pihanakharenmae@gmail.com`. So *both* surnames are hers: Pihana in the
+  address, Ybas on the profile. **Elaine's `Kharen Ybas` spelling is not an
+  error**, it is what Kharen calls herself, which is why Curia's folder has it.
+  The call sheet folder `Kharen Mae Pihana` is the outlier. Still ask before
+  either reaches a contract or an invoice, but the clash is now explained.
+- **Leizel's Slack Real Name is `Leizel Chun`**, against `leizel boiser` in Zoom
+  and `leizelboiser4@gmail.com` as her address. Almost certainly one person —
+  the email handle matches Zoom — but the surname differs, so it is **reported,
+  not merged**, like every other name clash. The roster uses Leizel Boiser.
+
+Also worth knowing: **Slack usernames are the email local-part** for nearly
+everyone in this workspace (`@janewareei919`, `@boiserkaren21`,
+`@crystaljahmperalta`). That is why email works as the join key and display
+names do not.
+
 
 ## Curia's call sheet codes — what a caller writes against each number
 
@@ -579,10 +635,6 @@ wrong, and the wrong half matters.**
   draft-everything-send-nothing; it has not been made.
 
 The three states rule bites here: a caller who reacts ✅ is available, ❌ is
-unavailable, and **no reaction at all is the third state** — silence, not
-refusal. Never collapse ❌ and no-answer.
-
-Note the three states rule bites here: a caller who reacts ✅ is available, ❌ is
 unavailable, and **no reaction at all is the third state** — silence, not
 refusal. Never collapse ❌ and no-answer.
 
