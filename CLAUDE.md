@@ -391,6 +391,37 @@ reproducible and restores Elaine's second check. Without it the declared total
 cannot be computed at all, because `NA` was the largest category on 10
 September.
 
+## The Slack workspace — all five channels, read live 12 Sep 2026
+
+| Channel | ID | What it is for |
+|---|---|---|
+| `#all-pacific-link-global` | `C0C0ERD765D` | announcements, company news |
+| `#availability-pacificlinkglobal` | `C0C0UAF9C0N` | **availability** — see below |
+| `#results-pacificlinkglobal` | `C0C0ZU714JG` | declared shift numbers |
+| `#roster-pacificlinkglobal` | `C0C1QK30EHE` | the roster, posted after the availability deadline |
+| `#shift-changes-pacificlinkglobal` | `C0C1RE146CQ` | can't make a shift — name, date, which one |
+
+The availability channel's own purpose text states the process:
+
+> Tell us when you can work. Every week we post the days ahead — tap
+> :white_check_mark: on each day you can work and :x: on each day you can't.
+> **Deadline: Saturday 6pm Manila.**
+
+And the roster channel's:
+
+> Find out if you're working. The roster goes up after the availability
+> deadline. You'll be @mentioned on your rostered days, with your call sheet
+> link.
+
+**Both channels are empty except for joins.** No availability message has ever
+been posted, so no one has ever reacted, so there is nothing yet to build a
+roster from. Same wall as the results channel: the design is written down, the
+data does not exist. Do not write a reaction parser against imagined content.
+
+Note the three states rule bites here: a caller who reacts ✅ is available, ❌ is
+unavailable, and **no reaction at all is the third state** — silence, not
+refusal. Never collapse ❌ and no-answer.
+
 ## The declared half is moving to Slack
 
 `#results-pacificlinkglobal` (`C0C0ZU714JG`). Checked live 11 Sep 2026.
@@ -596,6 +627,21 @@ the completes threshold stops being a flat 150s for every poll. Worth doing.
 **Never open the Live link.** It is Curia's real data collection — fetching it
 can register as a partial response and pollute the dataset they are paid to
 produce. The **Test** link is the one built for this. Ask before opening either.
+
+Two things block reading a survey today, both checked live 12 Sep 2026:
+
+- **`cmix.com` is not on the network allowlist.** `curl https://test.cmix.com/`
+  and `https://survey.cmix.com/` both return `000` from the `Pacific Link`
+  environment, which allows only `zoom.us` and `api.zoom.us`. The environment
+  needs `cmix.com` added before any of this is possible.
+- **The Test links arrive corrupted.** In the raw HTML `href`, not just the
+  plaintext, the `=` signs have become control characters:
+  `https://test.cmix.com/#/?cmixPrj\u00168286&cmixLocale@0182&cmixSampleSourcea0159&cmixTest\u0015E336B6`.
+  Seen on two separate emails ("Fwd: NZ tonight", "Fwd: ACT link"), mangled the
+  same way each time, so it is how they arrive and not an extraction artifact.
+  The Live links are intact; the Test links are not. **Do not guess the missing
+  characters** — a wrong guess could land on a live survey. Ask Brendon to paste
+  a working test link.
 
 Note the 150s flat threshold is Elaine's own and currently agrees with her on 19
 of 22 callers. A per-survey threshold has to be validated against real data
