@@ -150,7 +150,18 @@ directory or into this file. That is the whole of the memory.
   that votes independently on the same messages. Zoom also has a bare `cha`
   alongside `chary jay sanchez`. Not merged; she is left unrankable until
   Brendon confirms against the email rather than the display name.
-- **`Jane` — the surname is contested and it does not matter yet.** Brendon said
+- **`Jane` is Jane Wary Espanueva — settled 16 Sep by her own call sheet.** The
+  Slack account `janewareei919@gmail.com` posted a call sheet for 15 September
+  headed **JANE WARY ESPANUEVA**. So this account is Zoom's
+  `jane wary rose espanueva`, she **is** rankable (she has call history under
+  that name), and the entry below is superseded. Two things this file previously
+  asserted are now wrong: that she is Jane Labora, and that "Jane Wary Rose
+  Espanueva is a real, separate caller" who could not be tied to this account.
+  Brendon said "that is Jane Wareei" on 12 Sep, which matches the account handle
+  and is closer to her sheet than Labora is. **Confirm the exact spelling with
+  her before it reaches a contract, an invoice or a call sheet folder** — but do
+  not re-open whether she is Labora.
+- **~~`Jane` — the surname is contested and it does not matter yet.~~** Brendon said
   12 Sep "that is Jane Wareei". This file already records that **Jane Wareei was
   a wrong inference from `janewareei919@gmail.com`** and that she is Jane
   Labora. Both cannot be right. What is certain either way: she is **not** Zoom's
@@ -664,11 +675,11 @@ Two shifts in a day means two messages.
 sheets, which are unreadable and unfiled. But three things are true and easy to
 get wrong:
 
-- **The channel is empty.** Zero results posted as of 11 September; it was set
-  up the day before and holds only joins and the pinned instructions. The
-  parser has never seen a real post. **Do not assume the format holds until
-  real messages exist** — people will write `12 completed` and `12 Completed`
-  and `completed: 12` and put the date in three formats.
+- **~~The channel is empty.~~ That was true on 11 September and is not any more.**
+  Real results have been posted every shift since Sunday 13 Sep: 11 posts
+  Sunday, 19 Monday, 21 Tuesday. The format drift predicted here happened
+  exactly as predicted — see the section below on what the real posts look
+  like.
 - **There is no total-calls figure in it.** Elaine's sheet compares *two*
   declared numbers against the logs: completed surveys **and total number of
   calls**. Completed + ring backs + refused is not total calls — it omits no
@@ -683,6 +694,147 @@ get wrong:
   email address**, and that is the first unambiguous join key this project has
   had — `janewareei919@gmail.com` ties the Slack `Jane` to the Jane Labora
   record above. Build the identity map on email, not on display names.
+
+### What the real declarations look like — read live 16 Sep 2026
+
+Three shifts are now on the record. What the posts actually contain:
+
+**GNA is the catch-all, not a narrow code. Brendon's rule, 15 Sep.** Anything a
+caller reports that is not a completed survey, a refusal, or a ring back goes
+into **GNA**. "Hang up", "Incomplete", "Not in service" — all GNA. This was got
+wrong once by leaving such counts out of the table entirely; he corrected it.
+His reading is also the only one that reconciles, because
+`C + RB + R + GNA = total calls` only works if GNA absorbs the remainder.
+
+**But almost nobody reports GNA at all.** Across 45 declarations over three
+shifts, **2 included a real GNA count** — both from Alie Mae Ybanez. So
+`Total No. of calls made` is computable on two rows out of 45. Folding a
+"Hang up" or "Incomplete" into GNA does **not** make a row complete: that
+caller still never reported their actual GNA, so leave Total blank and say why.
+**Never back-fill, estimate or infer a missing figure** — it goes to Curia as
+fact. Adding GNA to the pinned format is the fix and is an open ask.
+
+**Wording actually seen**, all meaning the same three things: `completed`,
+`Completed`, `competed`, `comps` · `ring backs`, `Ring backs`, `ringbacks`,
+`Ringbacks`, `RBs`, `RB's`, `Rbs`, `Ring back` · `refused`, `Refused`,
+`Refusal`, `Refuse`. Layout varies between one line and a labelled list.
+
+**THE SCREENSHOT IS THE DECLARATION. THE TYPED TEXT IS A LOSSY SUMMARY OF IT.**
+This is the single most important thing in this section and it was got badly
+wrong on 15 September: a whole day was reported to Brendon from the text alone,
+three callers were called "empty message" non-declarers, and GNA was reported as
+missing. **All of that was wrong.** Brendon corrected it, 16 Sep: *"you need to
+look at the screenshot that they sent for the results as well as if they send
+the results alongside the photo. If they don't write any details about their
+results please default to looking at the image."*
+
+**On Tuesday 15 Sep, 20 of 21 callers attached a call-sheet screenshot.** Read
+every one with `slack_read_file` on the file ID from
+`slack_read_channel(response_format="detailed")` — the concise format does not
+show attachments at all, which is how this was missed. A message with no text
+and one image is a normal, complete declaration.
+
+What the sheets contain that the text does not: **GNA** (present on 20 of 21
+sheets, against 1 of 18 text posts), **time in and time out**, **break times**,
+and **shift notes**. They also carry the caller's own **Total calls**, and on
+all 20 sheets **GNA + RB + R + C reconciles to that total exactly** — which is
+both a strong check on the reading and proof that Brendon's catch-all rule is
+the right one.
+
+**Where text and sheet disagree, the sheet wins**, because it reconciles. Say so
+rather than silently choosing: Erika Jane Boiser typed 69 ring backs and 32
+refused where her sheet says 62 and 29; Goldy Kaye's text omitted ring backs
+altogether where her sheet has 36.
+
+**There is no shared template — at least eight layouts are in use**, with row
+labels including GNA, Inactive, Not Active, Not Available, Hang up, Incomplete,
+Unqualified, Disqualified, Already Done, Do Not Call, Busy line/Disconnected,
+Dialed RBs and Callback. Map per sheet, keep a record of what went into GNA for
+each caller, and never assume the previous caller's layout. One shared template
+is an open ask.
+
+A caller who posts **text only and no sheet** is the exception now, not the rule
+— on Tuesday that was Lovely Salva alone, and she is the only one with no GNA
+and no total.
+
+**Date errors are common and are typos, not duplicates.** Alie Mae wrote
+"Mon 15 Sept" (15 Sep is a Tuesday); Jane Wareei wrote "Tuesday 14 September"
+while also posting a separate genuine Monday result. **Read the date the caller
+wrote, but check it against the post timestamp and the roster**, and say when
+the two disagree rather than silently picking one.
+
+**Posting runs 8pm to 11:30pm NZ, and sometimes past midnight.** Sunday
+20:00–21:18 · Monday 20:11–23:26 plus one at 01:21 the next morning · Tuesday
+20:32–23:09. **A 10pm NZ collection is too early** — it would have missed Goldy
+on Tuesday and both Lovely and Nilyn on Monday. Flagged to Brendon; he has not
+moved it yet.
+
+**People work shifts they are not rostered on.** Gerard Siason, Jane Wareei and
+Goldy declared on days they were not posted for; Jayzel Pureza and Cherry Jean
+did the same. Most have a matching offer in `#shift-changes-pacificlinkglobal`.
+**CJ (Crystal Jahm Peralta) declared on Monday with no roster spot and no
+pickup offer on record** — unresolved. Always cross-check declarations against
+both the roster post and the shift-changes channel, and report anyone who
+appears in neither.
+
+**The declared figures, 13–15 September**, for reference and to catch a future
+regression:
+
+| Day | Poll | n | GNA | RB | R | C |
+|---|---|--:|--:|--:|--:|--:|
+| Sun 13 | Hutt South 400 | 11 | 0 | 1,007 | 550 | **135** |
+| Mon 14 | ACT 1000 | 16 | 25 | 1,189 | 565 | **61** |
+| Tue 15 | ACT 1000 | 18 | 71 | 1,424 | 667 | **73** |
+
+**The poll dominates completes, not the caller.** Hutt South 400 returned 12.3
+completes per caller; ACT 1000 returned 3.8 and 4.1 with largely the same
+people. Kharen went 20 → 4 → 5 across the three days. **Never compare a
+caller's completes across different polls**, and do not read a drop as a
+performance problem — the rostering score already normalises within a window,
+but any report shown to Brendon or Curia should name the poll beside the
+number.
+
+### The fourth Routine — declared results for Curia
+
+**`trig_01STiXp444UCGUpdqWzUyxjK`, "Declared results for Curia (Sun–Thu)"**,
+created 15 Sep 2026 on Brendon's instruction. `0 10 * * 0-4`, same environment
+as the others. Reads `#results-pacificlinkglobal`, maps to GNA/RB/R/C under the
+catch-all rule above, refuses to guess at anything ambiguous, cross-checks
+against the roster and shift-changes, and sends Brendon a CSV. Posts nothing.
+Created with `notifications: {push: true, email: true}` — the parameter only
+exists on `create_trigger`, so set it then or not at all. Needs **Slack**
+attached in the Routines UI.
+
+### A Routine carries its own repository, and none of them had one
+
+**Every Routine created from a session comes back with `sources: []`** — no
+repository. The fired session has nothing at `/home/user/Claude`, so a prompt
+beginning `cd /home/user/Claude && git fetch …` dies on its first line. This is
+what blocked the roster Routine's first real run on 12 September, and it was
+missed when the first three were built because the repo is simply present in an
+interactive session.
+
+**Neither `create_trigger` nor `update_trigger` exposes a sources field.** Like
+connectors, it has to be set by Brendon in the claude.ai Routines UI:
+
+    repository  brendon-duong/Claude
+    branch      claude/business-agent-dev-9jxs55
+
+Check this before assuming a Routine will run. A Routine can have its
+connectors correctly attached and still do nothing at all.
+
+### LibreOffice does not start in this environment
+
+`scripts/recalc.py` from the xlsx skill times out at 89s and again at 299s on a
+60-row workbook, returning `{"error": "LibreOffice timed out"}` — which means
+nothing was recalculated, not that formulas failed. So **xlsx formulas written
+here cannot be machine-verified**. Verify the arithmetic independently in Python
+and check each formula's range by reading it back with `openpyxl`, then say
+plainly in the reply that the recalculation check could not be run. Formulas
+written by `openpyxl` carry no cached value and read as blank in a previewer
+until Excel or Google Sheets opens and recalculates them — that is expected and
+worth telling Brendon so he does not think the file is broken.
+
 
 ### Messaging callers about their own numbers — not yet
 
