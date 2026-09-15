@@ -13,7 +13,23 @@ Develop on `claude/business-agent-dev-9jxs55`.
 
 `agent/ops/build_register.html` is the source of a published page Brendon hands
 to a technical friend. It is **published at**
-`https://claude.ai/code/artifact/4035704f-d01f-4d87-be18-32ac1e2db882`.
+`https://claude.ai/artifact/8vsP66xc5kusdXZmvn5bms`.
+
+**The artifact URL format changed on 15 Sep 2026.** The old form
+`https://claude.ai/code/artifact/4035704f-d01f-4d87-be18-32ac1e2db882` still
+addresses the same artifact and is what `url:` should be passed as when
+republishing, but `action: "list"` now returns the short form above. Both point
+at one artifact; do not treat them as two. Same for the dashboard: short form
+`https://claude.ai/artifact/4bJeNVa9Drme8zBtky7SZA`, long form
+`https://claude.ai/code/artifact/1d1593ee-8975-4f06-8b98-f6a2fcb624dd`.
+
+**Another session may be publishing it at the same time.** On 16 Sep a publish
+was refused because a concurrent session had published a newer version. The
+refusal saves the live source to a file and names it: read that file **in full**,
+merge onto it, and publish from the merged copy — do not resend your own version
+and do not rebuild from memory. In that instance the other session's entry was
+better first-hand reporting than the local one, and the right move was to drop
+the local duplicate rather than keep both.
 
 **Update it as part of the work, not when asked.** Brendon should never have to
 request it. Any session that learns one of the following updates the file and
