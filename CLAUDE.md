@@ -715,20 +715,55 @@ get wrong:
 
 Three shifts are now on the record. What the posts actually contain:
 
-**GNA is the catch-all, not a narrow code. Brendon's rule, 15 Sep.** Anything a
-caller reports that is not a completed survey, a refusal, or a ring back goes
-into **GNA**. "Hang up", "Incomplete", "Not in service" — all GNA. This was got
-wrong once by leaving such counts out of the table entirely; he corrected it.
-His reading is also the only one that reconciles, because
-`C + RB + R + GNA = total calls` only works if GNA absorbs the remainder.
+### The allocation table — settled by Brendon, 15 and 16 Sep. Do not re-derive it.
 
-**But almost nobody reports GNA at all.** Across 45 declarations over three
-shifts, **2 included a real GNA count** — both from Alie Mae Ybanez. So
-`Total No. of calls made` is computable on two rows out of 45. Folding a
-"Hang up" or "Incomplete" into GNA does **not** make a row complete: that
-caller still never reported their actual GNA, so leave Total blank and say why.
-**Never back-fill, estimate or infer a missing figure** — it goes to Curia as
-fact. Adding GNA to the pinned format is the fix and is an open ask.
+Callers do not use Curia's four codes. They use their own sheets, and **at least
+eight layouts are in use** with thirteen-plus different row labels. This table is
+how every one of them maps. It is settled; apply it, never guess past it.
+
+**The governing rule, in Brendon's words: if a person was REACHED, it is a
+REFUSAL.** That is what separates R from GNA, and it is the thing to reason from
+if a brand-new label ever turns up.
+
+| Code | Every label that maps to it |
+|---|---|
+| **C** | completed · Completed · COMPLETED · competed · comps |
+| **RB** | ring back · Ring back · ringback · Ringbacks · RB · RBs · RB's · Rbs · RB/VM · VM · Dialed RBs · Callback |
+| **GNA** | GNA · **NA** · GNA/Invalid · **Inactive** · Not Active · Invalid · Invalid/Not Active · Not Available · Disconnected · Busy line · Not in service |
+| **R** | refused · Refused · refusal · Refuse · **Disqualified · Unqualified · Not Qualified · Hang up · Do Not Call · Incomplete · INC · Already Done** |
+
+Three rulings worth stating plainly, because each was asked and answered:
+
+- **`NA` and `GNA` are one bucket.** The call sheets write NA; Curia's results
+  page column is called GNA. Same thing. Brendon, 16 Sep.
+- **`Inactive` means the same as GNA.** This matters because **14 of the 20
+  callers write GNA *and* Inactive (or Not Active) as separate rows on the same
+  sheet** — Jasmine had GNA 10 and Inactive 49, Karen GNA 14 and Inactive 50. The
+  split is theirs, not a distinction Curia wants. Both go into GNA.
+- **Disqualified, Hang up, Do Not Call and Incomplete are all refusals**, because
+  a person was reached in every case. An earlier pass put them in GNA; that was
+  wrong and it flattered the numbers by moving live contacts into the dead-number
+  bucket. On 15 Sep this was **74 calls** — Unqualified 50, Incomplete 11, Hang up
+  10, Do Not Call 3 — moving GNA 1,026 → 952 and R 785 → 859.
+
+**A label not in that table is not to be guessed at.** Leave it out of all four
+codes, record the caller's own wording and number, and ask Brendon once. A wrong
+mapping reaches Curia as fact.
+
+**Always show the working.** Output carries a *What GNA is made of* column and a
+*Counted as Refusal* column, so any row's allocation can be checked without
+re-reading the screenshot.
+
+**The reconciliation check is free and it works.** Most sheets carry the caller's
+own TOTAL CALLS. `GNA + RB + R + C` should equal it — on 15 Sep all 20 sheets
+matched exactly, before and after the re-allocation, so a mismatch is a real
+signal that a label was missed, not noise.
+
+**~~Almost nobody reports GNA at all — 2 of 45 declarations.~~ That was an
+artefact of reading only the typed text.** The screenshots carry GNA for 20 of 21
+callers, so `Total No. of calls made` is computable for almost everyone. What
+remains true: if a caller genuinely gave no GNA figure, **leave GNA blank and
+leave Total blank too**, and never back-fill, estimate or infer it.
 
 **Wording actually seen**, all meaning the same three things: `completed`,
 `Completed`, `competed`, `comps` · `ring backs`, `Ring backs`, `ringbacks`,
