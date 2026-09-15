@@ -27,6 +27,7 @@ Nothing is uploaded. It writes a local .xlsx for you to check and upload.
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 from datetime import date, datetime
@@ -268,17 +269,51 @@ def main(argv: list[str] | None = None) -> int:
     )
     multiple = len({title for _, title in pools}) > 1
 
-    out = Path(args.out) if args.out else Path(
-        f"{args.poll} - {args.day:%d-%m-%Y}.xlsx".replace("/", "-")
+    # Two output shapes, because they serve two different deliveries.
+    #
+    #   --out DIR  one workbook per caller. This is the shape the SharePoint
+    #              folders need: a caller's sheet lands in their own folder and
+    #              they see their own numbers and nobody else's.
+    #   --out FILE one workbook, a tab per caller. Fine when it goes to one
+    #              person, wrong to drop in a shared folder.
+    #
+    # The split is the default when --out names a directory or ends in a
+    # separator, since per-caller delivery is the direction this is going.
+    wants_dir = bool(args.out) and (
+        args.out.endswith(("/", os.sep)) or Path(args.out).is_dir()
     )
-    build_workbook(allocation).save(out)
+
+    if wants_dir:
+        out = Path(args.out)
+        out.mkdir(parents=True, exist_ok=True)
+        written = []
+        for block in allocation.blocks:
+            one = Allocation(
+                poll=allocation.poll,
+                day=allocation.day,
+                blocks=[block],
+                high_water=allocation.high_water,
+            )
+            # Named for the caller, so the file is self-identifying once it is
+            # sitting in a folder on its own.
+            safe = re.sub(r'[\\/:*?"<>|]', "-", block.caller).strip()
+            path = out / f"{safe} - {args.poll} - {args.day:%d-%m-%Y}.xlsx".replace("/", "-")
+            build_workbook(one).save(path)
+            written.append(path)
+        out_desc = f"{len(written)} file(s) in {out}/"
+    else:
+        out = Path(args.out) if args.out else Path(
+            f"{args.poll} - {args.day:%d-%m-%Y}.xlsx".replace("/", "-")
+        )
+        build_workbook(allocation).save(out)
+        out_desc = str(out)
 
     print()
     for block in allocation.blocks:
         origin = f"   from {sources[block.caller]}" if multiple else ""
         print(f"  {block.caller:28} {block.size:4} numbers   {block.label}{origin}")
     print()
-    print(f"{allocation.issued} number(s) to {len(allocation.blocks)} caller(s) -> {out}")
+    print(f"{allocation.issued} number(s) to {len(allocation.blocks)} caller(s) -> {out_desc}")
     for caller in allocation.unserved:
         print(f"  !! {caller} got nothing: the pools ran out")
     for title, mark in marks:

@@ -8,6 +8,7 @@ from datetime import date
 from pathlib import Path
 
 from business_agent.callsheet import PoolNumber
+from business_agent import make_callsheets
 from business_agent.make_callsheets import (
     allocate_across_pools,
     load_callers,
@@ -276,3 +277,74 @@ class TestLoadingAPool(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SplitOutput(unittest.TestCase):
+    """--out DIR writes one workbook per caller, not one shared workbook.
+
+    This is what per-caller folder delivery needs: a sheet dropped in someone's
+    folder must carry their numbers and nobody else's.
+    """
+
+    def _pool(self, path, rows):
+        from openpyxl import Workbook
+
+        wb = Workbook()
+        ws = wb.active
+        ws.append(["ID", "Phone"])
+        for i, number in rows:
+            ws.append([i, number])
+        wb.save(path)
+
+    def test_one_file_per_caller_each_holding_only_its_own_numbers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            pool = tmp / "Pool USE FROM 1.xlsx"
+            self._pool(pool, [(i, f"021 000 {i:04d}") for i in range(1, 7)])
+            callers = tmp / "callers.txt"
+            callers.write_text("Ann\nBo\n")
+            out = tmp / "sheets"
+            out.mkdir()
+
+            rc = make_callsheets.main([
+                "--poll", "Test 400", "--day", "2026-09-20",
+                "--pool", str(pool), "--callers", str(callers),
+                "--per-caller", "3", "--out", str(out),
+            ])
+            self.assertEqual(rc, 0)
+
+            from openpyxl import load_workbook
+
+            files = sorted(p.name for p in out.glob("*.xlsx"))
+            self.assertEqual(len(files), 2, files)
+            self.assertTrue(any(f.startswith("Ann") for f in files), files)
+            self.assertTrue(any(f.startswith("Bo") for f in files), files)
+
+            for name, expected in (("Ann", "021 000 0001"), ("Bo", "021 000 0004")):
+                path = next(p for p in out.glob("*.xlsx") if p.name.startswith(name))
+                wb = load_workbook(path)
+                self.assertEqual(len(wb.sheetnames), 1, f"{name}: {wb.sheetnames}")
+                ws = wb[wb.sheetnames[0]]
+                self.assertEqual(ws["B2"].value, expected)
+                numbers = [ws.cell(row=r, column=2).value for r in range(2, 5)]
+                self.assertEqual(len(numbers), 3)
+
+    def test_a_filename_still_writes_one_workbook_with_a_tab_each(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            pool = tmp / "Pool USE FROM 1.xlsx"
+            self._pool(pool, [(i, f"021 000 {i:04d}") for i in range(1, 7)])
+            callers = tmp / "callers.txt"
+            callers.write_text("Ann\nBo\n")
+            out = tmp / "day.xlsx"
+
+            make_callsheets.main([
+                "--poll", "Test 400", "--day", "2026-09-20",
+                "--pool", str(pool), "--callers", str(callers),
+                "--per-caller", "3", "--out", str(out),
+            ])
+
+            from openpyxl import load_workbook
+
+            self.assertTrue(out.exists())
+            self.assertEqual(len(load_workbook(out).sheetnames), 2)
