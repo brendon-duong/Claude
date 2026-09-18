@@ -1406,6 +1406,74 @@ the scale is not.** Do not grind it out again without asking; the routes worth
 taking are a folder he drags in, or an Apps Script inside his own account with
 no size cap, the same shape as `allocate_callsheet.gs`.
 
+## Call sheets: generation is DONE, and delivery has a route that avoids SharePoint
+
+Revisited 18 Sep 2026 on Brendon's ask. **568 tests pass** and the generation
+half was re-proved end to end against the live pool, not asserted:
+
+    Hutt South Numbers September 2026 USE FROM 4752.xlsx: 4975 rows,
+      resuming after 4751
+      Kharen Ybas     200 numbers  4752-4951
+      Tristan Philip   24 numbers  4952-4975
+      !! three callers got nothing: the pools ran out
+      rename the pool to: Hutt South Numbers September 2026 USE FROM 4976
+
+That independently reproduces the **224 numbers left of 4,975** figure this file
+already records, and it wrote one workbook per caller.
+
+**THE HIGH-WATER MARK LIVES IN THE FILENAME, NOT INSIDE THE FILE.** Downloading
+the pool from Drive under a different local name silently loses it: the first
+run of this test used `hutt_pool.xlsx`, reported "no mark in the title", and
+allocated from number 1 — handing out 1,000 numbers that were already spent.
+**Always keep Curia's exact filename when downloading a pool.**
+
+### The inputs are all in Google Drive already
+
+Found 18 Sep by `search_files`. The pools and the day sheets sit in a shared
+drive (`parentId 0AA2IL8tCFjvlUk9PVA`) owned by **`brendon.duong10@gmail.com`**
+— his personal Gmail, NOT the `pacificlinkglobal.com` M365 account:
+
+- `Hutt South Numbers September 2026 USE FROM 4752.xlsx` — `1WD6hFihOoy21NeQio4fYtf0K55p7VC7R`
+- `Ham West Number Aug 26 - USE FROM 2001.xlsx` — `1S7VPGWqHsZHuurdB5se4Ch2M77-TJhRP`
+- day sheets as `NZNP 500 - 08/09/2026`, `Hutt South 400 - 13/09/2026`, and so on
+
+`download_file_content` returns the xlsx base64; decoding gave **337,278 bytes,
+byte-exact against Drive's `fileSize`**, and `load_pool` read all 4,975 rows.
+So the input side needs nothing from Brendon.
+
+### Delivery: Drive can do what SharePoint cannot
+
+The recorded blocker is SharePoint — external sharing off, 48 folder shares, and
+**the M365 connector has no sharing call at all**. That is still true. But it is
+the wrong door:
+
+| | SharePoint (M365) | Google Drive |
+|---|---|---|
+| create folder | yes | yes |
+| upload file | yes | yes (proved 12 Sep with a real CSV) |
+| **share to one person** | **NO TOOL** | **`share_file(fileId, emailAddress, role)`** |
+
+**`share_file` grants to a named email address, not "anyone with the link".**
+That matters: the old Google call sheets were a security problem precisely
+because they were link-shared and forwardable. Granting `writer` to one caller's
+own address is the opposite of that, so this is not a return to the old mistake.
+
+So the whole chain is automatable with tools already in hand and **no 48 manual
+shares**: read the pool from Drive → `make_callsheets --out DIR` → upload each
+workbook → `share_file` it to that caller's own email → rename the pool to the new
+`USE FROM`. Caller emails come from `slack_list_channel_members`, which returns
+email for every member.
+
+**Not yet tested, and deliberately:** `share_file` to a real caller is an
+outward-facing act on a real person, so it stays behind Brendon's say-so. The
+upload leg itself is already proved by the 12 Sep CSV.
+
+**Open questions for him:** whether call sheets should move to Drive at all
+rather than waiting on SharePoint; whether a caller gets one file re-shared each
+day or a folder of their own shared once; and note `update_file` would be needed
+to rename the pool afterwards, which this file warns is destructive on content —
+check whether a rename can be done without touching content before relying on it.
+
 ## Curia's results page — the sheet Curia read
 
 `https://docs.google.com/spreadsheets/d/1H5xMVXnqBohxLDOcWHXNgPbeN0BoZ3BQWKzxZAlyRAQ`
