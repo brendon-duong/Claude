@@ -1469,10 +1469,55 @@ outward-facing act on a real person, so it stays behind Brendon's say-so. The
 upload leg itself is already proved by the 12 Sep CSV.
 
 **Open questions for him:** whether call sheets should move to Drive at all
-rather than waiting on SharePoint; whether a caller gets one file re-shared each
-day or a folder of their own shared once; and note `update_file` would be needed
-to rename the pool afterwards, which this file warns is destructive on content —
-check whether a rename can be done without touching content before relying on it.
+rather than waiting on SharePoint; and whether a caller gets one file re-shared
+each day or a folder of their own shared once. The rename worry is **resolved**:
+`update_file` is metadata only, so renaming a pool is safe and cannot touch its
+contents.
+
+### The NZNP 500 / ACT 1000 pool is CURIA'S FILE — checked 18 Sep 2026
+
+Brendon asked for numbers to be drawn from
+`https://docs.google.com/spreadsheets/d/1DWugvAGB2uPoUXlLZpSglFRxWG0Zjh7C`,
+shaded green as they are taken, and the title bumped to the id reached.
+
+    title      NZ Numbers 2026 - 2027 - USE FROM 6400.xlsx
+    owner      curiaresearch@gmail.com     <- CURIA'S, not Brendon's
+    size       6.3 MB, xlsx
+    shared     with Brendon 14 Sep 2026
+
+The `USE FROM 6400` mark is already in the filename, in the convention
+`make_callsheets` expects, so the resume point needs no work.
+
+**Two of his four steps are possible from a session and two are not:**
+
+| Step | From a session? |
+|---|---|
+| extract the numbers | **yes** — proved on the Hutt South pool |
+| allocate blocks per caller | **yes** — same |
+| **shade the used rows green** | **NO** |
+| rename to the id reached | **yes**, `update_file(fileId, title)` |
+
+**Shading is impossible from here for two stacked reasons**, and both need
+stating because fixing one does not fix the other:
+
+1. **The Drive connector has no write-cells call of any kind.** `update_file` is
+   metadata only — `fileId`, `title`, `parentId`.
+2. **It is an .xlsx, not a Google Sheet.** Cell shading cannot be applied to an
+   .xlsx sitting in Drive by anything; it is a file, not a sheet. It has to be
+   converted first, and `allocate_callsheet.gs` says the converted sheet then
+   becomes the new master.
+
+**`agent/ops/allocate_callsheet.gs` already does all four steps** — read pools,
+contiguous block per tab, shade green, rename with the mark — because it runs
+inside Brendon's own account. It is pointed at the old Wellington Bays pools and
+needs repointing. **Its header was right about `update_file` being metadata only
+while this file was wrong**; prefer the script's own notes on Drive behaviour.
+
+**Open, and blocking:** whether Brendon has EDIT access to Curia's file (the
+permissions call returns only the owner and will not show his own role);
+whether Curia accept their master being converted to a Google Sheet; and, if
+not, whether to take a copy into Brendon's Drive and make that the working pool,
+telling Curia where it got to instead of them reading their own file.
 
 ## Curia's results page — the sheet Curia read
 
@@ -1560,11 +1605,23 @@ genuinely blocked; reading is not** — see the schedule section for the
 returns the whole thing as markdown tables. So the connector can read the sheet
 and cannot write it.
 
-Do **not** try to write it with `Google_Drive__update_file`. That replaces file
-content wholesale and would destroy the merged header bands, the per-day totals
-and Curia's own Status column, on a live document Curia read. The routes are an
-Apps Script in Brendon's own account, enrolling that Cloud project, or a
-paste-ready block he pastes in himself.
+**CORRECTION, 18 Sep 2026: this file claimed `Google_Drive__update_file`
+"replaces file content wholesale" and would destroy the header bands and totals.
+THAT IS WRONG.** Read against the live schema, `update_file` takes only
+`fileId`, `title` and `parentId` — **it is metadata only**. It cannot write a
+cell, and it cannot damage this sheet, because it cannot touch content at all.
+`agent/ops/allocate_callsheet.gs` had it right in its own header the whole time
+and this file contradicted it.
+
+The correction does not change the conclusion, only the reason. **Writing to
+this sheet is still blocked** — by the Sheets connector's Cloud-project gate
+above, and because **the Drive connector has no write-cells call of any kind**.
+The routes are unchanged: an Apps Script in Brendon's own account, enrolling
+that Cloud project, or a paste-ready block he pastes in himself.
+
+**What `update_file` CAN do is rename a file and move it between folders**, and
+that is worth knowing — it is exactly what the "rename the pool to USE FROM n"
+step needs.
 
 ## Curia's survey links arrive by email
 
