@@ -920,6 +920,46 @@ would be invented. If the sheets turn up, the day can be rebuilt in minutes.
 10 Sep), which is the most likely reason nobody attached a sheet — the habit
 started on Monday. Every day after it has 20-of-21 attachment rates.
 
+**Brendon accepted this on 18 Sep**: *"I can see that no one has actually sent in
+their GNA's that is fine don't worry about it."* Sunday goes to Curia with GNA
+and Total blank.
+
+**Every one of the eleven Sunday posts was scanned against the full allocation
+table** — all thirteen GNA labels and all eight extra refusal labels. **Not one
+appears.** Every post is exactly the pinned three-number format, so there is no
+hidden fourth bucket to recover and nothing was missed by reading only the text.
+
+### DO NOT DERIVE GNA FROM THE ZOOM CALL LOGS — tested 18 Sep, it does not work
+
+The obvious idea is `GNA ≈ Zoom calls − (C + RB + R)`. It was tested properly
+against **Wednesday 16 September, where the real GNA is known from 24
+screenshots**, and it fails badly:
+
+    Zoom calls 6,155 − declared C+RB+R 3,869 = gap 2,286
+    real declared GNA                          = 1,492
+    gap overshoots by +794, a ratio of 1.53
+
+And the per-caller error is nowhere near constant, so no correction factor
+rescues it: Goldy +6, Gerard +8, Tristan +9 — but Mariel +98, Kiezel +112,
+Katherine +118. **The cause is redials**: Zoom logs every dial attempt, while a
+call sheet has one row per number, so a caller who redials ring-backs heavily
+inflates the gap. The gap is an upper bound on GNA, never GNA.
+
+A future session must not quietly turn that gap into a GNA figure for a day with
+no declarations. It reaches Curia as fact.
+
+### What the call logs CAN verify, and did
+
+**Completes.** Sunday's declared completes against `audit_day` at the 150s
+threshold, all 11 callers:
+
+    declared 135  ·  call logs 136  ·  4 callers exact, 7 out by exactly 1
+    callers differing by MORE than 1: NONE
+
+Elaine's discrepancy rule is "more than 1", so **Sunday has zero discrepancies**
+and the completes figure going to Curia is sound. Same check should be run on any
+day before it is sent.
+
 **Lovely Salva declared no GNA on any of the four days she worked**, and Goldy
 and Jane declared none on Monday. Sixteen caller-shifts in the week have no GNA
 and therefore no computable total; they are left blank and flagged, never
