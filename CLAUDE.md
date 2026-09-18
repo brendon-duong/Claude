@@ -1316,10 +1316,55 @@ Two banded column groups: **"1: PL to complete"** and **"2: Curia to complete"**
 Rows are grouped by date with a **Total row** per day summing GNA/RB/R/C and
 total calls. Blank spacer row between days.
 
-Three of these are already producible: **Phone** from the call log `From`
-field, **Total** by arithmetic, and **Shift Notes** from the audit's own break
-detection, which finds breaks in exactly that start–end shape. GNA/RB/R/C come
-from Slack. Only **Poll** needs a source — Curia's survey email names it.
+Three of these are already producible: **Phone** (see below), **Total** by
+arithmetic, and **Shift Notes** from the audit's own break detection, which finds
+breaks in exactly that start–end shape. GNA/RB/R/C come from Slack. Only **Poll**
+needs a source — Curia's survey email names it.
+
+### The Phone column: how to get it, and why a fixed list is WRONG
+
+Brendon, 18 Sep 2026: *"we need to add in a phone number that they dial with,
+otherwise it doesn't line up properly — add in the number that was used for that
+specific day, for each caller."*
+
+**This register said Phone comes from the call log's `From` field. That is
+wrong and it was corrected on 18 Sep.** On an outbound row `caller_number` is
+the **extension** (`1015`, `1030`), not a DID, and there is no
+`caller_did_number` field at all. The 18 fields on a `call_logs` row carry
+`callee_did_number` only.
+
+**The right source is `GET /v2/phone/users`** (paged, `page_size=100`). It
+returns 41 phone users with `extension_number`, `name`, `email` and
+`phone_numbers[].number`. 39 of 41 have a DID. Format with
+`calllog_export.format_nz`, which already produces Curia's `04 887 6278` shape.
+
+    ext -> DID, then format_nz  ->  1015 Pernelia Villapaz  04 887 6278
+                                    1030 Khars -            04 887 6566
+
+**A STATIC LIST OF NUMBERS IS DANGEROUS — DIDs get reassigned between people.**
+Checked against Curia's own historical Phone column: **all six sampled callers
+have a different number today**, and two of the old numbers now belong to
+somebody else — Jane Wary Espanueva's old `04 887 8852` is now **Gerard
+Siason's**, and Lovely Salva's old `04 887 8846` is now **Erika Boiser's**.
+Copying an old number forward would file one caller's shift under another's.
+That is exactly why Brendon asked for the number used *on that day*.
+
+**Validate the map per day rather than trusting the current one.** Inbound rows
+carry `callee_did_number`, which is the agent's DID *on that date* — ground
+truth. Grouping inbound rows by `owner.extension_number` and comparing to the
+live map checks it for free. Done for 13-17 Sep: **104 extension-days checked,
+zero mismatches**, so the current map held all week. Re-run that check before
+using the map on any other window.
+
+**Every caller used exactly one extension per day**, all five days, 89
+caller-days — no one switched mid-shift, so one number per caller per day is
+always the right shape.
+
+One name trap: Zoom has **both** `Cha` (ext 1035) and `Chary Jay Sanchez`
+(ext 1051), and they are the same person under Brendon's 18 Sep ruling. She
+dials from **1051**; ext 1035 made no calls at all in the week and looks like a
+dead account. Also `Licup, Krysztin Aeiyn Franzcis` (ext 1053) made 8 calls on
+14 September and **never declared a result** — open question.
 
 **Writing to it is blocked.** The Google Sheets connector returns:
 
