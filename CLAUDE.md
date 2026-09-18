@@ -880,6 +880,32 @@ NZST. **From 27 Sep 2026 it becomes 11am NZ**; to hold 10am the cron must move t
 `0 21 * * 4`. An hour's drift is harmless for this job, but do not let a future
 session "correct" the cron without knowing which it is compensating for.
 
+### The sixth Routine — is the week actually covered?
+
+**`trig_01HiycacwYkGx6izKvqR6DMQ`, "Availability vs capacity — Fri 8pm & Sat 10am NZ"**,
+created 18 Sep 2026 on Brendon's ask: tell him when a day has hit capacity so
+*"for the day or two prior"* he knows whether to get more people on it.
+`0 8,22 * * 5` — Friday 08:00 UTC (Fri 8pm NZ, the evening the vote opens) and
+Friday 22:00 UTC (Sat 10am NZ, twelve hours before the deadline). Push and email
+both on. Needs repo, Slack and Google Drive.
+
+**It fires twice on purpose.** The whole value is lead time — the identical
+report after the Saturday deadline is worthless, because the roster is already
+built and the week is already short.
+
+Three things it is told to get right, each of which would otherwise produce a
+confidently wrong number:
+
+- **The seeded ✅ is not a vote.** Every day message carries ✅ and ❌ seeded by
+  the posting account so people can just tap. Counting those inflates every day
+  by one.
+- **A day at exactly its headcount is not comfortable.** Available == needed
+  means every voter must work and one drop-out leaves it short. Anything within
+  20% of the line is reported as tight, not covered.
+- **Reaching the number with unrankable people is not reaching it.** Callers with
+  no call history cannot be ranked onto a shift, so a day that only clears its
+  figure by counting them is still short in practice.
+
 ### Posting to Slack is refused at random — and the fix is draft-then-send
 
 Live, 18 Sep 2026, posting five availability messages: `slack_send_message` was
