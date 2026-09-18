@@ -971,12 +971,14 @@ Read that way, on 18 Sep:
 | Curia call log upload | yes | Google Drive |
 | Weekly roster draft — Saturday | yes | Slack, Google Drive |
 | Availability vs capacity — Sat 12pm & 8pm | yes | Slack, Google Drive |
-| **Declared results for Curia** | **no** | **none** |
+| Declared results for Curia | yes | Slack, Google Drive |
 | **Post availability — Friday 10am NZ** | **no** | **none** |
 
-The last two are the outstanding ones and both need Brendon in the UI. The
-Friday post is the more urgent of the two — it is the job that feeds the whole
-cycle, and it next fires 24 Sep.
+**Re-checked the same evening: Brendon wired Declared results while this was
+being written**, so it is off the list. **`Post availability — Friday 10am NZ`
+is the only Routine still bare** — no repo, no connectors — and it next fires
+Thu 24 Sep. It is the job the whole weekly cycle feeds from: no post, no votes,
+and the Saturday roster has nothing to rank.
 
 **No source carries a branch**, so a fired session checks out the repo's default
 branch. Every Routine prompt therefore has to `git fetch` and `git checkout
