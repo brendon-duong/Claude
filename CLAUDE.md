@@ -892,9 +892,33 @@ posts and not the sheets:
 from the screenshots, matching the 16 Sep pass. That is the best evidence the
 allocation table is being applied consistently.
 
-**Sunday 13 has NO GNA and never will.** All eleven posts were typed text with
-**no screenshot at all** — the only day of the week where nobody attached a
-sheet. GNA and Total are left blank for every Sunday row. Do not back-fill them.
+**Sunday 13 has no GNA anywhere this agent can reach — four sources checked on
+18 Sep after Brendon said "that is not correct".** He was right to push; the
+answer is that it is missing, not that it does not exist. What was checked:
+
+1. **`#results-pacificlinkglobal`** — all eleven Sunday messages are plain text
+   with **no `Files:` line and no thread replies**. Confirmed twice: a direct
+   `slack_read_channel` over the Sunday timestamp range, and a
+   `slack_search_public_and_private` for `has:file after:2026-09-12
+   before:2026-09-15`, which returned **only Monday** attachments.
+2. **Curia's results page** (`1H5xMVXnq…`) — read in full via
+   `get_file_metadata` + `MAX_ALLOWED`. It has a GNA column, but the rows stop
+   well before September 2026. Nothing for 13/9.
+3. **Elaine's `Audit - PL.xlsx`** — `modifiedTime` is **10 September 2026**, so
+   she has not audited any day of this week. Her total-calls column, which would
+   have let GNA be derived as `total − RB − R − C`, does not cover it.
+4. **WhatsApp** — could not be checked: the Blueticks connector answers
+   `503 "No WhatsApp engine is connected for this account"`.
+
+**So the honest position: Sunday's GNA was never posted to Slack.** It may exist
+on the callers' own sheets or in a WhatsApp thread. Leave GNA and Total blank
+for Sunday, say where it was looked for, and **ask Brendon rather than deriving
+it** — there is no declared total for that day to subtract from, so any figure
+would be invented. If the sheets turn up, the day can be rebuilt in minutes.
+
+**Sunday 13 was the first day of the Slack process** (the pinned format went up
+10 Sep), which is the most likely reason nobody attached a sheet — the habit
+started on Monday. Every day after it has 20-of-21 attachment rates.
 
 **Lovely Salva declared no GNA on any of the four days she worked**, and Goldy
 and Jane declared none on Monday. Sixteen caller-shifts in the week have no GNA
@@ -1004,6 +1028,31 @@ confidently wrong number:
 - **Reaching the number with unrankable people is not reaching it.** Callers with
   no call history cannot be ranked onto a shift, so a day that only clears its
   figure by counting them is still short in practice.
+
+### The build register: a ticked task clears itself off the list
+
+Brendon, 18 Sep 2026: *"are you able to remove the tasks to do when the task has
+been completed automatically please"*. Done, and it is **not a delete** — a
+ticked item moves into a collapsed `<details class="done-drawer">` at the foot of
+its own card, keeping a `data-ord` stamp so **unticking puts it back in its
+original position**. The drawer stays hidden while empty. The "waiting on you"
+tally in the header now counts down live as asks are ticked.
+
+The three lists it applies to are found at runtime from wherever
+`input[data-task]` elements sit, so new tasks need no wiring.
+
+**Verified in a headless Chromium**, because `window.claude` does not exist on a
+local file and the change handlers only attach inside
+`claude.use('db').then(...)` — so a plain screenshot proves nothing here. The
+test stubs `window.claude.use('db')` with an in-memory collection exposing
+`onSnapshot` and `doc().set()`, then ticks two tasks, ticks one ask and unticks
+one. Confirmed: live list 14 → 12, drawer shows the two in original order, asks
+tally 17 → 16, untick restores ord 0 to the front, no page errors. **Use that
+stub for any future change to the tick behaviour** — Playwright and Chromium are
+preinstalled (`executablePath: '/opt/pw-browsers/chromium'`), but `playwright`
+itself must be `npm install`ed into the scratchpad first.
+
+Also fixed on the way past: the file ended with **two** `</body></html>` pairs.
 
 ### Posting to Slack is refused at random — and the fix is draft-then-send
 

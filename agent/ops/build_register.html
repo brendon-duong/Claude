@@ -326,6 +326,32 @@
   .tick input[type="checkbox"]:disabled { opacity: .4; cursor: default; }
   .tick-body.is-done { opacity: .5; }
   .tick-body.is-done > b, .tick-body.is-done > .todo-title { text-decoration: line-through; }
+
+  /* ---- done drawer: a ticked task leaves the list ---- */
+  .done-drawer { border-top: 1px solid var(--line-soft); }
+  .done-drawer[hidden] { display: none !important; }
+  .done-drawer > summary {
+    padding: 10px 18px; cursor: pointer; list-style: none;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--live); display: flex; align-items: center; gap: .6em;
+    background: var(--live-bg);
+  }
+  .done-drawer > summary::-webkit-details-marker { display: none; }
+  .done-drawer > summary::before { content: "\2713"; font-size: .85rem; }
+  .done-drawer > summary::after {
+    content: "show"; margin-left: auto; color: var(--muted);
+    letter-spacing: .06em; text-transform: none;
+  }
+  .done-drawer[open] > summary::after { content: "hide"; }
+  .done-drawer > summary:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+  .done-drawer ul, .done-drawer ol { list-style: none; margin: 0; padding: 0; }
+  .done-drawer li { padding: 10px 18px; border-top: 1px solid var(--line-soft); }
+  .done-drawer li::before { content: none; }
+  .empty-note {
+    padding: 14px 18px; color: var(--muted); font-size: .88rem; font-style: italic;
+  }
+  .empty-note[hidden] { display: none !important; }
   @media (prefers-reduced-motion: reduce) {
     .tick input[type="checkbox"] { transition: none; }
   }
@@ -386,7 +412,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 18 September 2026, 6.10pm NZ · a Routine prompt was carrying rules that had already changed</div>
+    <div class="eyebrow">Build register · updated 18 September 2026, 7.00pm NZ · tick a task and it clears itself off the list</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       What is still open on the Pacific Link agent, and why. Written to be handed to someone
@@ -417,8 +443,10 @@
   <section id="tomorrow">
     <div class="section-head">
       <h2>Tomorrow</h2>
-      <p>Two lists: what only you can do, and what I build next. Tick anything off — the ticks
-      are saved, they survive this page being rebuilt, and I can read them back next session.</p>
+      <p>Two lists: what only you can do, and what I build next. <strong>Tick a task and it clears
+      itself off the list</strong> — it drops into the "done" drawer at the bottom of that card, so
+      nothing is lost and unticking puts it straight back where it was. The ticks are saved, they
+      survive this page being rebuilt, and I can read them back next session.</p>
     </div>
     <div class="two">
       <div class="todo">
@@ -1987,6 +2015,70 @@ unless the file or its label changes.</div>
     var body = b.parentNode.querySelector('.tick-body');
     if (body) body.classList.toggle('is-done', b.checked);
   }
+
+  /* ---- a ticked task leaves the list ----------------------------------
+     Brendon asked for completed tasks to come off the list automatically.
+     They are not deleted: each one moves into a collapsed "done" drawer on
+     the same card, keeping its original position, so unticking puts it
+     straight back where it was and nothing is ever lost. ------------- */
+  var lists = [];
+  (function buildDrawers() {
+    var seen = [];
+    boxes.forEach(function (b) {
+      var li = b.closest('li');
+      if (!li) return;
+      var ul = li.parentNode;
+      if (seen.indexOf(ul) === -1) seen.push(ul);
+    });
+    seen.forEach(function (ul) {
+      var items = Array.prototype.slice.call(ul.children);
+      items.forEach(function (li, i) { li.dataset.ord = i; });
+
+      var empty = document.createElement('p');
+      empty.className = 'empty-note';
+      empty.textContent = 'All done here.';
+      empty.hidden = true;
+      ul.parentNode.insertBefore(empty, ul.nextSibling);
+
+      var drawer = document.createElement('details');
+      drawer.className = 'done-drawer';
+      drawer.hidden = true;
+      var sum = document.createElement('summary');
+      drawer.appendChild(sum);
+      var box = document.createElement(ul.tagName.toLowerCase());
+      drawer.appendChild(box);
+      empty.parentNode.insertBefore(drawer, empty.nextSibling);
+
+      lists.push({ live: ul, done: box, drawer: drawer, sum: sum, empty: empty, n: items.length });
+    });
+  })();
+
+  function ord(li) { return parseInt(li.dataset.ord, 10) || 0; }
+  function insertSorted(parent, li) {
+    var kids = Array.prototype.slice.call(parent.children);
+    for (var i = 0; i < kids.length; i++) {
+      if (ord(kids[i]) > ord(li)) { parent.insertBefore(li, kids[i]); return; }
+    }
+    parent.appendChild(li);
+  }
+  function shuffle() {
+    boxes.forEach(function (b) {
+      var li = b.closest('li'); if (!li) return;
+      var grp = lists.filter(function (g) {
+        return g.live.contains(li) || g.done.contains(li);
+      })[0];
+      if (!grp) return;
+      var want = b.checked ? grp.done : grp.live;
+      if (li.parentNode !== want) insertSorted(want, li);
+    });
+    lists.forEach(function (g) {
+      var d = g.done.children.length;
+      g.drawer.hidden = d === 0;
+      g.sum.textContent = d + ' done — cleared from the list';
+      g.empty.hidden = g.live.children.length > 0 ? true : (d === 0);
+    });
+  }
+
   function counts() {
     ['y', 'm'].forEach(function (k) {
       var el = document.querySelector('[data-count="' + k + '"]');
@@ -1995,8 +2087,12 @@ unless the file or its label changes.</div>
       var done = mine.filter(function (b) { return b.checked; }).length;
       el.textContent = done + ' / ' + mine.length + ' done';
     });
+    var asks = boxes.filter(function (b) { return b.dataset.task.indexOf('ask-') === 0; });
+    var left = asks.filter(function (b) { return !b.checked; }).length;
+    var btn = document.querySelector('[data-goto="asks"] b');
+    if (btn && asks.length) btn.textContent = left;
   }
-  counts();
+  counts(); shuffle();
   if (!window.claude || typeof window.claude.use !== 'function') {
     say('Ticks are not saved in this view — open the page on claude.ai.');
     return;
@@ -2015,7 +2111,7 @@ unless the file or its label changes.</div>
         b.disabled = false;
         paint(b);
       });
-      counts();
+      counts(); shuffle();
       note.hidden = true;
     }, function (e) {
       boxes.forEach(function (b) { b.disabled = true; });
@@ -2025,11 +2121,11 @@ unless the file or its label changes.</div>
     });
     boxes.forEach(function (b) {
       b.addEventListener('change', function () {
-        paint(b); counts();
+        paint(b); counts(); shuffle();
         col.doc(b.dataset.task)
           .set({ done: b.checked, at: new Date().toISOString() })
           .catch(function (e) {
-            b.checked = !b.checked; paint(b); counts();
+            b.checked = !b.checked; paint(b); counts(); shuffle();
             say('That tick did not save (' + e.code + ') — it has been put back.');
           });
       });
@@ -2039,5 +2135,4 @@ unless the file or its label changes.</div>
 </script>
 
 
-</body></html>
 </body></html>
