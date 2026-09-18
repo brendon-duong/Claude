@@ -159,13 +159,17 @@ directory or into this file. That is the whole of the memory.
     Boiser cluster is four different people: Karen, Katherine, Leizel and Erika.
   - **`Goldy Kaye` is Goldy Kaye Maglasang** (`goldymaglasang7@gmail.com`) →
     Zoom `goldy maglasang`.
-- **`Cha` is NOT settled, and Brendon's answer conflicts with the record.** He
-  said "Cha is Charlotte". The Slack account is `charyjay12@gmail.com`, Real
-  Name "Cha" — that reads as **Chary Jay**, and Zoom has a `chary jay sanchez`.
-  **Charlotte Gimpes is a separate Slack account** (`chaching.gimpes@gmail.com`)
-  that votes independently on the same messages. Zoom also has a bare `cha`
-  alongside `chary jay sanchez`. Not merged; she is left unrankable until
-  Brendon confirms against the email rather than the display name.
+- **`Cha` IS Chary Jay Sanchez — SETTLED 18 Sep 2026 by Brendon, and by her own
+  call sheet.** Brendon: *"Charlotte's email is Chaching.gimpes@gmail.com from
+  when she invoiced me. Cha is also known as Chary."* Her 16 September call sheet
+  is headed **CHARY JAY SANCHEZ**, which is first-hand corroboration. So:
+  - Slack `Cha` (`charyjay12@gmail.com`) = **Chary Jay Sanchez** = Zoom
+    `chary jay sanchez`. **She is rankable.**
+  - **Charlotte Gimpes** (`chaching.gimpes@gmail.com`) is a **different person**,
+    confirmed from her invoice. Never merge the two.
+  This supersedes the earlier note that Brendon's "Cha is Charlotte" conflicted
+  with the record — he meant they are two people, and the record was right that
+  `Cha` reads as Chary Jay.
 - **`Jane` is Jane Wary Espanueva — settled 16 Sep by her own call sheet.** The
   Slack account `janewareei919@gmail.com` posted a call sheet for 15 September
   headed **JANE WARY ESPANUEVA**. So this account is Zoom's
@@ -174,9 +178,13 @@ directory or into this file. That is the whole of the memory.
   asserted are now wrong: that she is Jane Labora, and that "Jane Wary Rose
   Espanueva is a real, separate caller" who could not be tied to this account.
   Brendon said "that is Jane Wareei" on 12 Sep, which matches the account handle
-  and is closer to her sheet than Labora is. **Confirm the exact spelling with
-  her before it reaches a contract, an invoice or a call sheet folder** — but do
-  not re-open whether she is Labora.
+  and is closer to her sheet than Labora is.
+  **Her own email is `espanuevajanewary@gmail.com` — Brendon, 18 Sep 2026.** Note
+  that is NOT the address on her Slack account (`janewareei919@gmail.com`); both
+  are hers, and the Slack handle is the misleading one. Her call sheets for 15,
+  16 and 17 September are all headed **JANE WARY ESPANUEVA**, so the name is now
+  corroborated three ways: Brendon, her own email, and her own sheets. Treat
+  **Jane Wary Espanueva** as settled. Do not re-open whether she is Labora.
 - **~~`Jane` — the surname is contested and it does not matter yet.~~** Brendon said
   12 Sep "that is Jane Wareei". This file already records that **Jane Wareei was
   a wrong inference from `janewareei919@gmail.com`** and that she is Jane
@@ -866,6 +874,51 @@ appears in neither.
 
 **The declared figures, 13–15 September**, for reference and to catch a future
 regression:
+
+**THE WHOLE WEEK, read off every screenshot on 18 Sep 2026.** This replaces the
+earlier text-only table, which undercounted everything because it read the typed
+posts and not the sheets:
+
+| Day | Poll | n | GNA | RB | R | C | Total |
+|---|---|--:|--:|--:|--:|--:|--:|
+| Sun 13 | Hutt South 400 | 11 | *none declared* | 1,007 | 550 | **135** | 1,692 |
+| Mon 14 | ACT 1000 | 19 | 825 | 1,573 | 718 | **69** | 3,185 |
+| Tue 15 | ACT 1000 | 21 | 952 | 1,749 | 859 | **85** | 3,645 |
+| Wed 16 | Rotorua 400 + Tukituki 400 | 25 | 1,558 | 2,525 | 1,442 | **246** | 5,771 |
+| Thu 17 | WCT 400 | 11 | 829 | 1,166 | 664 | **139** | 2,798 |
+| **Week** | | | **4,164** | **8,020** | **4,233** | **674** | **17,091** |
+
+**Tuesday reproduced exactly** — GNA 952, RB 1,749, R 859, C 85 — independently,
+from the screenshots, matching the 16 Sep pass. That is the best evidence the
+allocation table is being applied consistently.
+
+**Sunday 13 has NO GNA and never will.** All eleven posts were typed text with
+**no screenshot at all** — the only day of the week where nobody attached a
+sheet. GNA and Total are left blank for every Sunday row. Do not back-fill them.
+
+**Lovely Salva declared no GNA on any of the four days she worked**, and Goldy
+and Jane declared none on Monday. Sixteen caller-shifts in the week have no GNA
+and therefore no computable total; they are left blank and flagged, never
+estimated.
+
+**Four sheets do not add up to their own stated total** — real signals, each
+worth one question to the caller: Karen Boiser on Mon (+1), Wed (+1) and Thu
+(+1); Mariel Aresco on Mon (−1) and Wed (−2); Kharen Ybas on Wed (−1). Karen is
+out by one on three separate days, which looks like a formula in her sheet
+rather than a counting error.
+
+**Nilyn Lisondra posts a sheet whose header is stale.** On 14 Sep her sheet said
+"10 September / Wellington Bays 400" and on 16 Sep it said "15 September /
+ACT 1000" — both times the FIGURES matched her typed post for the right day and
+differed from her previous day's. She reuses the file and does not update the
+header. Read her numbers, ignore her header, and confirm the poll separately.
+
+**Jayzel Pureza's Tuesday sheet carries UNQUALIFIED 50** — the single biggest
+re-allocation of the week, and the clearest case for Brendon's reached-means-
+refusal rule. Putting it in GNA would have moved 50 live contacts into the
+dead-number bucket on one caller's row.
+
+**Old text-only table, kept to show what the lossy read cost:**
 
 | Day | Poll | n | GNA | RB | R | C |
 |---|---|--:|--:|--:|--:|--:|
