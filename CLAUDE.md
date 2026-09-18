@@ -377,9 +377,9 @@ neither). Extend `ALIASES` only on a decision from Brendon, never by inference.
 folder corroborates it: September has day folders for 1, 2, 3, 6, 7, 8, 9 and
 10 — exactly Sun–Thu. Friday and Saturday have no shift.
 
-**A Routine named "Shift audit — 6pm Manila (Sun–Thu)"
-(`trig_01FBfhpRM9zCJp5ygLHrfzKN`) fires at 10:00 UTC, Sunday to Thursday** —
-6pm Manila, 10pm NZ until the clocks change on 27 Sep 2026, 11pm after — into a
+**A Routine named "Shift audit — 10pm Manila (Sun–Thu)"
+(`trig_01FBfhpRM9zCJp5ygLHrfzKN`) fires at 14:00 UTC, Sunday to Thursday** —
+10pm Manila, 2am NZ until the clocks change on 27 Sep 2026, 3am after — into a
 fresh session in the `Pacific Link` cloud environment
 (`env_01Tbj77FEPUKBePCjAFhG2Jn`, the one with `zoom.us` allowlisted).
 **That session has no connectors — no Slack.** This is certain, not a guess:
@@ -400,6 +400,42 @@ addressed to a caller is a later decision, and off-phone time in particular is
 not to be sent to a caller until it is settled against Elaine's judgement.
 Manage it with `list_triggers` / `update_trigger`; the first real test is the
 first shift that posts results.
+
+**Moved from 6pm to 10pm Manila on 18 Sep, and its declared half was rewritten.**
+Two faults, both found by reading the live prompt back rather than trusting this
+file:
+
+- **The prompt carried a stale copy of the declared-results rules.** It still
+  expected the pinned three-number typed format (`N completed, N ring backs,
+  N refused`) and said nothing about screenshots, `slack_read_file`, the
+  `detailed` response format, GNA, or the allocation table. On a normal night
+  that is 20 of 21 callers read wrong — **exactly the failure Brendon caught on
+  15 September**, preserved in a prompt nobody re-read. The root cause is that
+  the prompt **restated** the rules instead of pointing at them, so when the
+  rules changed the copy did not. It now says: read CLAUDE.md's
+  "What the real declarations look like" and "The allocation table" sections and
+  apply those, and **if the prompt and CLAUDE.md ever disagree, CLAUDE.md wins**.
+  The same "CLAUDE.md wins" line was added to the declared-results Routine, whose
+  copy of the table is now explicitly a convenience copy.
+  **When a settled rule changes, grep the Routine prompts for a stale restatement
+  of it.** A prompt is memory too, and it is the one kind this project does not
+  reload automatically.
+- **6pm Manila was too early to collect.** Callers post 4pm–9:30pm Manila
+  (8pm–11:30pm NZ, occasionally past midnight), so a 6pm collection missed Goldy
+  on Tuesday and Lovely and Nilyn on Monday. Both this Routine and
+  `Declared results for Curia` now fire at **`0 14 * * 0-4`** — 10pm Manila,
+  after the channel has stopped filling. The declared-results prompt gained a
+  self-check: if the latest post is within 20 minutes of the run, say so, because
+  it means even 10pm may be too early.
+
+**The shift being audited is TODAY'S MANILA DATE**, and at 10pm Manila that is
+still the day the shift ran. Both prompts say so explicitly — it is already
+tomorrow in New Zealand at that hour and rolling the date forward would audit an
+empty day. `audit_day`'s default (today in Manila) is correct at 10pm Manila.
+
+The `Curia call log upload` Routine stays at `0 10 * * 0-4`: it reads Zoom only,
+never Slack, and the logs are complete the moment the shift ends. Leaving it at
+6pm also spreads the three runs out instead of firing them in the same minute.
 
 ### The second Routine — Curia's call log upload
 
@@ -847,14 +883,14 @@ number.
 
 ### The fourth Routine — declared results for Curia
 
-**`trig_01STiXp444UCGUpdqWzUyxjK`, "Declared results for Curia (Sun–Thu)"**,
-created 15 Sep 2026 on Brendon's instruction. `0 10 * * 0-4`, same environment
-as the others. Reads `#results-pacificlinkglobal`, maps to GNA/RB/R/C under the
+**`trig_01STiXp444UCGUpdqWzUyxjK`, "Declared results for Curia — 10pm Manila
+(Sun–Thu)"**, created 15 Sep 2026 on Brendon's instruction. **`0 14 * * 0-4`**
+(moved from `0 10` on 18 Sep — see the audit Routine above for why), same
+environment as the others. **Repo, Slack and Google Drive attached 18 Sep.** Reads `#results-pacificlinkglobal`, maps to GNA/RB/R/C under the
 catch-all rule above, refuses to guess at anything ambiguous, cross-checks
 against the roster and shift-changes, and sends Brendon a CSV. Posts nothing.
 Created with `notifications: {push: true, email: true}` — the parameter only
-exists on `create_trigger`, so set it then or not at all. Needs **Slack**
-attached in the Routines UI.
+exists on `create_trigger`, so set it then or not at all.
 
 ### The fifth Routine — posting the availability, Friday 10am NZ
 

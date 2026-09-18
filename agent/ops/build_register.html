@@ -386,7 +386,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 18 September 2026, 5.40pm NZ · capacity check moved to Saturday · five of six Routines wired</div>
+    <div class="eyebrow">Build register · updated 18 September 2026, 6.10pm NZ · a Routine prompt was carrying rules that had already changed</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       What is still open on the Pacific Link agent, and why. Written to be handed to someone
@@ -399,7 +399,7 @@
 
     <div class="tally">
       <button type="button" class="tally-btn" data-filter="blocked" aria-pressed="false"
-        ><span class="dot" style="background:var(--blocked)"></span><b>7</b> hard blockers<span class="x">×</span></button>
+        ><span class="dot" style="background:var(--blocked)"></span><b>8</b> hard blockers<span class="x">×</span></button>
       <button type="button" class="tally-btn" data-filter="worked" aria-pressed="false"
         ><span class="dot" style="background:var(--sky)"></span><b>2</b> working, still tuning<span class="x">×</span></button>
       <button type="button" class="tally-btn" data-filter="pending" aria-pressed="false"
@@ -511,6 +511,55 @@
             from a cold, scheduled start. <strong>The one-line reachability test for Zoom exists for
             exactly this class of problem; the repo needs the same</strong> — the prompt's step 1 now
             effectively is it: if <code>cd /home/user/Claude</code> fails, say so and stop.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item blocked" data-kind="blocked">
+        <div class="item-head">
+          <h3>A Routine prompt is memory too — and it does not reload</h3>
+          <span class="tag t-worked">Found and fixed 18 Sep</span>
+          <span class="tag t-pending">Check the others</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>What was wrong</dt><dd>
+            The shift audit Routine's prompt still expected the <strong>old pinned
+            three-number format</strong> — <code>N completed, N ring backs, N refused</code> — and
+            said nothing about screenshots, <code>slack_read_file</code>, the <code>detailed</code>
+            response format, GNA, or the allocation table. On a normal night that is
+            <strong>20 of 21 callers read wrong</strong>: exactly the failure Brendon caught on
+            15 September, sitting preserved in a prompt nobody had re-read since.
+          </dd></div>
+          <div class="row"><dt>The root cause, which is the general lesson</dt><dd>
+            The prompt <strong>restated</strong> the rules rather than pointing at them. When the
+            rules changed in CLAUDE.md, the copy did not. <strong>A Routine prompt is a second
+            store of memory, and it is the one kind this project does not reload
+            automatically</strong> — every session re-reads CLAUDE.md; nothing re-reads a prompt.
+            So when a settled rule changes, <strong>grep the Routine prompts for a stale
+            restatement of it</strong>.
+          </dd></div>
+          <div class="row"><dt>How it is fixed</dt><dd>
+            The audit prompt now says: read CLAUDE.md's <em style="font-style:normal">"What the
+            real declarations look like"</em> and <em style="font-style:normal">"The allocation
+            table"</em> sections and apply those — and <strong>if the prompt and CLAUDE.md ever
+            disagree, CLAUDE.md wins and say so in the summary</strong>. The declared-results
+            Routine keeps its full copy of the table for speed, but now carries the same
+            precedence line marking it a convenience copy.
+          </dd></div>
+          <div class="row"><dt>Two Routines also fired too early</dt><dd>
+            Callers post <strong>4pm–9:30pm Manila</strong> (8pm–11:30pm NZ, sometimes past
+            midnight), and both the audit and declared-results ran at <strong>6pm Manila</strong>.
+            That would have missed Goldy on Tuesday and Lovely and Nilyn on Monday. Both now
+            fire at <code>0 14 * * 0-4</code> — <strong>10pm Manila / 2am NZ</strong>, after the
+            channel has stopped filling. The declared-results prompt gained a self-check: if the
+            latest post is within 20 minutes of the run, say so, because 10pm may still be early.
+            The call log upload stays at 6pm — it reads Zoom only, and spreading the three runs
+            out is better than firing them in the same minute.
+          </dd></div>
+          <div class="row"><dt>Still to check</dt><dd>
+            The other four prompts have not been audited line by line against CLAUDE.md.
+            <strong>The roster and capacity prompts both restate the schedule-parsing rule</strong>,
+            which has already been got wrong twice — those are the next ones to read back.
           </dd></div>
         </dl>
       </article>
