@@ -1069,6 +1069,58 @@ confidently wrong number:
   no call history cannot be ranked onto a shift, so a day that only clears its
   figure by counting them is still short in practice.
 
+### The seventh Routine — the weekly performance review
+
+**`trig_01RgEX1bYHz2Yk7L6frwvRU4`, "Weekly performance review — Friday 10am NZ"**,
+created 18 Sep 2026 on Brendon's instruction after he reviewed the 13-17 Sep
+analysis by hand and said *"I'm happy with that."* `0 22 * * 4` — Thursday 22:00
+UTC, **Friday 10am NZST**. Push and email on. Reports the week just finished so
+he can go through it and message anyone who needs it.
+
+**It reports to Brendon only and posts nothing.** The two posting exceptions
+(availability, roster) do NOT extend to it; the prompt says so explicitly.
+
+**The method, and why each rule exists — all of it learned from the 13-17 Sep
+run, none of it guessed:**
+
+- **Completes are normalised WITHIN the night.** The poll drives completes far
+  more than the caller: nightly means that week ran **12.4 (Hutt South 400), 4.2
+  and 5.0 (ACT 1000), 9.8 (Rotorua/Tukituki), 10.4 (WCT 400)**. Kharen went 20 on
+  Sunday to 4 on Monday, which is a poll change, not a collapse. 1.00x is that
+  night's average. Raw completes are never compared across days.
+- **Check for a declared explanation BEFORE flagging anyone.** This is the rule
+  that earns its place. Ranked on raw off-phone time, the worst caller in the
+  week was **Leizel Chun** — whose own sheet declares a **62-minute power outage**
+  she then extended 32 minutes to cover, and whose other three nights were 1, 4
+  and 3 minutes away. Mercjoy declared a 20-minute power cut; Erika declared her
+  call sheet running out of numbers. **Four good callers would have been messaged
+  for things they had already explained.**
+- **Three flag categories, not equal:** (A) worked but did not declare — a hard
+  fact, the strongest; (B) hours actually worked, from their own first and last
+  call — solid; (C) time away with no declared reason — **reported but weakest**,
+  because it still reads up to 4x Elaine's.
+- **One shift is not a sample.** No performance message to anyone with a single
+  shift that week, and never on a first shift.
+- **Look for a poll-targeting artefact before calling low completes
+  underperformance.** Jayzel Pureza on 15 Sep: 3 completes against a 5.0 average,
+  worst on the board — but a full 3h01 worked, zero shortfall, and **50
+  UNQUALIFIED** on her sheet. The poll screened her contacts out. Large
+  Unqualified / Not Qualified / Disqualified / Already Done figures mean the same.
+- **NO TIME-OFF-THE-PHONE FIGURE EVER GOES IN A MESSAGE TO A CALLER.** Drafts are
+  built on hours worked, a missing declaration, or completes against the night.
+  An accusation built on the unreconciled metric is indefensible.
+- It also names **who is doing well** — Brendon wants to praise people, not only
+  chase them — and says **who it deliberately did not flag and why**.
+
+**Connectors: Slack and Google Drive**, plus the repo. Drive matters more than it
+looks: it reads the Curia schedule to know **which days actually ran**, so a
+no-shift day (like Sunday 20 Sep) is not read as everybody failing to turn up.
+
+**It shares its cron with the availability post** (`trig_018DK3nkDkvoWnvGBkLhMzwb`,
+also `0 22 * * 4`). Two Routines firing the same minute is fine, and both carry
+the same **DST trap**: from 27 Sep 2026 `0 22 * * 4` is 11am NZ, not 10am. Move
+both to `0 21 * * 4` together or leave both; do not "fix" one alone.
+
 ### The build register: a ticked task clears itself off the list
 
 Brendon, 18 Sep 2026: *"are you able to remove the tasks to do when the task has
@@ -1151,6 +1203,7 @@ Read that way, on 18 Sep:
 | Availability vs capacity — Sat 12pm & 8pm | yes | Slack, Google Drive |
 | Declared results for Curia | yes | Slack, Google Drive |
 | **Post availability — Friday 10am NZ** | **no** | **none** |
+| **Weekly performance review — Friday 10am NZ** | **no** | **none** |
 
 **Re-checked the same evening: Brendon wired Declared results while this was
 being written**, so it is off the list. **`Post availability — Friday 10am NZ`
