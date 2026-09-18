@@ -1120,6 +1120,44 @@ works on `search_files` with `snippetVerbosity: MAX_ALLOWED`.
 before concluding the data is unreachable.** Applies to the Curia results page
 too, and probably to any large Google Sheet.
 
+**READING A ROW BY COUNTING COLUMNS FROM THE LEFT IS WRONG. This snippet
+collapses empty cells.** Got wrong 18 Sep 2026, the second schedule misread in a
+week. Where Curia leave a cell blank, that comma does not survive into
+`contentSnippet`, so every field after it shifts left and positional parsing
+silently reads the wrong column — or drops a poll entirely.
+
+    Tuesday 22-Sep-26,NZNP 500,75,175,10,10
+    Tamaki ACT 750,33,400,30          <- 3 numbers, not 4: a blank collapsed
+
+Counting from the left made `30` look like Curia Staff Wanted and gave Tamaki
+ACT no PL figure at all, so it was left out. Brendon caught it: he said Tuesday
+was 40, Wednesday 51, Thursday 38, against the 10 / 41 / 18 that misread
+produced. **On a future row — one where the outcome columns are still empty —
+PL Staff Confirmed is the LAST number on the row.** That rule reproduces all
+three of his figures exactly. It does NOT hold for past rows, where the outcome
+columns are filled in and the last number is a completes figure.
+
+**The real fix is to stop parsing the snippet positionally at all.** Read actual
+cells — the Sheets connector if it is ever authorised, or an Apps Script. Until
+then, take the last number on a future row, and sanity-check the week's total
+against Brendon before building a roster on it.
+
+**The week of 20-24 Sep 2026, read live 18 Sep and confirmed by Brendon:**
+
+| Day | Polls | PL staff |
+|---|---|--:|
+| Sun 20 | *no poll — no shift* | 0 |
+| Mon 21 | NZNP 500 | 10 |
+| Tue 22 | NZNP 500 (10) · Tamaki ACT 750 (30) | **40** |
+| Wed 23 | Te Tai Tonga 500 (10) · Te Tai Hauauru 500 (11) · Waitaki 400 (20) · Tamaki ACT 750 (10) | **51** |
+| Thu 24 | Te Tai Tonga 500 (9) · Te Tai Hauauru 500 (9) · Tamaki ACT 750 (20) | **38** |
+
+**139 slots over four days, against 80 over five the week before.** Sunday 20
+has a row and an empty Poll cell, which is the no-shift case this file already
+warns about — and it is the first week where it actually fired. Wednesday needs
+**51 people on one night**, more than worked at all in the whole previous week
+(22), and the snake draft has to split **four** ways, not two.
+
 **A day with two polls uses a continuation row** — the second poll sits on its
 own row with the date cell empty:
 
