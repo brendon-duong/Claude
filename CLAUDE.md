@@ -882,16 +882,26 @@ session "correct" the cron without knowing which it is compensating for.
 
 ### The sixth Routine — is the week actually covered?
 
-**`trig_01HiycacwYkGx6izKvqR6DMQ`, "Availability vs capacity — Fri 8pm & Sat 10am NZ"**,
+**`trig_01HiycacwYkGx6izKvqR6DMQ`, "Availability vs capacity — Sat 12pm & 8pm NZ"**,
 created 18 Sep 2026 on Brendon's ask: tell him when a day has hit capacity so
 *"for the day or two prior"* he knows whether to get more people on it.
-`0 8,22 * * 5` — Friday 08:00 UTC (Fri 8pm NZ, the evening the vote opens) and
-Friday 22:00 UTC (Sat 10am NZ, twelve hours before the deadline). Push and email
-both on. Needs repo, Slack and Google Drive.
+`0 0,8 * * 6` — Saturday 00:00 UTC (Sat 12pm NZ) and Saturday 08:00 UTC
+(Sat 8pm NZ). Push and email both on. **Repo, Slack and Google Drive are all
+attached** — confirmed 18 Sep from `list_triggers`, so unlike the two Routines
+below it needs no setup before it runs.
+
+**It was Fri 8pm / Sat 10am for a few hours on 18 Sep**; Brendon moved it the
+same day — *"twelve PM New Zealand time tomorrow... and then redo it at, like,
+eight PM again New Zealand time. So then I just kinda know for the week ahead"*.
+Do not "restore" the Friday cron.
 
 **It fires twice on purpose.** The whole value is lead time — the identical
 report after the Saturday deadline is worthless, because the roster is already
-built and the week is already short.
+built and the week is already short. The deadline is **Sat 6pm Manila / 10pm
+NZ**, so the 12pm run leaves ten hours to chase people and the 8pm run is the
+last word before the roster locks. The 8pm run also has to say, for any day
+still short, **how many slots will go unfilled and on which day** — there is no
+time left to fix it, so the number is what Brendon plans around.
 
 Three things it is told to get right, each of which would otherwise produce a
 confidently wrong number:
@@ -943,6 +953,43 @@ connectors, it has to be set by Brendon in the claude.ai Routines UI:
 
 Check this before assuming a Routine will run. A Routine can have its
 connectors correctly attached and still do nothing at all.
+
+**How to check it, and the live state on 18 Sep 2026.** `list_triggers` does
+**not** show a top-level `sources` field — it reads `null` on every Routine and
+that is not the answer. The real value is at
+`session_request.config.sources[].git_repository.url`, and the listing is far
+too large to read inline, so save it and parse it:
+
+    python3 -c "import json,sys; d=json.load(open(PATH)); ..."
+      -> d['data'][i]['session_request']['config']['sources']
+
+Read that way, on 18 Sep:
+
+| Routine | Repo | Connectors |
+|---|---|---|
+| Shift audit — 6pm Manila | yes | Slack |
+| Curia call log upload | yes | Google Drive |
+| Weekly roster draft — Saturday | yes | Slack, Google Drive |
+| Availability vs capacity — Sat 12pm & 8pm | yes | Slack, Google Drive |
+| **Declared results for Curia** | **no** | **none** |
+| **Post availability — Friday 10am NZ** | **no** | **none** |
+
+The last two are the outstanding ones and both need Brendon in the UI. The
+Friday post is the more urgent of the two — it is the job that feeds the whole
+cycle, and it next fires 24 Sep.
+
+**No source carries a branch**, so a fired session checks out the repo's default
+branch. Every Routine prompt therefore has to `git fetch` and `git checkout
+claude/business-agent-dev-9jxs55` itself; they all do. Do not assume the
+development branch is what lands.
+
+**Only two connectors exist in this whole build: Slack and Google Drive.** Zoom
+is reached through its own API with the `ZOOM_*` environment variables, not a
+connector — adding the Zoom connector would do nothing (it 403s on licence).
+The Google Sheets connector is blocked at the Cloud-project level and also
+unauthorised here, so it is not an option. Gmail (Curia's survey links) and
+Microsoft 365 (SharePoint call sheets) are the only plausible future additions,
+and nothing built today uses either.
 
 ### LibreOffice does not start in this environment
 
