@@ -1176,6 +1176,35 @@ itself must be `npm install`ed into the scratchpad first.
 
 Also fixed on the way past: the file ended with **two** `</body></html>` pairs.
 
+### Locking #roster and #availability — and why it is safe
+
+Brendon asked 18 Sep 2026 how to restrict posting in the roster and availability
+channels. **The Slack connector still has no channel-admin tool** — re-checked
+against the full tool surface that day: read, send, react, canvases, lists,
+members, and nothing that sets posting permissions. It is his job in the Slack
+UI: channel name → **Settings → Permissions → Posting permissions** → specific
+people → him and Logan. There is a separate **"Manage posting in threads"**
+toggle underneath that has to be decided on its own.
+
+**CLAUDE POSTS AS BRENDON'S OWN USER ACCOUNT, NOT AS A BOT.** Verified: the
+availability messages of 18 Sep come back from `Brendon Duong`
+(`U0C0U8P4T0W`), and the pinned results message carries "Sent using Claude"
+under his name. No app or bot appears in the channel member list with
+`include_bots: true`.
+
+So **restricting posting to Brendon and Logan does NOT break the two Routines
+that post** — the availability post and the roster post both go out under his
+account and he is on the allowed list. This was the obvious risk and it is ruled
+out, not assumed.
+
+**Reactions are unaffected by a posting restriction**, which is what makes the
+whole thing possible: ✅/❌ availability voting and ✅-to-acknowledge on the roster
+keep working.
+
+**Do NOT lock `#results-pacificlinkglobal` or `#shift-changes-pacificlinkglobal`**
+— callers have to post in both, and locking either would kill the declared half
+of the audit.
+
 ### Posting to Slack is refused at random — and the fix is draft-then-send
 
 Live, 18 Sep 2026, posting five availability messages: `slack_send_message` was
