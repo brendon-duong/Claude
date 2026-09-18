@@ -1112,9 +1112,39 @@ run, none of it guessed:**
 - It also names **who is doing well** — Brendon wants to praise people, not only
   chase them — and says **who it deliberately did not flag and why**.
 
-**Connectors: Slack and Google Drive**, plus the repo. Drive matters more than it
-looks: it reads the Curia schedule to know **which days actually ran**, so a
-no-shift day (like Sunday 20 Sep) is not read as everybody failing to turn up.
+**Connectors: Slack, Google Drive AND Microsoft 365**, plus the repo. Drive
+matters more than it looks: it reads the Curia schedule to know **which days
+actually ran**, so a no-shift day (like Sunday 20 Sep) is not read as everybody
+failing to turn up.
+
+**It emails the report to Brendon — added 18 Sep on his ask.** Two things a
+future session needs to know:
+
+- **Brendon's mail is Microsoft 365, not Gmail.** `mcp__Microsoft_365__get_me`
+  returns `brendon@pacificlinkglobal.com` as both `mail` and
+  `userPrincipalName`. The Gmail connector is the wrong one for him.
+- **`outlook_send_mail` TAKES NO ATTACHMENTS.** Body only, 500,000 characters,
+  and the HTML is sanitised against a narrow allowlist — `<img>`, `<style>` and
+  `<span>` are **stripped**, so nothing may depend on them and colour must never
+  carry meaning. The whole report therefore goes in the body as HTML, drafts in
+  `<pre>` blocks so he can copy them cleanly, and the CSV still goes separately
+  by `SendUserFile`.
+
+**The only address it may ever send to is `brendon@pacificlinkglobal.com`**, with
+nothing in cc or bcc. Emailing him his own report is within
+draft-everything-send-nothing because it is his own report to his own inbox;
+anything addressed to a caller, Curia or Logan stays a draft. The prompt states
+this explicitly, twice.
+
+The email is ordered for a phone: **who to message and the ready-to-send drafts
+first**, then who is doing well, then who was deliberately not flagged, then the
+full table last. He reads it to decide who to talk to, so the decisions go at the
+top. If Microsoft 365 is missing the run still does the work and says loudly that
+the email could not be sent — it never silently skips it.
+
+Note this is separate from the Routine's own `notifications: {push, email}`,
+which is only a "your routine finished" ping from Claude and carries neither the
+table nor the drafts.
 
 **It shares its cron with the availability post** (`trig_018DK3nkDkvoWnvGBkLhMzwb`,
 also `0 22 * * 4`). Two Routines firing the same minute is fine, and both carry
@@ -1203,7 +1233,7 @@ Read that way, on 18 Sep:
 | Availability vs capacity — Sat 12pm & 8pm | yes | Slack, Google Drive |
 | Declared results for Curia | yes | Slack, Google Drive |
 | **Post availability — Friday 10am NZ** | **no** | **none** |
-| **Weekly performance review — Friday 10am NZ** | **no** | **none** |
+| **Weekly performance review — Friday 10am NZ** | **no** | **none** (needs Slack, Drive **and Microsoft 365**) |
 
 **Re-checked the same evening: Brendon wired Declared results while this was
 being written**, so it is off the list. **`Post availability — Friday 10am NZ`
@@ -1216,13 +1246,13 @@ branch. Every Routine prompt therefore has to `git fetch` and `git checkout
 claude/business-agent-dev-9jxs55` itself; they all do. Do not assume the
 development branch is what lands.
 
-**Only two connectors exist in this whole build: Slack and Google Drive.** Zoom
-is reached through its own API with the `ZOOM_*` environment variables, not a
-connector — adding the Zoom connector would do nothing (it 403s on licence).
-The Google Sheets connector is blocked at the Cloud-project level and also
-unauthorised here, so it is not an option. Gmail (Curia's survey links) and
-Microsoft 365 (SharePoint call sheets) are the only plausible future additions,
-and nothing built today uses either.
+**Three connectors are now in use: Slack, Google Drive and Microsoft 365.**
+Microsoft 365 joined on 18 Sep so the weekly performance review can email
+Brendon — his mail is M365, not Gmail. Zoom is reached through its own API with
+the `ZOOM_*` environment variables, not a connector — adding the Zoom connector
+would do nothing (it 403s on licence). The Google Sheets connector is blocked at
+the Cloud-project level and also unauthorised here, so it is not an option.
+Gmail is not used by anything and is the wrong account for Brendon's mail.
 
 ### LibreOffice does not start in this environment
 
