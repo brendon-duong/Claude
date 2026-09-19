@@ -230,6 +230,69 @@
   .row dd { margin: 0; color: var(--ink-2); }
   .row dd strong { color: var(--ink); font-weight: 500; }
 
+  /* ---- plain-English gist + collapsed detail ---- */
+  .gist {
+    margin: 0;
+    color: var(--ink);
+    font-size: 1rem;
+    line-height: 1.5;
+    max-width: 68ch;
+  }
+  .gist b { font-weight: 600; }
+
+  details.drill { margin: 0; }
+  details.drill > summary {
+    list-style: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: .45em;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .72rem;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--brand);
+    padding: 4px 0;
+    width: fit-content;
+  }
+  details.drill > summary::-webkit-details-marker { display: none; }
+  details.drill > summary::before {
+    content: "+";
+    font-size: .95rem;
+    line-height: 1;
+    width: 1em;
+    text-align: center;
+  }
+  details.drill[open] > summary::before { content: "\2212"; }
+  details.drill > summary:hover { color: var(--ink); }
+  details.drill > summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+  details.drill[open] > summary { margin-bottom: 10px; }
+  details.drill > .rows:first-of-type { margin-top: 0; }
+
+  /* ---- asks: title visible, reasoning folded ---- */
+  ol.asks li .tick-body > b { margin-bottom: 0; }
+  details.ask-more { margin: 6px 0 0 32px; }
+  details.ask-more > summary {
+    list-style: none;
+    cursor: pointer;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .7rem;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--brand);
+    width: fit-content;
+    padding: 2px 0;
+  }
+  details.ask-more > summary::-webkit-details-marker { display: none; }
+  details.ask-more > summary::before { content: "+ "; }
+  details.ask-more[open] > summary::before { content: "\2212 "; }
+  details.ask-more > summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+  details.ask-more > div {
+    color: var(--ink-2);
+    padding-top: 8px;
+    max-width: 70ch;
+  }
+
   .quote {
     background: var(--sunk);
     border-radius: 8px;
@@ -412,16 +475,14 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 19 September 2026, 1.00am NZ · tick a task and it clears itself off the list</div>
+    <div class="eyebrow">Build register · updated 19 September 2026, 1.15am NZ · tick a task and it clears itself off the list</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
-      What is still open on the Pacific Link agent, and why. Written to be handed to someone
-      technical — every constraint is stated with the API behaviour that causes it, so nobody
-      rediscovers it. <strong>Trimmed on 12 September:</strong> nine entries that were fully
-      solved came out and are listed in one line each at the bottom, along with the
-      <strong>five</strong> claims this register got wrong — two of them added on
-      18–19 September, both of which had been sitting here stated as fact. Everything still on
-      this page is work someone has to do.
+      Everything still open on the Pacific Link agent. <strong>Each entry opens as one plain
+      sentence — hit <em style="font-style:normal">the detail</em> for the API behaviour behind
+      it</strong>, which is there so nobody has to rediscover it the hard way. Solved items are one
+      line each at the bottom, along with the five claims this page got wrong, kept visible on
+      purpose.
     </p>
     <div class="meta">13,036 lines · 568 tests passing · branch claude/business-agent-dev-9jxs55</div>
 
@@ -435,7 +496,7 @@
       <button type="button" class="tally-btn" data-goto="closed"
         ><span class="dot" style="background:var(--live)"></span><b>10</b> closed &amp; removed<span class="arrow">↓</span></button>
       <button type="button" class="tally-btn" data-goto="asks"
-        ><span class="dot" style="background:var(--waiting)"></span><b>19</b> waiting on you<span class="arrow">↓</span></button>
+        ><span class="dot" style="background:var(--waiting)"></span><b>20</b> waiting on you<span class="arrow">↓</span></button>
     </div>
     <p id="filter-note" hidden></p>
   </header>
@@ -488,6 +549,8 @@
           <span class="tag t-worked">Mostly resolved 17 Sep</span>
           <span class="tag t-pending">One Routine still bare</span>
         </div>
+        <p class="gist">A scheduled job starts with an empty folder unless you attach the repo in the Routines UI. Five of six are done. <b>One left: Post availability.</b></p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>What happened</dt><dd>
             The roster Routine fired on schedule, Saturday 12 September 10:00 UTC, into the Pacific
@@ -543,6 +606,8 @@
             effectively is it: if <code>cd /home/user/Claude</code> fails, say so and stop.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item blocked" data-kind="blocked">
@@ -551,6 +616,8 @@
           <span class="tag t-worked">Found and fixed 18 Sep</span>
           <span class="tag t-pending">Check the others</span>
         </div>
+        <p class="gist">Routine prompts don't reload when the rules change, so two were running on out-of-date instructions. Both found and fixed.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>What was wrong</dt><dd>
             The shift audit Routine's prompt still expected the <strong>old pinned
@@ -603,6 +670,8 @@
             restatement do not apply to them — but that is reasoning, not a check.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item blocked" data-kind="blocked">
@@ -611,6 +680,8 @@
           <span class="tag t-blocked">Intermittent</span>
           <span class="tag t-worked">Workaround found</span>
         </div>
+        <p class="gist">Roughly one Slack post in three is blocked at random. Draft-then-send clears it every time, so anything posting a set of messages must verify afterwards.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>What happens</dt><dd>
             <code>slack_send_message</code> is sometimes refused by the harness's own auto-mode
@@ -642,6 +713,8 @@
             rather than trusting what the calls returned.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item blocked" data-kind="blocked">
@@ -650,6 +723,8 @@
           <span class="tag t-blocked">Blocked</span>
           <span class="tag t-pending">30 manual shares, once</span>
         </div>
+        <p class="gist">Folders and files can be created in SharePoint, but nothing here can grant one person access — there is no sharing call. Google Drive can, which is the way round it.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Why</dt><dd>
             The M365 connector has <code>create_folder</code>, <code>upload_file</code>,
@@ -674,6 +749,8 @@
             <code>Call Sheets</code> folder, or everyone gets everyone's numbers.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item blocked" data-kind="blocked">
@@ -682,6 +759,8 @@
           <span class="tag t-blocked">Blocked</span>
           <span class="tag t-pending">Script not yet run</span>
         </div>
+        <p class="gist">Old call sheets are still open to anyone with the link, and access can be granted but never revoked from here. The revocation script is written and not yet run.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Why</dt><dd>
             <code>share_file</code> grants a role and, by its own documentation, only ever
@@ -703,6 +782,8 @@
             link-sharing and removes stale editors on a second run. <strong>Still to be run.</strong>
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item blocked" data-kind="blocked">
@@ -711,6 +792,8 @@
           <span class="tag t-blocked">Hard limit</span>
           <span class="tag t-pending">Apps Script is the only route</span>
         </div>
+        <p class="gist">Numbers can be read, allocated and the file renamed — but <b>no connector here can colour a cell or write into a file</b>. Only the Apps Script in your own account can.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>The ask</dt><dd>
             Brendon, 18 September: take the numbers from Curia's pool, allocate a block to each
@@ -746,6 +829,8 @@
             entry blurred the two.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item worked" data-kind="worked">
@@ -754,6 +839,8 @@
           <span class="tag t-worked">Proved live 18–19 Sep</span>
           <span class="tag t-pending">Two decisions needed</span>
         </div>
+        <p class="gist">Call sheet generation works, re-proved on Curia's real 325,284-number pool. Delivery no longer needs SharePoint — Drive can upload and share to one named address.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Re-proved, not asserted</dt><dd>
             <strong>568 tests pass</strong>, and the generator was run end to end against the live
@@ -808,14 +895,18 @@
             already proved.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item blocked" data-kind="blocked">
         <div class="item-head">
-          <h3>Curia's results page can be read but not written — and the schedule cannot be read past 2022</h3>
+          <h3>Curia's results page can be read but not written</h3>
           <span class="tag t-blocked">Blocked</span>
           <span class="tag t-pending">Apps Script is the route</span>
         </div>
+        <p class="gist">The sheet Curia read can be read in full but not written to. Three of its eight columns are already producible; an Apps Script is the route for the rest.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Asked</dt><dd>
             Automate <em style="font-style:normal">PL for Curia Staff Results Record</em> — the sheet
@@ -913,6 +1004,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             answer.</strong> Not written yet; offered.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item blocked" data-kind="blocked">
@@ -921,6 +1014,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
           <span class="tag t-blocked">Blocked</span>
           <span class="tag t-pending">Two separate reasons</span>
         </div>
+        <p class="gist">Per-poll completion thresholds need the survey opened, and two things stop that: cmix.com isn't allowlisted, and the test links arrive corrupted.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>The idea</dt><dd>
             Brendon's, and a good one: read each survey and set the completion threshold
@@ -961,6 +1056,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             automatically more correct.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
 
@@ -970,6 +1067,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
           <span class="tag t-worked">Working</span>
           <span class="tag t-worked">Calibrated</span>
         </div>
+        <p class="gist">The shift audit is built and running nightly — attempts, answered, completes, breaks, hours worked, shortfall.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>What it does</dt><dd>
             <code>business_agent/calllogs.py</code> groups a day's Zoom Phone calls per caller and
@@ -1065,6 +1164,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             30 seconds", which is the same 150s. See the calibration entry below.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       
@@ -1074,6 +1175,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
           <h3>Calibrated against Elaine's manual audit — the 150s threshold is hers</h3>
           <span class="tag t-worked">Settled</span>
         </div>
+        <p class="gist">Completes agree with Elaine on 19 of 22 callers, and the 150-second cutoff turned out to be her own figure, not a guess.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>The open question</dt><dd>
             This register has asked three times for the completion threshold to be
@@ -1139,6 +1242,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             <code>Kharen Mae Pihana</code>. Three spellings, one person, reported not merged.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item blocked" data-kind="blocked">
@@ -1147,6 +1252,8 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
           <span class="tag t-blocked">Blocked</span>
           <span class="tag t-pending">Needs a decision</span>
         </div>
+        <p class="gist">Microsoft won't hand a call sheet's contents to any app that can't decrypt it, and 47 of 48 caller folders are empty anyway.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Asked</dt><dd>
             Download Pernelia's call sheet for <strong>10 September</strong> — a normal request, and
@@ -1196,6 +1303,8 @@ unless the file or its label changes.</div>
             help either: the tenant index holds <strong>one file</strong> from this whole site.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item pending" data-kind="pending">
@@ -1204,6 +1313,8 @@ unless the file or its label changes.</div>
           <span class="tag t-worked">Unblocks the audit</span>
           <span class="tag t-pending">Untested; one column missing</span>
         </div>
+        <p class="gist">Declared numbers come from Slack, and <b>the screenshot is the real declaration</b> — the typed text misses GNA on almost everyone.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Why it matters</dt><dd>
             The audit needs what a caller <em style="font-style:normal">declared</em>, and the entry
@@ -1290,6 +1401,8 @@ unless the file or its label changes.</div>
             Jane Labora record. Build the identity map on email; stop matching display names.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item pending" data-kind="pending">
@@ -1297,6 +1410,8 @@ unless the file or its label changes.</div>
           <h3>Messaging a caller about their own numbers — not on this metric yet</h3>
           <span class="tag t-pending">Needs a decision</span>
         </div>
+        <p class="gist">Time off the phone still reads up to 4x the manual audit, so it must never go in a message to a caller. Everything else can.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>The intent</dt><dd>
             Run the audit about an hour after the shift ends — finish 5pm, audit 6pm — and message
@@ -1349,6 +1464,8 @@ unless the file or its label changes.</div>
             nothing. The first honest test is the first shift that posts results.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item pending" data-kind="pending">
@@ -1357,6 +1474,8 @@ unless the file or its label changes.</div>
           <span class="tag t-worked">Routine live — first run Sun 13 Sep</span>
           <span class="tag t-pending">Slow by design; Brendon chose it</span>
         </div>
+        <p class="gist">Curia's raw call logs are rebuilt from the API and uploaded nightly — row counts and number formats match Elaine's hand export exactly.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>The job</dt><dd>
             Curia audit Pacific Link <em style="font-style:normal">independently</em> and need the
@@ -1470,6 +1589,8 @@ unless the file or its label changes.</div>
             two runs land before she fully stops.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
 
@@ -1479,6 +1600,8 @@ unless the file or its label changes.</div>
           <span class="tag t-worked">On the dashboard</span>
           <span class="tag t-worked">Routine live — first real run 12 Sep</span>
         </div>
+        <p class="gist">The roster ranks on 75% completes / 25% time away, snake-drafts multi-poll days, and runs from the Slack votes. Three decisions still open.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>The design, agreed 12 September</dt><dd>
             One Routine, Saturday 10:00 UTC (6pm Manila, 10pm NZ). It reads the ✓/✗ reactions off
@@ -1558,6 +1681,8 @@ unless the file or its label changes.</div>
             at least once a week, or the bottom slots rotate, or none (ask 10). Everything else is built.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item pending" data-kind="pending">
@@ -1566,6 +1691,8 @@ unless the file or its label changes.</div>
           <span class="tag t-worked">Proven end to end</span>
           <span class="tag t-blocked">Blocked on sharing</span>
         </div>
+        <p class="gist">Cutting the numbers was never the hard part. Getting each caller their own sheet is, and Drive now looks like the answer.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Why it was looked at</dt><dd>
             Brendon, 17 September: cutting the numbers is <em style="font-style:normal">"all manual
@@ -1610,6 +1737,8 @@ unless the file or its label changes.</div>
             day. The other four pools have not been measured yet; it is one read each.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item pending" data-kind="pending">
@@ -1618,6 +1747,8 @@ unless the file or its label changes.</div>
           <span class="tag t-worked">Routine built 18 Sep</span>
           <span class="tag t-pending">Needs its connectors</span>
         </div>
+        <p class="gist">For a week nobody owned posting the availability message, so there was nothing to roster from. There is now a Routine for it.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>The hole in the cycle</dt><dd>
             The roster is built from ✅ reactions. Something has to post the day messages people react
@@ -1677,6 +1808,8 @@ unless the file or its label changes.</div>
             will run as written.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item pending" data-kind="pending">
@@ -1684,6 +1817,8 @@ unless the file or its label changes.</div>
           <h3>Slack free plan: 90 days of history</h3>
           <span class="tag t-pending">Plan for it</span>
         </div>
+        <p class="gist">Slack keeps 90 days of history on the free plan, so anything older has to be pulled out before it disappears.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Not the problem</dt><dd>
             <strong>No member cap.</strong> The "1,000 users" figure is not the binding limit — a free
@@ -1705,6 +1840,8 @@ unless the file or its label changes.</div>
             That belongs in the weekly routine.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item pending" data-kind="pending">
@@ -1712,6 +1849,8 @@ unless the file or its label changes.</div>
           <h3>WhatsApp connector: quota and a browser dependency</h3>
           <span class="tag t-pending">Needs a decision</span>
         </div>
+        <p class="gist">The WhatsApp connector needs a browser session on your side and currently answers that no engine is connected.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Limit</dt><dd>
             Blueticks free allows <strong>5 API requests per 6 hours</strong>. One week's roster cycle
@@ -1741,6 +1880,8 @@ unless the file or its label changes.</div>
             to the agent.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       
@@ -1765,6 +1906,8 @@ unless the file or its label changes.</div>
           <h3>Names that can't be matched safely</h3>
           <span class="tag t-pending">Needs you</span>
         </div>
+        <p class="gist">Every caller has up to four spellings across Zoom, Slack, the call sheets and Elaine's audit. Email is the only reliable join key.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Unmatched</dt><dd>
             <strong>Alexis</strong> and <strong>Nelle</strong> appear in the roster and match nobody
@@ -1814,6 +1957,8 @@ unless the file or its label changes.</div>
             Confirm each once; they're written to an alias file and never asked again.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item pending" data-kind="pending">
@@ -1822,6 +1967,8 @@ unless the file or its label changes.</div>
           <span class="tag t-worked">Built</span>
           <span class="tag t-pending">Roster data is stale</span>
         </div>
+        <p class="gist">The real contact list is materially different from team.csv, which is stale — only 10 of its 33 names still work here.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Built</dt><dd>
             <strong>43 addresses</strong>, in <code>agent/data/contacts.csv</code> — deliberately
@@ -1847,6 +1994,8 @@ unless the file or its label changes.</div>
             is confirmed <strong>not</strong> Mary Joy <em style="font-style:normal">Tongson</em>.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
 
       <article class="item pending" data-kind="pending">
@@ -1854,6 +2003,8 @@ unless the file or its label changes.</div>
           <h3>Sundays are genuinely short</h3>
           <span class="tag t-pending">Operational</span>
         </div>
+        <p class="gist">Sunday shifts run thinner than the rest of the week, and that is a real staffing pattern rather than a data problem.</p>
+        <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Numbers</dt><dd>
             Standing patterns cover <strong>4 callers on a Sunday against 10 needed</strong>.
@@ -1865,6 +2016,8 @@ unless the file or its label changes.</div>
             Worth checking before treating it as a staffing problem.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
     </div>
   </section>
@@ -1979,24 +2132,25 @@ unless the file or its label changes.</div>
       going to be rostered this week anyway. What is left here is everything else.</p>
     </div>
     <ol class="asks">
-      <li><label class="tick"><input type="checkbox" data-task="ask-1" disabled><span class="tick-body"><b>1. Upload the Orientation Module and the FAQs</b><span class="mono">Orientation Module (1).pptx</span> (9MB) and <span class="mono">Curia Staff FAQS May 2024 (2).doc</span>, from the 19 February email, into <span class="mono">/sites/callsheets/Shared Documents/Resources</span>. The pptx is over the connector's 1MB upload cap, so this one cannot be done for you. Then paste both links into the resources post in Slack: the version live now has <b style="display:inline">no links at all</b> on items 1 and 2, and there is a duplicate copy of the post to delete. The links only open for callers once item 2 is done.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-2" disabled><span class="tick-body"><b>2. Turn on external sharing</b>Admin centre &rarr; Sites &rarr; Active sites &rarr; <span class="mono">callsheets</span> &rarr; Settings &rarr; External sharing &rarr; <b style="display:inline">Anyone</b>. Five minutes. Callers have no Microsoft accounts, so until this is on they cannot open a call sheet or a resource link. Items 1, 3 and 6 all depend on it.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-3" disabled><span class="tick-body"><b>3. Share the 48 caller folders</b>Every folder is built and named — 48 of them, not the 30 estimated earlier. Use <b style="display:inline">Specific people</b>, never "Anyone with the link", and share each caller's own folder rather than the parent. Thirty shares, once, and never again — after that, new call sheets drop into an already-shared folder with no further action. The agent cannot do this step: the connector has no sharing call.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-4" disabled><span class="tick-body"><b>4. Create the Agent Memory folder</b>Under <span class="mono">PacificLinkGlobal/Shared Documents/General/</span>, with the contacts file in it. A write there was refused by a safety guard, so it needs you. Until it exists, every new session starts knowing nobody. Not in the callsheets site — that one is about to be externally shared.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-5" disabled><span class="tick-body"><b>5. Fix the folders named from a guess</b><span class="mono">Juvylyn Abe</span> and <span class="mono">Karen Boiser</span> were inferred from email handles because they never set a Slack display name. Ask them to set Profile &rarr; Full name and the folders get corrected automatically. <b style="display:inline">Jane is already fixed</b> — that folder now reads <span class="mono">Jane Labora</span>, so the earlier <span class="mono">Jane Wareei</span> entry here was stale. Note Zoom shows a <b style="display:inline">third</b> spelling, <span class="mono">Jane Wary Rose Espanueva</span>, which may or may not be the same person.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-6" disabled><span class="tick-body"><b>6. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-7" disabled><span class="tick-body"><b>7. Add <span class="mono">NA</span> to the results format before the next shift posts</b>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-8" disabled><span class="tick-body"><b>8. <strike>Paste the Curia schedule rows</strike> — done, and it was never yours to do</b>This asked you to paste columns A, B and F because the schedule "could not be read past 2022". It could: <span class="mono">get_file_metadata</span> with <span class="mono">MAX_ALLOWED</span> returns the whole sheet where <span class="mono">read_file_content</span> truncates. The week is read, the roster is on real polls and headcounts, and the ask should never have existed. Left here rather than deleted.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-9" disabled><span class="tick-body"><b>9. Two Slack names left — and both your answers clash with the data</b>Three are done: <span class="mono">boiserkaren21</span> = Karen Boiser, <span class="mono">Goldy Kaye</span> = Goldy Kaye Maglasang, <span class="mono">CJ</span> = Crystal Jahm Peralta, each backed by the account email. Two are not. <span class="mono">Cha</span> — you said Charlotte, but that account's email is charyjay12@gmail.com and Charlotte Gimpes votes from a separate account (chaching.gimpes@gmail.com); they can't be the same person, so which is Cha? <strike><span class="mono">Jane</span> — you said Jane Wareei, but that is recorded here as a wrong guess from her email handle.</strike> <b style="display:inline">Closed 16 Sep — and you were right.</b> Her own call sheet is headed JANE WARY ESPANUEVA, so she is Zoom's <span class="mono">jane wary rose espanueva</span> and has call history after all. Only <span class="mono">Cha</span> is left.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-10" disabled><span class="tick-body"><b>10. Decide on a roster floor</b>With none, the dummy run gives the same 17 people all five nights and 17 voters nothing, and a new starter can never get a first shift because there is no history to rank them on. Options: everyone who ticks ✓ works at least once a week; or the bottom five slots rotate; or no floor. One line from you and it is built either way.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-11" disabled><span class="tick-body"><b>11. Add <span class="mono">cmix.com</span> to the Pacific Link environment's allowlist, and paste one working Test link</b>The environment only allows zoom.us, so no survey can be opened from it. And the Test links in Curia's emails arrive corrupted — every <span class="mono">=</span> in the query string is a control character — so one pasted from wherever the callers get it is needed. The Live link is never opened. Only worth doing if you want the per-poll threshold idea pursued.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-12" disabled><span class="tick-body"><b>12. Set the upload Routine's model to Sonnet 5</b>In the Routines UI, on <span class="mono">Curia call log upload (Sun–Thu)</span>. Mechanical job, and the byte-count check catches a slip. Leave the audit and the roster on Fable. Or say the word and it is set from here.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-13" disabled><span class="tick-body"><b>13. Run the Google access revocation script</b>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</span></label></li><li><label class="tick"><input type="checkbox" data-task="ask-14" disabled><span class="tick-body"><b>14. Lock #roster and #availability so only you and Logan can post</b>Channel → Settings → Permissions → Posting permissions → restrict to specific people. <b>Checked live 12 Sep: the Slack connector exposes no channel-administration tool at all</b> — it can read members, messages and reactions, and send or draft messages, and that is the whole surface. So this is not something that can be done for you or automated later; it is a permanent manual step. Worth knowing before you do it: <b>reactions still work when posting is restricted</b>, so ✅ availability voting and roster acknowledgement both keep working exactly as they do now.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-15" disabled><span class="tick-body"><b>15. Finish wiring the last three Routines — repo and connectors</b><strike>Attach the repository to the Routines' environment.</strike> <b style="display:inline">Done on the audit, upload and roster, 17 Sep — and that night all three ran for real for the first time, putting 24 caller CSVs in front of Curia's auditor.</b> <b style="display:inline">And the capacity and declared-results Routines now have theirs too</b> — re-read live on the evening of 18 Sep, so <b style="display:inline">five of six are wired</b>. <b style="display:inline">One</b> Routine is still completely bare and will stop at step 1: <span class="mono">Post availability — Friday 10am NZ</span>, which needs <b style="display:inline">repo + Slack + Google Drive</b>. Same values as before: <span class="mono">brendon-duong/Claude</span>. <b style="display:inline">Slack and Google Drive are the only two connectors this whole build uses</b> — Zoom goes through its own API with the <span class="mono">ZOOM_*</span> environment variables, not a connector, and the Google Sheets connector is blocked at the Cloud-project level. <b style="display:inline">This is the urgent one</b>: it next fires Thu 24 Sep and it is the job the whole weekly cycle feeds from — no post, no votes, and Saturday's roster has nothing to rank.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-16" disabled><span class="tick-body"><b>16. Ask Erika and Goldy which of their two numbers is right</b>Both typed a summary that does not match the call sheet they attached. <span class="mono">Erika Jane Boiser</span> typed 69 ring backs and 32 refused; her sheet says <b style="display:inline">62 and 29</b>. <span class="mono">Goldy Kaye</span> left ring backs out of her text altogether; her sheet has <b style="display:inline">36</b>. The sheets were used because they reconcile to the caller's own total — but one of each pair is wrong and it goes to Curia either way. Two messages.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-17" disabled><span class="tick-body"><b>17. One shared call-sheet template</b>At least <b style="display:inline">eight layouts</b> are in use across the team — GNA, Inactive, Not Active, Not Available, Hang up, Incomplete, Unqualified, Disqualified, Already Done, Do Not Call, Busy line/Disconnected, Dialed RBs, Callback. Every sheet has to be mapped by hand into Curia's four codes, and a misread reaches Curia as fact. <b style="display:inline">One template ends that permanently</b> and makes the nightly declared-results Routine reliable instead of interpretive. Pick the clearest sheet already in use — Leizel's and Princess's both carry every field including a reconciling total — and send it round.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-18" disabled><span class="tick-body"><b>18. Decide how the green shading gets done on Curia's pool</b>You asked for taken numbers shaded green in <span class="mono">NZ Numbers 2026 - 2027 - USE FROM 6400.xlsx</span>. <b style="display:inline">No connector here can write a cell in any file, for anyone</b> — that is a property of the tools, not a permission you can grant, and your edit access was proved separately with a no-op rename. The only route is <span class="mono">ops/allocate_callsheet.gs</span> running in your own Google account, which does all four steps. Two things need your answer: <b style="display:inline">(a)</b> the file is an <span class="mono">.xlsx</span>, and cell formatting cannot be applied to an xlsx by anything — will Curia accept their master being converted to a Google Sheet? <b style="display:inline">(b)</b> if not, do we take a copy into your Drive, make that the working pool, and tell Curia where it got to rather than them reading their own file? Either works; the question just has to be settled before a real run.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-19" disabled><span class="tick-body"><b>19. Should call sheets go to Google Drive instead of waiting on SharePoint?</b>SharePoint delivery is blocked on external sharing (ask 2) and then needs 48 manual folder shares (ask 3), because <b style="display:inline">the M365 connector has no sharing call at all</b>. <b style="display:inline">Google Drive has one</b> — <span class="mono">share_file</span> grants to a <em style="font-style:normal">named email address</em>, not "anyone with the link", so it is not a return to the old forwardable-link problem. That makes the whole chain automatic with <b style="display:inline">zero manual shares</b>: generate → upload → share to the caller's own address. Second part of the question: does each caller get <b style="display:inline">one file re-shared each day</b>, or <b style="display:inline">a folder of their own shared once</b>? Nothing is shared with a real caller until you say so.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-1" disabled><span class="tick-body"><b>1. Upload the Orientation Module and the FAQs</b></span></label><details class="ask-more"><summary>why</summary><div><span class="mono">Orientation Module (1).pptx</span> (9MB) and <span class="mono">Curia Staff FAQS May 2024 (2).doc</span>, from the 19 February email, into <span class="mono">/sites/callsheets/Shared Documents/Resources</span>. The pptx is over the connector's 1MB upload cap, so this one cannot be done for you. Then paste both links into the resources post in Slack: the version live now has <b style="display:inline">no links at all</b> on items 1 and 2, and there is a duplicate copy of the post to delete. The links only open for callers once item 2 is done.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-2" disabled><span class="tick-body"><b>2. Turn on external sharing</b></span></label><details class="ask-more"><summary>why</summary><div>Admin centre &rarr; Sites &rarr; Active sites &rarr; <span class="mono">callsheets</span> &rarr; Settings &rarr; External sharing &rarr; <b style="display:inline">Anyone</b>. Five minutes. Callers have no Microsoft accounts, so until this is on they cannot open a call sheet or a resource link. Items 1, 3 and 6 all depend on it.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-3" disabled><span class="tick-body"><b>3. Share the 48 caller folders</b></span></label><details class="ask-more"><summary>why</summary><div>Every folder is built and named — 48 of them, not the 30 estimated earlier. Use <b style="display:inline">Specific people</b>, never "Anyone with the link", and share each caller's own folder rather than the parent. Thirty shares, once, and never again — after that, new call sheets drop into an already-shared folder with no further action. The agent cannot do this step: the connector has no sharing call.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-4" disabled><span class="tick-body"><b>4. Create the Agent Memory folder</b></span></label><details class="ask-more"><summary>why</summary><div>Under <span class="mono">PacificLinkGlobal/Shared Documents/General/</span>, with the contacts file in it. A write there was refused by a safety guard, so it needs you. Until it exists, every new session starts knowing nobody. Not in the callsheets site — that one is about to be externally shared.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-5" disabled><span class="tick-body"><b>5. Fix the folders named from a guess</b></span></label><details class="ask-more"><summary>why</summary><div><span class="mono">Juvylyn Abe</span> and <span class="mono">Karen Boiser</span> were inferred from email handles because they never set a Slack display name. Ask them to set Profile &rarr; Full name and the folders get corrected automatically. <b style="display:inline">Jane is already fixed</b> — that folder now reads <span class="mono">Jane Labora</span>, so the earlier <span class="mono">Jane Wareei</span> entry here was stale. Note Zoom shows a <b style="display:inline">third</b> spelling, <span class="mono">Jane Wary Rose Espanueva</span>, which may or may not be the same person.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-6" disabled><span class="tick-body"><b>6. Decide on the sensitivity label on <span class="mono">/sites/callsheets</span></b></span></label><details class="ask-more"><summary>why</summary><div>Microsoft refuses to hand call sheet contents to any application that cannot decrypt them, so the agent cannot read what callers type. If the label can come off this one library, the audit gets both halves automatically. If it cannot, say so and declared numbers will come from WhatsApp end-of-day instead — either answer is workable, but the question has to be settled. Also worth knowing: <b style="display:inline">47 of the 48 caller folders are empty</b>, so the sheets are not being filed there yet regardless.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-7" disabled><span class="tick-body"><b>7. Add <span class="mono">NA</span> to the results format before the next shift posts</b></span></label><details class="ask-more"><summary>why</summary><div>Curia's call sheet has four marks: <b style="display:inline">C</b> completed, <b style="display:inline">RB</b> ring back (rang, nobody answered — call again later), <b style="display:inline">R</b> refused (never call again), <b style="display:inline">NA</b> the number never rang at all. The pinned message in <span class="mono">#results-pacificlinkglobal</span> asks for three of the four. Total calls is <span class="mono">C + RB + R + NA</span>, so without <span class="mono">NA</span> the declared total cannot be built and Elaine's second check is lost — and <span class="mono">NA</span> was the biggest category on 10 September. One word added to the pinned example fixes it. Do it while the channel is still empty.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-8" disabled><span class="tick-body"><b>8. <strike>Paste the Curia schedule rows</strike> — done, and it was never yours to do</b></span></label><details class="ask-more"><summary>why</summary><div>This asked you to paste columns A, B and F because the schedule "could not be read past 2022". It could: <span class="mono">get_file_metadata</span> with <span class="mono">MAX_ALLOWED</span> returns the whole sheet where <span class="mono">read_file_content</span> truncates. The week is read, the roster is on real polls and headcounts, and the ask should never have existed. Left here rather than deleted.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-9" disabled><span class="tick-body"><b>9. Two Slack names left — and both your answers clash with the data</b></span></label><details class="ask-more"><summary>why</summary><div>Three are done: <span class="mono">boiserkaren21</span> = Karen Boiser, <span class="mono">Goldy Kaye</span> = Goldy Kaye Maglasang, <span class="mono">CJ</span> = Crystal Jahm Peralta, each backed by the account email. Two are not. <span class="mono">Cha</span> — you said Charlotte, but that account's email is charyjay12@gmail.com and Charlotte Gimpes votes from a separate account (chaching.gimpes@gmail.com); they can't be the same person, so which is Cha? <strike><span class="mono">Jane</span> — you said Jane Wareei, but that is recorded here as a wrong guess from her email handle.</strike> <b style="display:inline">Closed 16 Sep — and you were right.</b> Her own call sheet is headed JANE WARY ESPANUEVA, so she is Zoom's <span class="mono">jane wary rose espanueva</span> and has call history after all. Only <span class="mono">Cha</span> is left.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-10" disabled><span class="tick-body"><b>10. Decide on a roster floor</b></span></label><details class="ask-more"><summary>why</summary><div>With none, the dummy run gives the same 17 people all five nights and 17 voters nothing, and a new starter can never get a first shift because there is no history to rank them on. Options: everyone who ticks ✓ works at least once a week; or the bottom five slots rotate; or no floor. One line from you and it is built either way.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-11" disabled><span class="tick-body"><b>11. Add <span class="mono">cmix.com</span> to the Pacific Link environment's allowlist, and paste one working Test link</b></span></label><details class="ask-more"><summary>why</summary><div>The environment only allows zoom.us, so no survey can be opened from it. And the Test links in Curia's emails arrive corrupted — every <span class="mono">=</span> in the query string is a control character — so one pasted from wherever the callers get it is needed. The Live link is never opened. Only worth doing if you want the per-poll threshold idea pursued.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-12" disabled><span class="tick-body"><b>12. Set the upload Routine's model to Sonnet 5</b></span></label><details class="ask-more"><summary>why</summary><div>In the Routines UI, on <span class="mono">Curia call log upload (Sun–Thu)</span>. Mechanical job, and the byte-count check catches a slip. Leave the audit and the roster on Fable. Or say the word and it is set from here.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-13" disabled><span class="tick-body"><b>13. Run the Google access revocation script</b></span></label><details class="ask-more"><summary>why</summary><div>The old Google call sheets are still open — at least one is editable by anyone with the link — and moving to SharePoint does not close them. Audit mode changes nothing, so run that first and read the output. This is the last Google task; everything else there has been dropped.</div></details></li><li><label class="tick"><input type="checkbox" data-task="ask-14" disabled><span class="tick-body"><b>14. Lock #roster and #availability so only you and Logan can post</b></span></label><details class="ask-more"><summary>why</summary><div>Channel → Settings → Permissions → Posting permissions → restrict to specific people. <b>Checked live 12 Sep: the Slack connector exposes no channel-administration tool at all</b> — it can read members, messages and reactions, and send or draft messages, and that is the whole surface. So this is not something that can be done for you or automated later; it is a permanent manual step. Worth knowing before you do it: <b>reactions still work when posting is restricted</b>, so ✅ availability voting and roster acknowledgement both keep working exactly as they do now.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-15" disabled><span class="tick-body"><b>15. Finish wiring the last three Routines — repo and connectors</b></span></label><details class="ask-more"><summary>why</summary><div><strike>Attach the repository to the Routines' environment.</strike> <b style="display:inline">Done on the audit, upload and roster, 17 Sep — and that night all three ran for real for the first time, putting 24 caller CSVs in front of Curia's auditor.</b> <b style="display:inline">And the capacity and declared-results Routines now have theirs too</b> — re-read live on the evening of 18 Sep, so <b style="display:inline">five of six are wired</b>. <b style="display:inline">One</b> Routine is still completely bare and will stop at step 1: <span class="mono">Post availability — Friday 10am NZ</span>, which needs <b style="display:inline">repo + Slack + Google Drive</b>. Same values as before: <span class="mono">brendon-duong/Claude</span>. <b style="display:inline">Slack and Google Drive are the only two connectors this whole build uses</b> — Zoom goes through its own API with the <span class="mono">ZOOM_*</span> environment variables, not a connector, and the Google Sheets connector is blocked at the Cloud-project level. <b style="display:inline">This is the urgent one</b>: it next fires Thu 24 Sep and it is the job the whole weekly cycle feeds from — no post, no votes, and Saturday's roster has nothing to rank.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-16" disabled><span class="tick-body"><b>16. Ask Erika and Goldy which of their two numbers is right</b></span></label><details class="ask-more"><summary>why</summary><div>Both typed a summary that does not match the call sheet they attached. <span class="mono">Erika Jane Boiser</span> typed 69 ring backs and 32 refused; her sheet says <b style="display:inline">62 and 29</b>. <span class="mono">Goldy Kaye</span> left ring backs out of her text altogether; her sheet has <b style="display:inline">36</b>. The sheets were used because they reconcile to the caller's own total — but one of each pair is wrong and it goes to Curia either way. Two messages.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-17" disabled><span class="tick-body"><b>17. One shared call-sheet template</b></span></label><details class="ask-more"><summary>why</summary><div>At least <b style="display:inline">eight layouts</b> are in use across the team — GNA, Inactive, Not Active, Not Available, Hang up, Incomplete, Unqualified, Disqualified, Already Done, Do Not Call, Busy line/Disconnected, Dialed RBs, Callback. Every sheet has to be mapped by hand into Curia's four codes, and a misread reaches Curia as fact. <b style="display:inline">One template ends that permanently</b> and makes the nightly declared-results Routine reliable instead of interpretive. Pick the clearest sheet already in use — Leizel's and Princess's both carry every field including a reconciling total — and send it round.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-18" disabled><span class="tick-body"><b>18. Decide how the green shading gets done on Curia's pool</b></span></label><details class="ask-more"><summary>why</summary><div>You asked for taken numbers shaded green in <span class="mono">NZ Numbers 2026 - 2027 - USE FROM 6400.xlsx</span>. <b style="display:inline">No connector here can write a cell in any file, for anyone</b> — that is a property of the tools, not a permission you can grant, and your edit access was proved separately with a no-op rename. The only route is <span class="mono">ops/allocate_callsheet.gs</span> running in your own Google account, which does all four steps. Two things need your answer: <b style="display:inline">(a)</b> the file is an <span class="mono">.xlsx</span>, and cell formatting cannot be applied to an xlsx by anything — will Curia accept their master being converted to a Google Sheet? <b style="display:inline">(b)</b> if not, do we take a copy into your Drive, make that the working pool, and tell Curia where it got to rather than them reading their own file? Either works; the question just has to be settled before a real run.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-20" disabled><span class="tick-body"><b>20. Next week is short — Wednesday 23 by about 18 callers</b></span></label><details class="ask-more"><summary>why</summary><div>Read live Sat 19 Sep against the availability votes. Curia want <b style="display:inline">10 / 40 / 51 / 38</b> across Mon–Thu. Counting only people who said ✅ <em style="font-style:normal">and</em> have September call history, you have <b style="display:inline">34 / 33 / 33 / 34</b> — so Monday has 24 spare and <b style="display:inline">Wednesday is 18 short</b>, Tuesday 7, Thursday 4. Five people said ✅ with no shifts this month at all (JOHNRYTZ, Lui Jay Dawis, Marynel Joy Reanturco, Rechiell W., Cheska Rejante), which is what makes Thursday look covered when it is not. <b style="display:inline">17 people voted on nothing</b> and were all DM'd on 19 Sep, but 15 of them have never worked a shift, so chasing them barely moves the number — <b style="display:inline">the faster lever is asking people who already said ✅ on other days to add Wednesday</b>. Only two of the seventeen are real drift-offs: <b style="display:inline">Mary Joy Tongson</b> and <b style="display:inline">Lee Daniel Flores</b>, both of whom worked 1–10 Sep and then stopped.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-19" disabled><span class="tick-body"><b>19. Should call sheets go to Google Drive instead of waiting on SharePoint?</b></span></label><details class="ask-more"><summary>why</summary><div>SharePoint delivery is blocked on external sharing (ask 2) and then needs 48 manual folder shares (ask 3), because <b style="display:inline">the M365 connector has no sharing call at all</b>. <b style="display:inline">Google Drive has one</b> — <span class="mono">share_file</span> grants to a <em style="font-style:normal">named email address</em>, not "anyone with the link", so it is not a return to the old forwardable-link problem. That makes the whole chain automatic with <b style="display:inline">zero manual shares</b>: generate → upload → share to the caller's own address. Second part of the question: does each caller get <b style="display:inline">one file re-shared each day</b>, or <b style="display:inline">a folder of their own shared once</b>? Nothing is shared with a real caller until you say so.</div></details></li>
     </ol>
 
     <div class="section-head" style="margin-top:40px">
@@ -2004,8 +2158,8 @@ unless the file or its label changes.</div>
       <p>These are what the whole build has been for. Both are the agent's work, not yours.</p>
     </div>
     <ol class="asks">
-      <li><label class="tick"><input type="checkbox" data-task="job-roster" disabled><span class="tick-body"><b>Saturday 6pm Manila — build the roster</b>Design agreed 12 September and a dummy run is on the dashboard: read the &#10003;/&#10007; reactions off the five day messages, rank on completes and time away, fill Curia's slots per day from columns B and F, draft the roster with real @mentions, notify you, and post only when you reply. The same run puts up next week's availability message. Becomes a Routine the moment asks 8, 9 and 10 are answered.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="job-sheets" disabled><span class="tick-body"><b>Cut the call sheets from the number pools</b>Contiguous 200-number blocks, leading zeros repaired, next <span class="mono">USE FROM</span> computed — built, and <b style="display:inline">re-proved live on two real pools on 18–19 September</b>, including Curia's 325,284-number master. <b style="display:inline">The green shading is the one step no connector can do</b>; that belongs to the Apps Script in your account. Delivery no longer has to wait on SharePoint either — Google Drive can upload and share to a named address with no manual shares at all. Needs asks 18 and 19 answered.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="job-roster" disabled><span class="tick-body"><b>Saturday 6pm Manila — build the roster</b></span></label><details class="ask-more"><summary>why</summary><div>Design agreed 12 September and a dummy run is on the dashboard: read the &#10003;/&#10007; reactions off the five day messages, rank on completes and time away, fill Curia's slots per day from columns B and F, draft the roster with real @mentions, notify you, and post only when you reply. The same run puts up next week's availability message. Becomes a Routine the moment asks 8, 9 and 10 are answered.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="job-sheets" disabled><span class="tick-body"><b>Cut the call sheets from the number pools</b></span></label><details class="ask-more"><summary>why</summary><div>Contiguous 200-number blocks, leading zeros repaired, next <span class="mono">USE FROM</span> computed — built, and <b style="display:inline">re-proved live on two real pools on 18–19 September</b>, including Curia's 325,284-number master. <b style="display:inline">The green shading is the one step no connector can do</b>; that belongs to the Apps Script in your account. Delivery no longer has to wait on SharePoint either — Google Drive can upload and share to a named address with no manual shares at all. Needs asks 18 and 19 answered.</div></details></li>
     </ol>
   </section>
 
@@ -2039,6 +2193,8 @@ unless the file or its label changes.</div>
     <div class="items">
       <article class="item worked" data-kind="corrections">
         <div class="item-head"><h3>Corrections</h3><span class="tag t-worked">All fixed</span></div>
+        <p class="gist">Every claim this page has got wrong, kept visible on purpose.</p>
+        <details class="drill"><summary>Read all five</summary>
         <dl class="rows">
           <div class="row"><dt>ANSWERED</dt><dd>
             Listed <code>Connected</code>, <code>Answered</code> and <code>Call connected</code> — a
@@ -2072,6 +2228,8 @@ unless the file or its label changes.</div>
             because DIDs get reassigned.
           </dd></div>
         </dl>
+      
+        </details>
       </article>
     </div>
   </section>
