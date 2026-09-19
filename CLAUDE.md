@@ -1638,6 +1638,27 @@ permissions problem on the sheet and not fixable from a session. **Writing is
 genuinely blocked; reading is not** — see the schedule section for the
 `get_file_metadata` + `MAX_ALLOWED` route that returns a whole sheet.
 
+**The connector's own state, read live 19 Sep 2026 with `ListConnectors`:**
+`Google Sheets` is `installState: "needs_reconnect"`, `connected: false`,
+`enabledInChat: true`, `customOAuthClientId: null`. So it **is** installed and
+merely disconnected — reconnecting it in claude.ai → Settings → Connectors is a
+real thing Brendon can click. **But the Cloud-project gate above fired *after*
+authentication on 12 Sep**, so reconnecting is not expected to clear it; the
+Workspace Developer Preview Program is only joinable by a Workspace (business)
+account, which Brendon does not have and is not setting up now. Worth one click,
+not worth planning around. Compare `Google Drive`, which reads
+`installState: "connected"`.
+
+**A BUSINESS GOOGLE ACCOUNT IS NOT NEEDED FOR ANY OF THIS.** The route that
+works today is an **Apps Script inside Brendon's own personal Google account**
+(`brendon.duong10@gmail.com`), which already owns the pools and has edit access
+to Curia's files. It needs no connector, no Cloud project and no enrolment, and
+it can do the things no connector here can: **write cells, shade green, rename,
+read the schedule from real cells rather than the comma-collapsing snippet.**
+Four jobs now point at it — the green shading, this results page, the nightly
+CSV upload, and the schedule read. `ops/allocate_callsheet.gs` is the working
+example.
+
 **Reading it works** — `mcp__Google_Drive__read_file_content` on the sheet ID
 returns the whole thing as markdown tables. So the connector can read the sheet
 and cannot write it.

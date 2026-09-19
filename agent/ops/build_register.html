@@ -412,28 +412,30 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 18 September 2026, 7.00pm NZ · tick a task and it clears itself off the list</div>
+    <div class="eyebrow">Build register · updated 19 September 2026, 1.00am NZ · tick a task and it clears itself off the list</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       What is still open on the Pacific Link agent, and why. Written to be handed to someone
       technical — every constraint is stated with the API behaviour that causes it, so nobody
       rediscovers it. <strong>Trimmed on 12 September:</strong> nine entries that were fully
-      solved came out and are listed in one line each at the bottom, along with the three
-      claims this register got wrong. Everything still on this page is work someone has to do.
+      solved came out and are listed in one line each at the bottom, along with the
+      <strong>five</strong> claims this register got wrong — two of them added on
+      18–19 September, both of which had been sitting here stated as fact. Everything still on
+      this page is work someone has to do.
     </p>
-    <div class="meta">13,036 lines · 566 tests passing · branch claude/business-agent-dev-9jxs55</div>
+    <div class="meta">13,036 lines · 568 tests passing · branch claude/business-agent-dev-9jxs55</div>
 
     <div class="tally">
       <button type="button" class="tally-btn" data-filter="blocked" aria-pressed="false"
-        ><span class="dot" style="background:var(--blocked)"></span><b>8</b> hard blockers<span class="x">×</span></button>
+        ><span class="dot" style="background:var(--blocked)"></span><b>9</b> hard blockers<span class="x">×</span></button>
       <button type="button" class="tally-btn" data-filter="worked" aria-pressed="false"
-        ><span class="dot" style="background:var(--sky)"></span><b>2</b> working, still tuning<span class="x">×</span></button>
+        ><span class="dot" style="background:var(--sky)"></span><b>3</b> working, still tuning<span class="x">×</span></button>
       <button type="button" class="tally-btn" data-filter="pending" aria-pressed="false"
         ><span class="dot" style="background:var(--waiting)"></span><b>11</b> need a decision<span class="x">×</span></button>
       <button type="button" class="tally-btn" data-goto="closed"
         ><span class="dot" style="background:var(--live)"></span><b>10</b> closed &amp; removed<span class="arrow">↓</span></button>
       <button type="button" class="tally-btn" data-goto="asks"
-        ><span class="dot" style="background:var(--waiting)"></span><b>17</b> waiting on you<span class="arrow">↓</span></button>
+        ><span class="dot" style="background:var(--waiting)"></span><b>19</b> waiting on you<span class="arrow">↓</span></button>
     </div>
     <p id="filter-note" hidden></p>
   </header>
@@ -457,7 +459,7 @@
       <div class="todo">
         <header><h3>Mine</h3><span class="who">the agent builds these</span>
           <span class="count" data-count="m">— / —</span></header>
-        <ul><li><label class="tick"><input type="checkbox" data-task="m-routine3" disabled><span class="tick-body"><span class="todo-title">Build Routine 3 — the roster<span class="flag f-built">built · ran 12 Sep</span></span><span class="todo-why">Saturday 6pm Manila. First real run 12 Sep: 80 slots filled from 49 voters, five drafts sent to you, nothing posted. It only ran to completion once Brendon pushed the session past the missing repo by hand — see the new platform limit.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-callsheets" disabled><span class="tick-body"><span class="todo-title">Cut call sheets from the number pools and give them to whoever is rostered<span class="flag f-blocked">blocked on sharing</span></span><span class="todo-why"><b>The new one.</b> Read Curia's number spreadsheet, cut a contiguous 200-number block per caller, repair leading zeros, write the high-water mark back, shade used rows green — all built and tested already. What is new is the last step: take <em style='font-style:normal'>that day's roster</em> and drop each caller's sheet into their own folder. Blocked only on external sharing.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-appsscript" disabled><span class="tick-body"><span class="todo-title">Write the Apps Script</span><span class="todo-why">Three jobs now point at it: uploading Curia's CSVs without pushing 880KB through a session every night, writing the results page the Sheets connector cannot write, and reading the schedule directly. Runs in your account, no size caps, seconds not minutes.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-sunday" disabled><span class="tick-body"><span class="todo-title">Watch both Routines land on Sunday</span><span class="todo-why">First real run of the audit and the upload. Check the files arrive and the summary is right before Elaine stops uploading.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-results" disabled><span class="tick-body"><span class="todo-title">Fill Curia's results page automatically<span class="flag f-blocked">after script</span></span><span class="todo-why">Phone, Total and Shift Notes are already producible from the call logs; GNA/RB/R/C come from Slack. Needs the Apps Script first.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-app" disabled><span class="tick-body"><span class="todo-title">Put all of this in an app<span class="flag f-later">later</span></span><span class="todo-why">Parked, and rightly. What exists now is a set of scheduled jobs plus pages you open — no app needed to run the business. An app earns its place when you want it on a phone with logins for other people, and that is a rebuild, not an export. Revisit once the weekly loop has run unattended for a month.</span></span></label></li></ul>
+        <ul><li><label class="tick"><input type="checkbox" data-task="m-routine3" disabled><span class="tick-body"><span class="todo-title">Build Routine 3 — the roster<span class="flag f-built">built · ran 12 Sep</span></span><span class="todo-why">Saturday 6pm Manila. First real run 12 Sep: 80 slots filled from 49 voters, five drafts sent to you, nothing posted. It only ran to completion once Brendon pushed the session past the missing repo by hand — see the new platform limit.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-callsheets" disabled><span class="tick-body"><span class="todo-title">Cut call sheets from the number pools and give them to whoever is rostered<span class="flag f-blocked">blocked on sharing</span></span><span class="todo-why"><b>Generation is done and re-proved live on two real pools, 18–19 Sep</b> — contiguous 200-number block per caller, leading zeros repaired, next <code>USE FROM</code> computed. <b>The green shading is not mine and never will be</b> — no connector here writes a cell; that step is <code>allocate_callsheet.gs</code> in your own account. What is left is delivery, and it no longer needs SharePoint: <b>Google Drive can upload and share to a named address</b>, so the chain runs with no manual shares at all. Needs your call on asks 18 and 19.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-appsscript" disabled><span class="tick-body"><span class="todo-title">Write the Apps Script</span><span class="todo-why">Three jobs now point at it: uploading Curia's CSVs without pushing 880KB through a session every night, writing the results page the Sheets connector cannot write, and reading the schedule directly. Runs in your account, no size caps, seconds not minutes.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-sunday" disabled><span class="tick-body"><span class="todo-title">Watch both Routines land on Sunday</span><span class="todo-why">First real run of the audit and the upload. Check the files arrive and the summary is right before Elaine stops uploading.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-results" disabled><span class="tick-body"><span class="todo-title">Fill Curia's results page automatically<span class="flag f-blocked">after script</span></span><span class="todo-why">Phone, Total and Shift Notes are already producible from the call logs; GNA/RB/R/C come from Slack. Needs the Apps Script first.</span></span></label></li><li><label class="tick"><input type="checkbox" data-task="m-app" disabled><span class="tick-body"><span class="todo-title">Put all of this in an app<span class="flag f-later">later</span></span><span class="todo-why">Parked, and rightly. What exists now is a set of scheduled jobs plus pages you open — no app needed to run the business. An app earns its place when you want it on a phone with logins for other people, and that is a rebuild, not an export. Revisit once the weekly loop has run unattended for a month.</span></span></label></li></ul>
       </div>
     </div>
     <p id="sync-note" hidden></p>
@@ -584,10 +586,21 @@
             The call log upload stays at 6pm — it reads Zoom only, and spreading the three runs
             out is better than firing them in the same minute.
           </dd></div>
-          <div class="row"><dt>Still to check</dt><dd>
-            The other four prompts have not been audited line by line against CLAUDE.md.
-            <strong>The roster and capacity prompts both restate the schedule-parsing rule</strong>,
-            which has already been got wrong twice — those are the next ones to read back.
+          <div class="row"><dt>Checked, and one was worse</dt><dd>
+            The roster and capacity prompts were read back the same evening.
+            <strong>The roster prompt was carrying the exact schedule misread that has already
+            been got wrong twice</strong> — it said in so many words "read column A, column B
+            and column F", which is the positional parsing that produced <strong>10 / 41 / 18</strong>
+            for the week of 20–24 September against the true <strong>10 / 40 / 51 / 38</strong>.
+            It would have fired the next night onto a <strong>139-slot week</strong> and built a
+            roster a third the size it needed to be. Both prompts now carry the
+            last-number-on-a-future-row rule with worked examples, and the same
+            <strong>CLAUDE.md wins</strong> precedence line.
+          </dd></div>
+          <div class="row"><dt>What is still unread</dt><dd>
+            The upload and performance-review prompts have not been audited line by line.
+            Neither reads declarations or the schedule, so the two known classes of stale
+            restatement do not apply to them — but that is reasoning, not a check.
           </dd></div>
         </dl>
       </article>
@@ -694,6 +707,111 @@
 
       <article class="item blocked" data-kind="blocked">
         <div class="item-head">
+          <h3>Nothing here can shade a cell — the Drive connector cannot write into a file at all</h3>
+          <span class="tag t-blocked">Hard limit</span>
+          <span class="tag t-pending">Apps Script is the only route</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>The ask</dt><dd>
+            Brendon, 18 September: take the numbers from Curia's pool, allocate a block to each
+            caller on shift, <strong>shade the taken rows green</strong>, and bump the file's title
+            to the id reached. Four clear steps. <strong>Three of the four work from here; the
+            shading does not, and will not.</strong>
+          </dd></div>
+          <div class="row"><dt>Why, and it is two separate walls</dt><dd>
+            <strong>One:</strong> the Drive connector has no write-cells call of any kind —
+            <code>update_file</code> is <code>fileId</code>, <code>title</code>, <code>parentId</code>
+            and nothing else. <strong>Two:</strong> the pool is an <code>.xlsx</code> sitting in
+            Drive, not a Google Sheet, so cell formatting cannot be applied to it by anything
+            without converting it first. Fixing either one alone fixes nothing.
+          </dd></div>
+          <div class="row"><dt>It is not a permissions problem</dt><dd>
+            Worth stating, because the SharePoint blocker above <em style="font-style:normal">is</em>
+            one and they look alike. Edit access on Curia's file was <strong>proved</strong>, at zero
+            cost, with a no-op rename — <code>update_file</code> called with the file's existing
+            title. It succeeded and <code>modifiedTime</code> moved to
+            <code>2026-09-19T00:24:51</code>, title unchanged. <strong>Use that trick to test write
+            access on any Drive file without touching it.</strong> The Google
+            <em style="font-style:normal">Sheets</em> connector, which does have cell-writing tools,
+            is blocked twice over on this account — the Cloud-project gate above, and
+            unauthorised here regardless.
+          </dd></div>
+          <div class="row"><dt>The route</dt><dd>
+            <code>ops/allocate_callsheet.gs</code> already does all four steps, including the green
+            shading (<code>#c6efce</code>) and the rename, because it runs inside Brendon's own
+            account where none of this applies. It is pointed at the old Wellington Bays pools and
+            needs repointing at the NZ Numbers pool — a four-line config change at the top of
+            the file. <strong>Converting the pool to a Google Sheet is a prerequisite for that
+            script, not something that unblocks the agent</strong>; an earlier version of this
+            entry blurred the two.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item worked" data-kind="worked">
+        <div class="item-head">
+          <h3>Call sheets: generation is done, and delivery has a route that avoids SharePoint entirely</h3>
+          <span class="tag t-worked">Proved live 18–19 Sep</span>
+          <span class="tag t-pending">Two decisions needed</span>
+        </div>
+        <dl class="rows">
+          <div class="row"><dt>Re-proved, not asserted</dt><dd>
+            <strong>568 tests pass</strong>, and the generator was run end to end against the live
+            Hutt South pool rather than a fixture: 4,975 rows, resuming after 4,751, Kharen Ybas
+            given 4752–4951 and Tristan Philip 4952–4975, <strong>three callers got nothing
+            because the pool ran out</strong>, and the next title computed as
+            <code>USE FROM 4976</code>. That independently reproduces the 224-numbers-left figure
+            this register already carried.
+          </dd></div>
+          <div class="row"><dt>The trap that nearly burned 1,000 numbers</dt><dd>
+            <strong>The high-water mark lives in the filename, not inside the file.</strong> The
+            first attempt downloaded the pool as <code>hutt_pool.xlsx</code>, reported "no mark in
+            the title", and <strong>allocated from number 1</strong> — handing out a thousand
+            numbers already spent. Always keep Curia's exact filename when downloading a pool.
+          </dd></div>
+          <div class="row"><dt>Curia's NZ Numbers pool, tested 18/19 Sep</dt><dd>
+            <code>NZ Numbers 2026 - 2027 - USE FROM 6400.xlsx</code>, owned by
+            <code>curiaresearch@gmail.com</code>, shared with Brendon 14 Sep. Downloaded
+            <strong>6,309,645 bytes, byte-exact</strong> against Drive's <code>fileSize</code>. One
+            sheet, <code>NZ Poll</code>, <strong>325,284 numbers</strong> — and
+            <strong>NZNP 500 and ACT 1000 draw from this one pool, not two</strong>. Ten callers,
+            200 each, <strong>6400–8399 in 10.5 seconds</strong>, ten workbooks written, leading
+            zeros intact, each carrying the Time in / Time out / Break block callers already fill in.
+            <strong>318,885 numbers remain</strong>, so running dry is not a near-term worry the way
+            Hutt South's 224 was.
+          </dd></div>
+          <div class="row"><dt>The rename was deliberately not done</dt><dd>
+            Bumping the live title to <code>USE FROM 8400</code> in a <em style="font-style:normal">test</em>
+            would retire ids 6400–8399 permanently. If the allocation is not actually used,
+            <strong>2,000 real numbers are burned</strong>. The rename is the last step of a real
+            run, never of a rehearsal.
+          </dd></div>
+          <div class="row"><dt>Delivery: Drive can do what SharePoint cannot</dt><dd>
+            The recorded blocker is SharePoint — external sharing off, 48 folder shares, and no
+            sharing call in the M365 connector. That is still true, but it is the wrong door.
+            SharePoint: create folder <strong>yes</strong>, upload <strong>yes</strong>, share to one
+            person <strong>no tool at all</strong>. Drive: create <strong>yes</strong>, upload
+            <strong>yes</strong> (proved 12 Sep with a real CSV), share
+            <strong><code>share_file(fileId, emailAddress, role)</code></strong>. So the whole chain
+            automates with tools already in hand and <strong>no 48 manual shares</strong>: read the
+            pool → generate → upload → share to the caller's own address → rename
+            the pool.
+          </dd></div>
+          <div class="row"><dt>And it is not a return to the old mistake</dt><dd>
+            The old Google call sheets were a security problem precisely because they were
+            <em style="font-style:normal">link-shared and forwardable</em>. <code>share_file</code>
+            grants to a <strong>named email address</strong>, not "anyone with the link", so this is
+            the opposite shape. Caller emails come from
+            <code>slack_list_channel_members</code>, which returns one for every member.
+            <strong>Not tested against a real caller, on purpose</strong> — sharing a file with
+            a person is outward-facing and stays behind Brendon's say-so. The upload leg itself is
+            already proved.
+          </dd></div>
+        </dl>
+      </article>
+
+      <article class="item blocked" data-kind="blocked">
+        <div class="item-head">
           <h3>Curia's results page can be read but not written — and the schedule cannot be read past 2022</h3>
           <span class="tag t-blocked">Blocked</span>
           <span class="tag t-pending">Apps Script is the route</span>
@@ -724,15 +842,52 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             Total · Shift Notes — and a Status column that is Curia's, never ours.
           </dd></div>
           <div class="row"><dt>Three of eight columns are already producible</dt><dd>
-            <strong>Phone</strong> is in the call log's <code>From</code> field; <strong>Total</strong>
-            is arithmetic on the four codes; <strong>Shift Notes</strong> is exactly the shape the
-            audit's break detection already emits ("Had breaks between 2:13 - 2:18"). GNA/RB/R/C come
-            from Slack. Only <strong>Poll</strong> needs a source, and Curia's survey email names it.
+            <strong>Total</strong> is arithmetic on the four codes; <strong>Shift Notes</strong> is
+            exactly the shape the audit's break detection already emits ("Had breaks between
+            2:13 - 2:18"); <strong>Phone</strong> comes from Zoom, but not from where this register
+            said — see the row below. GNA/RB/R/C come from Slack. Only <strong>Poll</strong> needs
+            a source, and Curia's survey email names it.
           </dd></div>
-          <div class="row"><dt>Do not force it through Drive</dt><dd>
-            <code>Google_Drive__update_file</code> replaces file content wholesale. On this sheet that
-            would wipe the merged header bands, every per-day Total row and Curia's Status column, on a
-            live document their auditor reads. <strong>Not attempted, on purpose.</strong>
+          <div class="row"><dt>Correction: Phone is <em style="font-style:normal">not</em> in the call log</dt><dd>
+            This entry said Phone was "in the call log's <code>From</code> field". <strong>That was
+            wrong</strong>, and it was found on 18 September when Brendon asked for the number each
+            caller actually dialled from. On an outbound row <code>caller_number</code> is the
+            <strong>extension</strong> (<code>1015</code>, <code>1030</code>), not a DID, and there
+            is no <code>caller_did_number</code> field at all — the 18 fields on a
+            <code>call_logs</code> row carry <code>callee_did_number</code> only. The right source is
+            <code>GET /v2/phone/users</code>, which returns 41 phone users with
+            <code>extension_number</code> and <code>phone_numbers[].number</code>; 39 of 41 have a
+            DID. Format with <code>calllog_export.format_nz</code> and it comes out in Curia's own
+            <code>04 887 6278</code> shape.
+          </dd></div>
+          <div class="row"><dt>And a static list of numbers would be dangerous</dt><dd>
+            <strong>DIDs get reassigned between people.</strong> Checked against Curia's own
+            historical Phone column: all six sampled callers have a different number today, and
+            <strong>two of the old numbers now belong to somebody else</strong> — Jane Wary
+            Espanueva's old <code>04 887 8852</code> is now <strong>Gerard Siason's</strong>, and
+            Lovely Salva's old <code>04 887 8846</code> is now <strong>Erika Boiser's</strong>.
+            Copying an old number forward would file one caller's shift under another's name.
+            The map is validated per day instead: inbound rows carry <code>callee_did_number</code>,
+            which is ground truth for that date. Done for 13–17 Sep —
+            <strong>104 extension-days checked, zero mismatches</strong>, and every caller used
+            exactly one extension per day across all 89 caller-days.
+          </dd></div>
+          <div class="row"><dt>Correction: <code>update_file</code> does not do what this said</dt><dd>
+            This row read: "<em style="font-style:normal">replaces file content wholesale — would
+            wipe the merged header bands, every per-day Total row and Curia's Status column</em>".
+            <strong>That was wrong.</strong> Read against the live schema on 18 September,
+            <code>Google_Drive__update_file</code> takes <code>fileId</code>, <code>title</code> and
+            <code>parentId</code> — <strong>it is metadata only</strong>. It cannot write a cell,
+            so it cannot damage this sheet, because it cannot touch content at all.
+            <code>ops/allocate_callsheet.gs</code> had this right in its own header while this
+            register contradicted it; <strong>prefer the script's notes on Drive behaviour</strong>.
+          </dd></div>
+          <div class="row"><dt>The conclusion is unchanged — only the reason</dt><dd>
+            Writing to this sheet is still blocked: by the Sheets connector's Cloud-project gate
+            above, and because <strong>the Drive connector has no write-cells call of any kind</strong>.
+            What <code>update_file</code> <em style="font-style:normal">can</em> do is rename a file
+            and move it between folders — which is exactly what the call sheet pools need, and is
+            now in use.
           </dd></div>
           <div class="row"><dt>Correction: the schedule <em style="font-style:normal">is</em> readable</dt><dd>
             This entry said, three hours ago, that <em style="font-style:normal">Curia 2026 Schedule</em>
@@ -1840,6 +1995,8 @@ unless the file or its label changes.</div>
       <li><label class="tick"><input type="checkbox" data-task="ask-15" disabled><span class="tick-body"><b>15. Finish wiring the last three Routines — repo and connectors</b><strike>Attach the repository to the Routines' environment.</strike> <b style="display:inline">Done on the audit, upload and roster, 17 Sep — and that night all three ran for real for the first time, putting 24 caller CSVs in front of Curia's auditor.</b> <b style="display:inline">And the capacity and declared-results Routines now have theirs too</b> — re-read live on the evening of 18 Sep, so <b style="display:inline">five of six are wired</b>. <b style="display:inline">One</b> Routine is still completely bare and will stop at step 1: <span class="mono">Post availability — Friday 10am NZ</span>, which needs <b style="display:inline">repo + Slack + Google Drive</b>. Same values as before: <span class="mono">brendon-duong/Claude</span>. <b style="display:inline">Slack and Google Drive are the only two connectors this whole build uses</b> — Zoom goes through its own API with the <span class="mono">ZOOM_*</span> environment variables, not a connector, and the Google Sheets connector is blocked at the Cloud-project level. <b style="display:inline">This is the urgent one</b>: it next fires Thu 24 Sep and it is the job the whole weekly cycle feeds from — no post, no votes, and Saturday's roster has nothing to rank.</span></label></li>
       <li><label class="tick"><input type="checkbox" data-task="ask-16" disabled><span class="tick-body"><b>16. Ask Erika and Goldy which of their two numbers is right</b>Both typed a summary that does not match the call sheet they attached. <span class="mono">Erika Jane Boiser</span> typed 69 ring backs and 32 refused; her sheet says <b style="display:inline">62 and 29</b>. <span class="mono">Goldy Kaye</span> left ring backs out of her text altogether; her sheet has <b style="display:inline">36</b>. The sheets were used because they reconcile to the caller's own total — but one of each pair is wrong and it goes to Curia either way. Two messages.</span></label></li>
       <li><label class="tick"><input type="checkbox" data-task="ask-17" disabled><span class="tick-body"><b>17. One shared call-sheet template</b>At least <b style="display:inline">eight layouts</b> are in use across the team — GNA, Inactive, Not Active, Not Available, Hang up, Incomplete, Unqualified, Disqualified, Already Done, Do Not Call, Busy line/Disconnected, Dialed RBs, Callback. Every sheet has to be mapped by hand into Curia's four codes, and a misread reaches Curia as fact. <b style="display:inline">One template ends that permanently</b> and makes the nightly declared-results Routine reliable instead of interpretive. Pick the clearest sheet already in use — Leizel's and Princess's both carry every field including a reconciling total — and send it round.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-18" disabled><span class="tick-body"><b>18. Decide how the green shading gets done on Curia's pool</b>You asked for taken numbers shaded green in <span class="mono">NZ Numbers 2026 - 2027 - USE FROM 6400.xlsx</span>. <b style="display:inline">No connector here can write a cell in any file, for anyone</b> — that is a property of the tools, not a permission you can grant, and your edit access was proved separately with a no-op rename. The only route is <span class="mono">ops/allocate_callsheet.gs</span> running in your own Google account, which does all four steps. Two things need your answer: <b style="display:inline">(a)</b> the file is an <span class="mono">.xlsx</span>, and cell formatting cannot be applied to an xlsx by anything — will Curia accept their master being converted to a Google Sheet? <b style="display:inline">(b)</b> if not, do we take a copy into your Drive, make that the working pool, and tell Curia where it got to rather than them reading their own file? Either works; the question just has to be settled before a real run.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-19" disabled><span class="tick-body"><b>19. Should call sheets go to Google Drive instead of waiting on SharePoint?</b>SharePoint delivery is blocked on external sharing (ask 2) and then needs 48 manual folder shares (ask 3), because <b style="display:inline">the M365 connector has no sharing call at all</b>. <b style="display:inline">Google Drive has one</b> — <span class="mono">share_file</span> grants to a <em style="font-style:normal">named email address</em>, not "anyone with the link", so it is not a return to the old forwardable-link problem. That makes the whole chain automatic with <b style="display:inline">zero manual shares</b>: generate → upload → share to the caller's own address. Second part of the question: does each caller get <b style="display:inline">one file re-shared each day</b>, or <b style="display:inline">a folder of their own shared once</b>? Nothing is shared with a real caller until you say so.</span></label></li>
     </ol>
 
     <div class="section-head" style="margin-top:40px">
@@ -1848,7 +2005,7 @@ unless the file or its label changes.</div>
     </div>
     <ol class="asks">
       <li><label class="tick"><input type="checkbox" data-task="job-roster" disabled><span class="tick-body"><b>Saturday 6pm Manila — build the roster</b>Design agreed 12 September and a dummy run is on the dashboard: read the &#10003;/&#10007; reactions off the five day messages, rank on completes and time away, fill Curia's slots per day from columns B and F, draft the roster with real @mentions, notify you, and post only when you reply. The same run puts up next week's availability message. Becomes a Routine the moment asks 8, 9 and 10 are answered.</span></label></li>
-      <li><label class="tick"><input type="checkbox" data-task="job-sheets" disabled><span class="tick-body"><b>Cut the call sheets from the number pools</b>Contiguous 200-number blocks, leading zeros repaired, high-water marks written back, used rows shaded green — all built and tested. What is new is the delivery: straight into each caller's SharePoint folder rather than one shared workbook. That works the moment item 1 and item 2 are done.</span></label></li>
+      <li><label class="tick"><input type="checkbox" data-task="job-sheets" disabled><span class="tick-body"><b>Cut the call sheets from the number pools</b>Contiguous 200-number blocks, leading zeros repaired, next <span class="mono">USE FROM</span> computed — built, and <b style="display:inline">re-proved live on two real pools on 18–19 September</b>, including Curia's 325,284-number master. <b style="display:inline">The green shading is the one step no connector can do</b>; that belongs to the Apps Script in your account. Delivery no longer has to wait on SharePoint either — Google Drive can upload and share to a named address with no manual shares at all. Needs asks 18 and 19 answered.</span></label></li>
     </ol>
   </section>
 
@@ -1875,8 +2032,9 @@ unless the file or its label changes.</div>
     </div>
 
     <div class="section-head" style="margin-top:40px">
-      <h2>Three things this register got wrong</h2>
-      <p>Kept visible on purpose. A register that quietly deletes its mistakes cannot be trusted on the rest.</p>
+      <h2>Five things this register got wrong</h2>
+      <p>Kept visible on purpose. A register that quietly deletes its mistakes cannot be trusted on the rest.
+      Two were added on 18–19 September, and both had been sitting here stated as fact.</p>
     </div>
     <div class="items">
       <article class="item worked" data-kind="corrections">
@@ -1896,6 +2054,22 @@ unless the file or its label changes.</div>
             Written as though it stayed on once configured. <strong>It is per environment.</strong>
             A session holding all three credentials still got 403 at CONNECT because it was not
             started in the Custom one.
+          </dd></div>
+          <div class="row"><dt>update_file</dt><dd>
+            Said <code>Google_Drive__update_file</code> "replaces file content wholesale" and would
+            wipe Curia's header bands and Total rows. <strong>It takes <code>fileId</code>,
+            <code>title</code> and <code>parentId</code> — metadata only.</strong> It cannot
+            write a cell at all. The conclusion (writing that sheet is blocked) survives; the reason
+            was invented. <code>ops/allocate_callsheet.gs</code> had it right in its own header the
+            whole time while this page contradicted it.
+          </dd></div>
+          <div class="row"><dt>The Phone column</dt><dd>
+            Said Phone was "in the call log's <code>From</code> field". <strong>There is no such
+            field</strong> — an outbound row's <code>caller_number</code> is the extension, not
+            a DID. It comes from <code>GET /v2/phone/users</code>. Worse than a dead end: had a
+            static list been built from Curia's historical column instead,
+            <strong>two callers' shifts would have been filed under the wrong person's name</strong>,
+            because DIDs get reassigned.
           </dd></div>
         </dl>
       </article>
