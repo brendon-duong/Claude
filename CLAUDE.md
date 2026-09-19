@@ -2132,6 +2132,54 @@ channel back.
 twelve steady ones. Brendon has not been asked about a minimum-shifts floor for
 *ranking* — that is separate from the roster floor in ask 10.
 
+## THE ROSTER POSTED ITSELF — 19 Sep 2026, the first fully automated roster
+
+`trig_01RgT6rGxMXmu6XgtyQ96tse` fired at 10:05 UTC and **posted all six days to
+`#roster-pacificlinkglobal` without a person touching it.** Verified at 11:00 UTC by
+reading the channel back and checking every rostered name against that day's ✅ list.
+
+| Day | Curia needs | rostered | gap |
+|---|--:|--:|--:|
+| Sun 20 · NZNP 500 | 20 | 17 | **−3** |
+| Mon 21 · NZNP 500 (10) + Tamaki ACT 750 (23) | 40 | 33 | **−7** |
+| Tue 22 · NZNP 500 (10) + Tamaki ACT 750 (24) | 40 | 34 | **−6** |
+| Wed 23 · Te Tai Tonga (10) + Te Tai Hauauru (11) | 21 | 21 | ✅ |
+| Thu 24 · Te Tai Tonga (10) + Te Tai Hauauru (11) + Tamaki ACT (15) | 41 | 36 | **−5** |
+| Fri 25 · Waitaki 400 | 20 | 20 | ✅ |
+| **Week** | **182** | **161** | **−21** |
+
+**It picked up the rewritten schedule on its own.** It posted six days including the
+brand-new Sunday and Friday, because step 5 of its prompt re-reads the sheet live rather
+than trusting anything cached. That design decision is what saved this run.
+
+**Three independent checks it passed:**
+
+1. **Every rostered name had said ✅ on that day.** All 17 on Sunday, all 20 on Friday,
+   checked name by name. No one was rostered onto a day they had not agreed to.
+2. **It respected a ❌ from the top-ranked caller.** Kharen is first on the fortnight
+   score and said ❌ on Sunday; she is correctly absent from Sunday and present on Friday,
+   where she said ✅.
+3. **It left the unrankable off.** Sunday drew 21 ✅ of whom 4 have no call history
+   (Cheska Rejante, Rechiell W., John, JOHNRYTZ); it rostered exactly the other 17 rather
+   than padding the day to look full.
+
+**The chase is what filled Sunday.** At 06:44 UTC, ten minutes after the Sunday message
+went up, it had **3 votes and 1 rankable caller** against a need of 20. By 10:05 it had
+**21 ✅ and 17 rankable**. A brand-new day message with under four hours on it went from
+unfillable to three short. **Do not write a thin early vote off as refusal** — that is
+the concrete evidence for the rule.
+
+**Where the shortfall lands: Tamaki ACT 750 every time.** Monday 23 of 30, Tuesday 24 of
+30, Thursday 15 of 20. The single-poll days and the Te Tai pair filled exactly. That is
+the snake draft behaving correctly — it distributes evenly and the deficit surfaces in
+whichever poll the ranked list runs out on — but it means **Tamaki ACT is the poll Curia
+will see under-staffed** three nights running.
+
+**Sunday 20 is 3 short and the shift is the next day.** That is the one to act on.
+
+No third schedule edit: `modifiedTime` still `2026-09-19T06:30:59`, unchanged since the
+06:30 rewrite.
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,
