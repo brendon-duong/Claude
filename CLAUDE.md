@@ -1513,11 +1513,48 @@ inside Brendon's own account. It is pointed at the old Wellington Bays pools and
 needs repointing. **Its header was right about `update_file` being metadata only
 while this file was wrong**; prefer the script's own notes on Drive behaviour.
 
-**Open, and blocking:** whether Brendon has EDIT access to Curia's file (the
-permissions call returns only the owner and will not show his own role);
-whether Curia accept their master being converted to a Google Sheet; and, if
-not, whether to take a copy into Brendon's Drive and make that the working pool,
-telling Curia where it got to instead of them reading their own file.
+### Test run against that pool — 18/19 Sep 2026, everything that CAN work DOES
+
+Brendon confirmed he has edit access and asked for a test run. Result: **four of
+the five legs pass on the live file; only the shading is impossible.**
+
+1. **Download** — `download_file_content` returned **6,309,645 bytes, byte-exact
+   against Drive's `fileSize`**. The base64 is 8.4 MB and overflows the tool
+   result, so it lands in `tool-results/` and is decoded from there.
+2. **Structure** — one sheet, `NZ Poll`, columns `ID` / `Phone`, dimensions
+   `A1:B325285`. **325,284 numbers.** Note `read_only=True` needs
+   `calculate_dimension(force=True)`; the sheet is unsized without it. IDs read
+   as floats (`1.0`, `2.0`) and `load_pool` handles that.
+   **NZNP 500 and ACT 1000 draw from ONE pool, not two** — this is the whole-year
+   master list, so "for NZNP 500 and ACT 1000" is one file, not a file each.
+3. **Parse and resume** — `load_pool` read all 325,284 rows and resumed after
+   6399, straight off the `USE FROM 6400` in the filename.
+4. **Allocate** — ten callers, 200 each, **6400-8399**, in **10.5 seconds**. Next
+   title computed as `NZ Numbers 2026 - 2027 - USE FROM 8400`.
+5. **Output** — ten workbooks, one per caller. Sampled Kharen's: IDs 6400-6599,
+   leading zeros intact (`021 039 2551`, `03 578 1895`), and the sheet already
+   carries a **Time in / Time out / Break** block — the same fields callers fill
+   in on their own sheets today.
+
+**Edit access CONFIRMED, without changing anything.** `update_file` was called
+with the file's *existing* title as a no-op write: it succeeded and
+`modifiedTime` moved to `2026-09-19T00:24:51`, title unchanged. That proves
+write permission on Curia's file at zero cost. **Use that trick** — a same-title
+rename — to test write access on any Drive file without touching it.
+
+**THE REAL RENAME WAS DELIBERATELY NOT DONE.** Bumping the live title to
+`USE FROM 8400` in a *test* would retire ids 6400-8399 permanently. If the
+allocation is not actually used, **2,000 real numbers are burned**. The rename is
+the last step of a real run, never of a rehearsal.
+
+**Capacity, worth knowing:** 318,885 numbers remain after 6399. At 200 a caller
+that is ~1,594 caller-blocks — months of shifts, so the pool running dry is not
+a near-term worry the way Hutt South's 224 was.
+
+**Still open:** whether Curia accept their master being converted to a Google
+Sheet (the only route to green shading), and if not whether to take a copy into
+Brendon's Drive and make that the working pool, telling Curia where it got to
+instead of them reading their own file.
 
 ## Curia's results page — the sheet Curia read
 
