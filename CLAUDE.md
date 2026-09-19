@@ -1270,6 +1270,48 @@ is the only Routine still bare** — no repo, no connectors — and it next fire
 Thu 24 Sep. It is the job the whole weekly cycle feeds from: no post, no votes,
 and the Saturday roster has nothing to rank.
 
+**CORRECTION, 19 Sep 2026: the documented way to check a Routine's repo NO LONGER
+WORKS.** This file says the value is at `session_request.config.sources[].git_repository.url`.
+Read live on 19 Sep, **`list_triggers` returns no `session_request` key at all**, and a
+recursive search of every returned Routine for any key containing `source`, `repo` or
+`git` finds **nothing on any of the seven**. So the repo attachment is **not visible from
+a session by any route currently known** — neither the top-level `sources` field (still
+`null`) nor the nested path above. Do not report a Routine as having or lacking a repo
+from `list_triggers`; say it cannot be checked and ask Brendon.
+
+**What `list_triggers` DOES still show reliably:** `cron_expression`, `enabled`,
+`next_run_at`, `notifications`, `mcp_connections[].name`, and the full live `prompt` at
+`derived_state.prompt`. Reading the prompt back is the one check that works, and it is
+the one that caught the stale declared-results rules on 18 Sep.
+
+**Live connector state, 19 Sep 2026:**
+
+| Routine | Connectors | Next fires |
+|---|---|---|
+| Weekly roster draft — Saturday | Slack, Google-Drive | Sat 19 Sep 10:05 UTC |
+| Availability vs capacity | Slack, Google-Drive | Sat 19 Sep 08:00 UTC |
+| **Post availability — Friday 10am NZ** | **Slack, Google-Drive** — it was bare, Brendon wired it | Thu 24 Sep |
+| Declared results for Curia | Google-Drive, Slack | Sun 20 Sep |
+| Curia call log upload | Google-Drive | Sun 20 Sep |
+| Shift audit — 10pm Manila | Slack | Sun 20 Sep |
+| **Weekly performance review** | **Microsoft-365 ONLY** | Thu 24 Sep |
+
+**The performance review is missing Slack AND Google Drive.** It needs all three: Slack
+for the declarations, Drive to read the schedule for which days actually ran, M365 to
+email Brendon. As wired it cannot do the job — it will reach step 4 and stop. Ask him to
+tick both before Thursday.
+
+**The roster Routine's prompt is NOT stale — checked live 19 Sep.** It opens "POSTING THE
+ROSTER IS AUTHORISED", carries the last-number-on-a-future-row rule with the 10/41/18
+worked example, the snake draft, the CLAUDE.md-wins precedence line, and the
+read-the-channel-back verification. An earlier version of this file implied it still said
+"post nothing"; that was wrong.
+
+**One real bug left in it:** step 11 tells it to subtract seeded ✅/❌ reactions. On the
+18 Sep day messages **there are no seeded reactions** — Brendon's account appears in none
+of the four lists. Subtracting one per day undercounts every day by one. It is covered by
+the CLAUDE.md-wins line only if the run reads this file's availability-chase section.
+
 **No source carries a branch**, so a fired session checks out the repo's default
 branch. Every Routine prompt therefore has to `git fetch` and `git checkout
 claude/business-agent-dev-9jxs55` itself; they all do. Do not assume the
