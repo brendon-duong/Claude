@@ -1474,6 +1474,84 @@ each day or a folder of their own shared once. The rename worry is **resolved**:
 `update_file` is metadata only, so renaming a pool is safe and cannot touch its
 contents.
 
+### SHADING IS POSSIBLE AFTER ALL — proved 19 Sep 2026. Correct the claim below.
+
+This file and the build register both said cell shading "cannot be applied to an
+.xlsx sitting in Drive by anything" and that the Apps Script was the only route.
+**That is wrong, and it was wrong in a way that cost weeks.** What is true is
+narrower: nothing here can shade a file **in place**. But the whole job works as
+**download → shade locally with openpyxl → upload as a new file**, and that needs
+no Apps Script, no Sheets connector and no Cloud project.
+
+Proved end to end on the real Curia pool
+`Hutt South Numbers September 2026 USE FROM 4752.xlsx`:
+
+    download   337,278 bytes, byte-exact against Drive fileSize
+    load_pool  4,975 rows, resumed after 4751 from the filename mark
+    allocate   Kharen Ybas 4752-4951 (200), Tristan Philip 4952-4975 (24),
+               Lovely Salva unserved - the pool ran out
+    shade      224 rows filled #C6EFCE in 1.0s, all 11 columns
+    verify     id 4751 unshaded | 4752 shaded | 4975 shaded
+               4,976 rows and 11 columns preserved, cell data intact
+    next title Hutt South Numbers September 2026 USE FROM 4976
+
+`PatternFill(start_color='FFC6EFCE', ..., fill_type='solid')` is the same
+`#c6efce` green `allocate_callsheet.gs` uses, so the two routes produce the same
+result. The sheet is `Elect Poll Phone Numbers`, ID in column A, and **id n sits
+at excel row n+1** because of the header.
+
+**Read the file back after saving and check the boundary rows.** A fill that
+silently lands one row out is invisible until a caller rings a number someone
+else already has.
+
+**The dataclass fields are `number_id` and `number`, not `ident`** — and
+`load_pool(path)` returns `(rows, title)` and takes no `start_after`; that goes to
+`allocate(..., start_after=...)` along with required `poll` and `day`.
+
+**What this does NOT do is edit Curia's master in place.** It produces a new file.
+So the open question for Brendon is no longer "can it be shaded" but **"does Curia
+accept a new file each time, or must their original be edited?"** If the original
+must be edited in place, the Apps Script is still the answer. If a new file is
+fine, this route works today.
+
+### The 6.3MB pool kills the Drive connector — found 19 Sep 2026
+
+`download_file_content` on the 6,309,645-byte NZ Numbers pool returned
+`MCP server "Google_Drive" session expired` **three times in a row**, dropping the
+connector each time and requiring a ToolSearch reload. It had worked from a session
+the day before, so this is not a hard limit but it is not reliable either. The
+337KB Hutt South pool downloads fine (449,901 characters of base64, saved to
+`tool-results/`). **The threshold sits somewhere between 337KB and 6.3MB.** Small
+metadata calls keep working while the big download fails, so a failure here is
+about payload size, not auth.
+
+If the big pool has to be read, the routes are: ask Brendon to split it, work from
+the Hutt-South-sized pools, or do it in the Apps Script where the file never moves.
+
+### The Google Sheets connector: the reconnect did NOT clear the gate
+
+Brendon reconnected it on 19 Sep and `ListConnectors` went to
+`installState: "connected"`. **A fresh session then loaded `mcp__Google_Sheets__*`
+and every single call was refused with the same Cloud-project error.** Tested, not
+assumed:
+
+| call | target | result |
+|---|---|---|
+| `get_spreadsheet` | Curia's results page | gated |
+| `get_spreadsheet` | the NZ Numbers pool | gated |
+| `get_values` | Curia's results page | gated |
+| `update_values` | a brand-new sheet created seconds earlier | gated |
+| `update_spreadsheet` (backgroundColor) | same | gated |
+
+**The write test on a file this account created itself is the one that settles it.**
+It cannot be a permissions problem on someone else's document. It is the Cloud
+project, and nothing Brendon can do from his side changes it. **Do not re-test this
+by reconnecting; re-test only if Anthropic's own project gets enrolled.**
+
+Worth recording for if it ever does clear: `update_spreadsheet` exposes
+`repeatCell` and `updateCells`, both of which set `userEnteredFormat.backgroundColor`
+— so the Sheets route to green shading is real, just unreachable.
+
 ### The NZNP 500 / ACT 1000 pool is CURIA'S FILE — checked 18 Sep 2026
 
 Brendon asked for numbers to be drawn from
