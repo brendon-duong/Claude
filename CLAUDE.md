@@ -1284,6 +1284,47 @@ from `list_triggers`; say it cannot be checked and ask Brendon.
 `derived_state.prompt`. Reading the prompt back is the one check that works, and it is
 the one that caught the stale declared-results rules on 18 Sep.
 
+**CORRECTION, 21 Sep 2026: the repo IS checkable — from `update_trigger`, not
+`list_triggers`.** An `update_trigger` call returns the Routine's full
+`session_request.config.sources[].git_repository.url`, which `list_triggers` omits
+entirely. Confirmed on four Routines that day, all showing
+`https://github.com/brendon-duong/Claude`. So a session CAN verify a repo attachment —
+it just has to write something to read it. A no-op-ish update (re-sending the same
+`name`) would do, the same trick as the same-title Drive rename.
+
+Worth knowing from the same responses: `config.outcomes[].git_repository.git_info.branches`
+carries a per-Routine scratch branch (`claude/loving-noether`, `claude/fervent-ride`,
+`claude/wizardly-darwin`, `claude/dazzling-curie`). It is not the development branch and
+nothing should be read into it.
+
+### The four schedule-reading prompts were rewritten on 21 Sep
+
+`grep` the Routine prompts whenever a settled rule changes — that rule earned its place
+again. Four of the seven carried the now-deleted "last number on a future row" rule or
+the collapsing-snippet read:
+
+| Routine | What was wrong | Fixed |
+|---|---|---|
+| Weekly roster draft — Saturday | both | yes |
+| Availability vs capacity — Sat | both | yes |
+| Post availability — Friday | both | yes |
+| Weekly performance review — Friday | snippet read only | yes |
+
+All four now read the schedule with `download_file_content`, take **PL Staff Confirmed
+from column 5 by index**, and carry the rule that **an empty column 5 means the poll is
+Curia's and nobody of ours goes on it**. Three of them also gained:
+
+- **Read `#shift-changes-pacificlinkglobal`** — a withdrawal beats a ✅, a pickup offer
+  naming days is narrower than the vote and the narrower wins, and a swap request is not
+  a withdrawal.
+- **Do not blind-subtract a seeded reaction.** The old wording said to subtract one per
+  day unconditionally, which undercounts every day the seed is absent — and it was absent
+  on the 18 and 19 September messages. Read the names and exclude the posting account
+  only where it actually appears. The availability-post prompt now says to state whether
+  it seeded, so the counting Routines know which case they are in.
+- **A fortnight of call history, not one week**, and unrankable described as a property
+  of the window rather than the person.
+
 **Live connector state, 19 Sep 2026:**
 
 | Routine | Connectors | Next fires |
@@ -1894,10 +1935,83 @@ PL Staff Confirmed is the LAST number on the row.** That rule reproduces all
 three of his figures exactly. It does NOT hold for past rows, where the outcome
 columns are filled in and the last number is a completes figure.
 
-**The real fix is to stop parsing the snippet positionally at all.** Read actual
-cells — the Sheets connector if it is ever authorised, or an Apps Script. Until
-then, take the last number on a future row, and sanity-check the week's total
-against Brendon before building a roster on it.
+**THE REAL FIX EXISTS AND IT IS ONE CALL — found 21 Sep 2026. Use this and
+nothing else.**
+
+    mcp__Google_Drive__download_file_content(fileId=<the schedule>)
+
+On a Google Sheet this returns **`mimeType: text/csv`, base64, with every empty
+cell preserved as an empty field**. Decode it and read the row by column index
+against the header. 108,696 characters for this sheet, so it lands in
+`tool-results/` and is decoded from there:
+
+    import json, base64, csv, io
+    d = json.load(open(PATH))
+    rows = list(csv.reader(io.StringIO(base64.b64decode(d['content']).decode('utf-8-sig'))))
+    # col 4 = Curia Staff Wanted, col 5 = PL Staff Confirmed
+
+This removes the whole problem. **Do not use `get_file_metadata` +
+`MAX_ALLOWED` for the schedule any more** — that snippet is for searching, not
+for reading figures, and every schedule misread in this project traces to it.
+It also means **the Apps Script is not needed to read the schedule**; it is
+still needed for writing cells.
+
+~~**Until then, take the last number on a future row.**~~ **THAT RULE IS WRONG AND
+IT PUT A WRONG ROSTER IN FRONT OF THE WHOLE TEAM ON 21 SEP.** It assumes the
+blank cell is never `PL Staff Confirmed`. When Curia staff a poll themselves they
+fill **Curia Staff Wanted** and leave **PL Staff Confirmed empty**, so the last
+number on the row is *Curia's* figure and reading it as ours invents callers that
+were never wanted. Delete the rule; do not resurrect it as a fallback.
+
+**The case that exposed it — Monday and Tuesday 21/22 Sep 2026.** The snippet
+showed:
+
+    Monday 21-Sep-26,NZNP 500,75,175,10
+    Tamaki ACT 750,33,400,30
+
+which the rule read as 10 + 30 = **40 PL callers**. The real cells are:
+
+| Day | Poll | Online | Phone | Curia Wanted | **PL Confirmed** |
+|---|---|--:|--:|--:|--:|
+| Mon 21 | NZNP 500 | 75 | 175 | 10 | *(blank)* |
+| Mon 21 | Tamaki ACT 750 | 33 | 400 | *(blank)* | **30** |
+| Tue 22 | NZNP 500 | 75 | 175 | 10 | *(blank)* |
+| Tue 22 | Tamaki ACT 750 | 33 | 400 | *(blank)* | **30** |
+
+**Monday and Tuesday are 30 PL callers, not 40, and NZNP 500 on those two days
+is CURIA'S OWN TEAM — Pacific Link are not on it at all.** Brendon said so twice
+before the cells were read — *"on Monday it's only 30 not 40"*, then *"even on
+Tuesday it's 30"* — and he was right both times. **Two different roster posts had
+already gone out at 40 before this was checked.**
+
+**Why Sunday hid the bug.** `Sunday 20-Sep-26,NZNP 500,75,175,20` is the mirror
+image — Curia Wanted blank, PL Confirmed 20 — so the last number *was* ours and
+Sunday came out right. A rule that is correct on the row you check and wrong on
+the row you do not is the worst kind, and it survived three separate weeks of
+use for exactly that reason.
+
+**The corrected week of 20–25 Sep 2026, read from real cells:**
+
+| Day | Polls (PL only) | PL staff |
+|---|---|--:|
+| Sun 20 | NZNP 500 | 20 |
+| Mon 21 | Tamaki ACT 750 | **30** |
+| Tue 22 | Tamaki ACT 750 | **30** |
+| Wed 23 | Te Tai Tonga 500 (10) · Te Tai Hauauru 500 (11) | 21 |
+| Thu 24 | Te Tai Tonga 500 (10) · Te Tai Hauauru 500 (11) · Tamaki ACT 750 (20) | 41 |
+| Fri 25 | Waitaki 400 | 20 |
+| **Week** | | **162** |
+
+**162, not the 182 recorded everywhere else in this file.** Wed, Thu, Fri and Sun
+were right; only Mon and Tue were wrong, by ten each.
+
+**A poll with a blank PL cell is not ours. Never roster anyone onto it.** That is
+the substantive half of the lesson and it is bigger than the headcount: the
+Saturday Routine put ten of our best callers on NZNP 500 on Monday, a poll Curia
+were staffing themselves.
+
+**Sanity-check the week's total against Brendon before building a roster on it**
+— he has now caught this class of error three times running.
 
 **The week of 20-24 Sep 2026, read live 18 Sep and confirmed by Brendon:**
 
@@ -2188,8 +2302,11 @@ Saturday auto-roster filled Wed and Fri exactly and left **Mon 33/40, Tue 34/40,
 36/41** — 17 caller-shifts short — and nothing had been done about it since.
 
 Three updated posts went up to `#roster-pacificlinkglobal` at 11:15 AEST, verified by
-reading the channel back. **All three days are now at Curia's figure: 40 / 40 / 41.**
-Each addition had voted ✅ on that day; nobody was moved between polls.
+reading the channel back. **~~All three days are now at Curia's figure: 40 / 40 / 41.~~
+Monday and Tuesday were 40 and should have been 30** — see the schedule-reading
+correction above. Thursday's 41 was right. Both days were re-posted corrected at 11:27
+AEST as **Tamaki ACT 750 only, top 30 on the 75/25 score**, and the NZNP 500 group was
+removed because that poll is Curia's own.
 
 **Every empty slot was in Tamaki ACT 750 on all three days**, so that is where the
 additions went. The snake draft is not being violated — the other polls were already at
@@ -2229,22 +2346,31 @@ What it held on 21 Sep, none of which is visible from votes alone:
   shift?"** — a swap request, **not** a withdrawal. He stays on both until someone
   agrees. Do not read it as a drop-out.
 
-**Brendon's own number and Curia's did not agree, and Curia's was used.** He posted in
-`#shift-changes` at 10:23: *"I am needing 4 people in total. 3 extras and 1 to replace
-Jess."* Curia's sheet says Monday is 40 and the roster had 33, which is 7 plus Jess = 8.
-The fill went to 8, to Curia's figure, and the gap was flagged to him. **When his stated
-number is below the schedule's, do the schedule and tell him** — an under-staffed night
-is the failure that keeps recurring, and pulling four people back off a roster is one
-message.
+**~~Brendon's own number and Curia's did not agree, and Curia's was used.~~ BRENDON WAS
+RIGHT AND THE SCHEDULE READ WAS WRONG.** He posted in `#shift-changes` at 10:23:
+*"I am needing 4 people in total. 3 extras and 1 to replace Jess."* That was read as
+disagreeing with Curia's sheet, and eight people were added on the reasoning that "an
+under-staffed night is the failure that keeps recurring". **The sheet actually says 30,
+so 33 rostered was already over and his 4 was about covering drop-outs, not filling to
+40.** He then said it twice more in plain words before the real cells were read.
+
+**The lesson, and it is the third time: when Brendon's number disagrees with a parsed
+figure, the parse is the thing to doubt.** He is reading the sheet with his eyes. Go and
+read the actual cells before acting on the difference — it now costs one
+`download_file_content` call — and never resolve it by taking the bigger number "to be
+safe". Over-rostering is not the safe side: it stood ten people up at four hours'
+notice and put our best callers on a poll that was never ours.
 
 **Karla (`U0C2Z896QKY`), John (`U0C314CAMBL`) and Salvador Banila (`U0C2WAS2PPX`) were
 still excluded.** All three voted ✅ on every day and all three remain unidentified, so
 none was rostered even though the week is short. Still waiting on Brendon.
 
 **The schedule was re-read first**, per the standing rule: `modifiedTime`
-`2026-09-20T20:27:16` (moved since the 19 Sep read) but the 20-25 Sep rows are
-**identical** — Sun 20 · Mon 40 · Tue 40 · Wed 21 · Thu 41 · Fri 20. A moved
-`modifiedTime` does not mean this week changed; diff the rows before announcing anything.
+`2026-09-20T20:27:16` (moved since the 19 Sep read) and the 20-25 Sep rows are
+**identical** to the previous read. A moved `modifiedTime` does not mean this week
+changed; diff the rows before announcing anything. **But re-reading the same wrong way
+twice proves nothing** — the rows were identical *and* both readings of them were wrong.
+Consistency between two reads is not accuracy.
 
 ## How Brendon works
 
