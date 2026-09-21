@@ -2180,6 +2180,72 @@ will see under-staffed** three nights running.
 No third schedule edit: `modifiedTime` still `2026-09-19T06:30:59`, unchanged since the
 06:30 rewrite.
 
+### Monday 21 Sep: the week was filled to Curia's numbers, and what it cost
+
+Brendon, 21 Sep: *"I think you mucked up the roster we are actually short on a lot of
+days are you able to update the roster. John Rytz was a no show."* He was right. The
+Saturday auto-roster filled Wed and Fri exactly and left **Mon 33/40, Tue 34/40, Thu
+36/41** — 17 caller-shifts short — and nothing had been done about it since.
+
+Three updated posts went up to `#roster-pacificlinkglobal` at 11:15 AEST, verified by
+reading the channel back. **All three days are now at Curia's figure: 40 / 40 / 41.**
+Each addition had voted ✅ on that day; nobody was moved between polls.
+
+**Every empty slot was in Tamaki ACT 750 on all three days**, so that is where the
+additions went. The snake draft is not being violated — the other polls were already at
+capacity — but note that the 19 extras are all callers with **no fortnight call
+history**, so they land in one poll. **Balancing "strength" across polls with unrankable
+people is fiction**: there is nothing to rank them on. Say that rather than pretending
+to a balanced split.
+
+**JOHNRYTZ (`U0C1DE9LM98`) no-showed Sunday 20** — confirmed against the Zoom logs, zero
+rows. He voted ✅ on Mon, Tue and Thu and was deliberately **not** used in any fill. He
+is not barred; the no-show is one data point and Brendon's call.
+
+**Tristan was absent on Sunday too but is NOT a no-show** — he posted in
+`#shift-changes` the morning of the shift: an ISP outage notified at short notice.
+Always check `#shift-changes` before calling anyone a no-show.
+
+**Two "unrankable" callers proved themselves on Sunday and are no longer unrankable.**
+
+- **Cheska Rejante** (`U0C12R2E50A`) is Zoom `lexie_althea francesca rejante_eastwood` —
+  242 attempts, 3 completes on 20 Sep. She also posted *"I am available"* on 21 Sep.
+- **Rechiell W.** (`U0C0UD9DE4B`) is Zoom `rechiell wagas` — 222 attempts on 20 Sep.
+
+Both were in the 19 Sep "no call history, cannot be rostered" list. **That list is a
+statement about the scoring window, not about the person.** A caller with no history in
+the fortnight is unrankable, not unusable — and the only way any of them ever gets a
+first shift is to be given one. Sunday is the evidence.
+
+**`#shift-changes-pacificlinkglobal` is a roster input and has to be read every time.**
+What it held on 21 Sep, none of which is visible from votes alone:
+
+- **Jess: "Jess - can't do Monday 21 September"** — she was on the Monday roster and was
+  removed. She stays on Tue and Thu, where she has not withdrawn.
+- **Yvonne Eusebio: "can pick up Tuesday 22 to Thursday 24"** — used on Tue and Thu, and
+  deliberately **not** on Monday, because her own words exclude it even though she voted
+  ✅ there. A pickup offer that names days is narrower than the vote; take the narrower.
+- **Melburne Ando Baliad: "Anyone in the friday shift who wants to swap to my Monday
+  shift?"** — a swap request, **not** a withdrawal. He stays on both until someone
+  agrees. Do not read it as a drop-out.
+
+**Brendon's own number and Curia's did not agree, and Curia's was used.** He posted in
+`#shift-changes` at 10:23: *"I am needing 4 people in total. 3 extras and 1 to replace
+Jess."* Curia's sheet says Monday is 40 and the roster had 33, which is 7 plus Jess = 8.
+The fill went to 8, to Curia's figure, and the gap was flagged to him. **When his stated
+number is below the schedule's, do the schedule and tell him** — an under-staffed night
+is the failure that keeps recurring, and pulling four people back off a roster is one
+message.
+
+**Karla (`U0C2Z896QKY`), John (`U0C314CAMBL`) and Salvador Banila (`U0C2WAS2PPX`) were
+still excluded.** All three voted ✅ on every day and all three remain unidentified, so
+none was rostered even though the week is short. Still waiting on Brendon.
+
+**The schedule was re-read first**, per the standing rule: `modifiedTime`
+`2026-09-20T20:27:16` (moved since the 19 Sep read) but the 20-25 Sep rows are
+**identical** — Sun 20 · Mon 40 · Tue 40 · Wed 21 · Thu 41 · Fri 20. A moved
+`modifiedTime` does not mean this week changed; diff the rows before announcing anything.
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,
