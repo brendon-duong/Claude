@@ -475,13 +475,13 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 19 September 2026, 1.30am NZ · tick a task and it clears itself off the list</div>
+    <div class="eyebrow">Build register · updated 21 September 2026, 1.15pm NZ · tick a task and it clears itself off the list</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       Everything still open on the Pacific Link agent. <strong>Each entry opens as one plain
       sentence — hit <em style="font-style:normal">the detail</em> for the API behaviour behind
       it</strong>, which is there so nobody has to rediscover it the hard way. Solved items are one
-      line each at the bottom, along with the six claims this page got wrong, kept visible on
+      line each at the bottom, along with the seven claims this page got wrong, kept visible on
       purpose.
     </p>
     <div class="meta">13,036 lines · 568 tests passing · branch claude/business-agent-dev-9jxs55</div>
@@ -496,7 +496,7 @@
       <button type="button" class="tally-btn" data-goto="closed"
         ><span class="dot" style="background:var(--live)"></span><b>10</b> closed &amp; removed<span class="arrow">↓</span></button>
       <button type="button" class="tally-btn" data-goto="asks"
-        ><span class="dot" style="background:var(--waiting)"></span><b>20</b> waiting on you<span class="arrow">↓</span></button>
+        ><span class="dot" style="background:var(--waiting)"></span><b>21</b> waiting on you<span class="arrow">↓</span></button>
     </div>
     <p id="filter-note" hidden></p>
   </header>
@@ -1717,6 +1717,33 @@ unless the file or its label changes.</div>
             evidence</strong> — see Data gaps. <strong>A floor</strong> — everyone who ticks ✓ works
             at least once a week, or the bottom slots rotate, or none (ask 10). Everything else is built.
           </dd></div>
+          <div class="row"><dt>It posted itself — 19 September, unattended</dt><dd>
+            The Saturday Routine fired at 10:05 UTC and <strong>put all six days into
+            #roster-pacificlinkglobal with nobody touching it</strong>. It re-read Curia&#39;s
+            schedule live rather than trusting anything cached, which is what saved the run: Curia
+            had rewritten the week that morning, and it posted the brand-new Sunday and Friday
+            correctly. Checked name by name afterwards — <strong>every rostered caller had said ✅ on
+            that day</strong>, the top-ranked caller&#39;s ❌ on Sunday was respected, and the
+            unrankable were left off rather than padding a day to look full.
+          </dd></div>
+          <div class="row"><dt>But it left three nights short, and nothing chased it</dt><dd>
+            It filled Wednesday and Friday exactly and stopped at <strong>Mon 33/40, Tue 34/40, Thu
+            36/41</strong> — 17 caller-shifts, all of them in <strong>Tamaki ACT 750</strong>,
+            because that is the poll the ranked list runs out on. Brendon caught it on 21 September:
+            <em style="font-style:normal">"I think you mucked up the roster we are actually short on
+            a lot of days."</em> All three days were refilled to Curia&#39;s figure the same morning
+            and re-posted. <strong>The gap is that a short roster is posted and then left</strong> —
+            the Routine reports the shortfall and no job owns closing it.
+          </dd></div>
+          <div class="row"><dt>What the refill turned on, none of it in the votes</dt><dd>
+            <strong>JOHNRYTZ no-showed Sunday</strong> (zero rows in the call logs) and was not used
+            again. <strong>Tristan was also absent and is not a no-show</strong> — he posted an ISP
+            outage in #shift-changes that morning. <strong>Jess withdrew from Monday</strong> there
+            too, and <strong>Yvonne offered Tuesday to Thursday only</strong>, so she went on those
+            two and not Monday despite a ✅ there: a pickup offer that names days is narrower than
+            the vote, and the narrower one wins. <strong>#shift-changes is a roster input</strong>,
+            not just a place people apologise.
+          </dd></div>
         </dl>
       
         </details>
@@ -2186,7 +2213,7 @@ unless the file or its label changes.</div>
       <li><label class="tick"><input type="checkbox" data-task="ask-16" disabled><span class="tick-body"><b>16. Ask Erika and Goldy which of their two numbers is right</b></span></label><details class="ask-more"><summary>why</summary><div>Both typed a summary that does not match the call sheet they attached. <span class="mono">Erika Jane Boiser</span> typed 69 ring backs and 32 refused; her sheet says <b style="display:inline">62 and 29</b>. <span class="mono">Goldy Kaye</span> left ring backs out of her text altogether; her sheet has <b style="display:inline">36</b>. The sheets were used because they reconcile to the caller's own total — but one of each pair is wrong and it goes to Curia either way. Two messages.</div></details></li>
       <li><label class="tick"><input type="checkbox" data-task="ask-17" disabled><span class="tick-body"><b>17. One shared call-sheet template</b></span></label><details class="ask-more"><summary>why</summary><div>At least <b style="display:inline">eight layouts</b> are in use across the team — GNA, Inactive, Not Active, Not Available, Hang up, Incomplete, Unqualified, Disqualified, Already Done, Do Not Call, Busy line/Disconnected, Dialed RBs, Callback. Every sheet has to be mapped by hand into Curia's four codes, and a misread reaches Curia as fact. <b style="display:inline">One template ends that permanently</b> and makes the nightly declared-results Routine reliable instead of interpretive. Pick the clearest sheet already in use — Leizel's and Princess's both carry every field including a reconciling total — and send it round.</div></details></li>
       <li><label class="tick"><input type="checkbox" data-task="ask-18" disabled><span class="tick-body"><b>18. Will Curia accept a NEW pool file rather than an edit of theirs?</b></span></label><details class="ask-more"><summary>why</summary><div><b style="display:inline">The shading works — that part is answered.</b> Proved 19 Sep on the real Hutt South pool: downloaded byte-exact, 224 rows shaded <span class="mono">#C6EFCE</span>, boundaries verified, all rows and columns intact. What it cannot do is edit Curia's master <em style="font-style:normal">in place</em> — it writes a <b style="display:inline">new file</b> with the bumped <span class="mono">USE FROM</span> title. So the only question left is theirs, not ours: <b style="display:inline">will Curia work from a new file each time</b> (or from a copy in your Drive that you tell them the position of), <b style="display:inline">or must their original be the one that changes?</b> If it must be theirs, <span class="mono">ops/allocate_callsheet.gs</span> in your own account is the answer and needs repointing. If a new file is fine, this runs today with nothing to install. One question to David and it is settled.</div></details></li>
-      <li><label class="tick"><input type="checkbox" data-task="ask-20" disabled><span class="tick-body"><b>20. Next week is short — Wednesday 23 by about 18 callers</b></span></label><details class="ask-more"><summary>why</summary><div>Read live Sat 19 Sep against the availability votes. Curia want <b style="display:inline">10 / 40 / 51 / 38</b> across Mon–Thu. Counting only people who said ✅ <em style="font-style:normal">and</em> have September call history, you have <b style="display:inline">34 / 33 / 33 / 34</b> — so Monday has 24 spare and <b style="display:inline">Wednesday is 18 short</b>, Tuesday 7, Thursday 4. Five people said ✅ with no shifts this month at all (JOHNRYTZ, Lui Jay Dawis, Marynel Joy Reanturco, Rechiell W., Cheska Rejante), which is what makes Thursday look covered when it is not. <b style="display:inline">17 people voted on nothing</b> and were all DM'd on 19 Sep, but 15 of them have never worked a shift, so chasing them barely moves the number — <b style="display:inline">the faster lever is asking people who already said ✅ on other days to add Wednesday</b>. Only two of the seventeen are real drift-offs: <b style="display:inline">Mary Joy Tongson</b> and <b style="display:inline">Lee Daniel Flores</b>, both of whom worked 1–10 Sep and then stopped.</div></details></li>
+      <li><label class="tick"><input type="checkbox" data-task="ask-20" disabled><span class="tick-body"><b>20. Three Slack accounts nobody can identify — and they vote every week</b></span></label><details class="ask-more"><summary>why</summary><div><b style="display:inline">Karla</b> (<code>U0C2Z896QKY</code>), <b style="display:inline">John</b> (<code>U0C314CAMBL</code>) and <b style="display:inline">Salvador Banila</b> (<code>U0C2WAS2PPX</code>) joined on 19 September, appear in no record, have no Zoom history, and have said ✅ on <em style="font-style:normal">every</em> day since. They were left off the roster again on 21 Sep even though the week was short, because rostering someone nobody can name is not a thing to do on a guess. <b style="display:inline">Are they new starters who need onboarding, or accounts to look at?</b> Either answer takes a sentence, and until you give it they sit out every week while the roster runs short.</div></details></li><li><label class="tick"><input type="checkbox" data-task="ask-21" disabled><span class="tick-body"><b>21. Your number for Monday was 4; Curia&#39;s sheet says 8</b></span></label><details class="ask-more"><summary>why</summary><div>You posted in #shift-changes on 21 Sep: <em style="font-style:normal">"I am needing 4 people in total. 3 extras and 1 to replace Jess."</em> Curia&#39;s schedule has Monday at <b style="display:inline">40</b> — NZNP 500 (10) plus Tamaki ACT 750 (30) — and the roster had <b style="display:inline">33</b>, so with Jess out it was 8 short, not 4. <b style="display:inline">The fill went to 8, to Curia&#39;s figure</b>, because an under-staffed night is the failure that keeps recurring and pulling four people back off is one message. If your 4 was right — you already had people lined up, or Curia told you something the sheet does not say — say so and the last four come off. Same question applies to Tue and Thu, both now filled to 40 and 41.</div></details></li>
       <li><label class="tick"><input type="checkbox" data-task="ask-19" disabled><span class="tick-body"><b>19. Should call sheets go to Google Drive instead of waiting on SharePoint?</b></span></label><details class="ask-more"><summary>why</summary><div>SharePoint delivery is blocked on external sharing (ask 2) and then needs 48 manual folder shares (ask 3), because <b style="display:inline">the M365 connector has no sharing call at all</b>. <b style="display:inline">Google Drive has one</b> — <span class="mono">share_file</span> grants to a <em style="font-style:normal">named email address</em>, not "anyone with the link", so it is not a return to the old forwardable-link problem. That makes the whole chain automatic with <b style="display:inline">zero manual shares</b>: generate → upload → share to the caller's own address. Second part of the question: does each caller get <b style="display:inline">one file re-shared each day</b>, or <b style="display:inline">a folder of their own shared once</b>? Nothing is shared with a real caller until you say so.</div></details></li>
     </ol>
 
@@ -2231,7 +2258,7 @@ unless the file or its label changes.</div>
       <article class="item worked" data-kind="corrections">
         <div class="item-head"><h3>Corrections</h3><span class="tag t-worked">All fixed</span></div>
         <p class="gist">Every claim this page has got wrong, kept visible on purpose.</p>
-        <details class="drill"><summary>Read all five</summary>
+        <details class="drill"><summary>Read all seven</summary>
         <dl class="rows">
           <div class="row"><dt>ANSWERED</dt><dd>
             Listed <code>Connected</code>, <code>Answered</code> and <code>Call connected</code> — a
@@ -2270,6 +2297,16 @@ unless the file or its label changes.</div>
             static list been built from Curia's historical column instead,
             <strong>two callers' shifts would have been filed under the wrong person's name</strong>,
             because DIDs get reassigned.
+          </dd></div>
+          <div class="row"><dt>"No call history" read as "cannot be rostered"</dt><dd>
+            The roster work called ten ✅ voters <strong>unrankable</strong> and left them off every
+            shift, which is correct — the 75/25 score has nothing to score them on — but the page
+            let that slide into <em style="font-style:normal">unusable</em>, which is a different
+            claim and a wrong one. <strong>Cheska Rejante and Rechiell W. were both on that list and
+            both worked Sunday 20 September</strong>, 242 and 222 dial attempts. A caller with no
+            history in the scoring window is unranked, not unproven, and the only way any of them
+            gets a first shift is to be given one. On 21 Sep nineteen of them filled Monday, Tuesday
+            and Thursday to Curia's headcount.
           </dd></div>
         </dl>
       
