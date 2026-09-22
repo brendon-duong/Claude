@@ -1005,6 +1005,31 @@ performance problem — the rostering score already normalises within a window,
 but any report shown to Brendon or Curia should name the poll beside the
 number.
 
+### THE POLL COLUMN — settled by Brendon, 22 Sep 2026
+
+*"For the poll refer back to Curia Schedule to see what's rostered on and people
+should put in their notes what poll they are working on or attach that in the
+screenshot."*
+
+Two sources, in this order:
+
+1. **Curia's schedule establishes what RAN and what is OURS** — read with
+   `download_file_content` (real CSV, empty cells preserved), column 5 by index.
+   **An empty column 5 means the poll is Curia's own** and none of our callers go
+   against it. The schedule is live and Curia edit it without telling anyone.
+2. **The caller's own word decides which one THEY worked** — named in their typed
+   notes or written on their screenshot. Only they know.
+
+Fallbacks when the caller did not say: one PL poll that day → use it; two or more
+→ the poll they were rostered on; not on the roster → a pickup offer in
+`#shift-changes` naming the poll; otherwise **leave Poll blank and ask**. Never
+guess a survey name — it reaches Curia as fact.
+
+**Open ask for Brendon:** callers are not yet in the habit of naming the poll, so
+the pinned results format in `#results-pacificlinkglobal` should say to include
+it. The Routine reports how many named their own poll each night, which is how he
+sees whether the habit is taking.
+
 ### THE DECLARED-RESULTS ROUTINE NOW WRITES CURIA'S SHEET — 22 Sep 2026
 
 Brendon asked for this explicitly and chose **unattended**, not draft-and-approve:
