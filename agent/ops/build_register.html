@@ -475,7 +475,7 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="eyebrow">Build register · updated 22 September 2026, 12.55pm AEST · tick a task and it clears itself off the list</div>
+    <div class="eyebrow">Build register · updated 22 September 2026, 2.10pm AEST · tick a task and it clears itself off the list</div>
     <h1>What's working, what's blocked</h1>
     <p class="lede">
       Everything still open on the Pacific Link agent. <strong>Each entry opens as one plain
@@ -940,9 +940,9 @@
         <div class="item-head">
           <h3><strike>Curia's results page can be read but not written</strike> — it can be written. Fixed 22 Sep</h3>
           <span class="tag t-worked">Unblocked 22 Sep</span>
-          <span class="tag t-pending">Writes need your permission rule</span>
+          <span class="tag t-worked">Writes proved end to end</span>
         </div>
-        <p class="gist"><b>Solved.</b> A Google service account in Brendon's own Cloud project reads and writes this sheet, no connector involved — and the claim that its rows "stop well before September 2026" was a truncated read, not a short sheet. It is current to 22/9.</p>
+        <p class="gist"><b>Solved, both halves.</b> A Google service account in Brendon's own Cloud project reads and writes this sheet with no connector involved, and a committed permission rule clears the harness gate that sat behind it. Write, read back and clear all proved on the live sheet. The claim that its rows "stop well before September 2026" was a truncated read, not a short sheet — it is current to 22/9.</p>
         <details class="drill"><summary>The detail — what was tested, and the API behaviour</summary>
         <dl class="rows">
           <div class="row"><dt>Asked</dt><dd>
@@ -1074,22 +1074,32 @@ is enrolled in the Google Workspace Developer Preview Program.</div>
             edit by <code>sheets-bot</code>. <strong>Reads are free; every write waits for
             Brendon.</strong>
           </dd></div>
-          <div class="row"><dt>AND THE WRITE IS BLOCKED AGAIN — one layer further up</dt><dd>
-            Brendon asked for a dummy write on 22 Sep: one throwaway cell at row 4010, read back,
-            then cleared. <strong>The harness refused it, twice</strong>, verbatim:
-            <em style="font-style:normal">"Permission for this action was denied by the Claude Code
-            auto mode classifier. Reason: [Modify Shared Resources]."</em> <strong>Google never saw
-            the request.</strong> This is the same classifier that refuses Slack posts at random and
-            refused a Drive delete outright — the harness's own safety layer, not a connector, not a
-            Cloud project, and not anything Editor access fixes.
-            <strong>So the score is: the Cloud-project gate is beaten and a second, unrelated gate
-            sits behind it.</strong> Reads go through untouched; writes do not.
-            The remedy the refusal itself names is a <strong>Bash permission rule in Brendon's
-            settings</strong> — his call, and until he adds one, every write to a sheet needs him
-            to approve it in the moment. <strong>Which is draft-everything-send-nothing enforced by
-            the platform rather than by policy</strong>, so it is not costly on this sheet: he was
-            going to read every write anyway. It would be costly on anything meant to run unattended
-            in a Routine, and that is the thing to know before building one.
+          <div class="row"><dt>A second gate sat behind the first — and it is also beaten</dt><dd>
+            The dummy write on 22 Sep was <strong>refused twice by the harness</strong> before Google
+            ever saw it: <em style="font-style:normal">"Permission for this action was denied by the
+            Claude Code auto mode classifier. Reason: [Modify Shared Resources]."</em> Same
+            classifier that refuses Slack posts at random and refused a Drive delete outright — not
+            a connector, not the Cloud project, and not anything Editor access fixes.
+            <strong>Fixed the same hour</strong> with <code>.claude/settings.json</code> committed to
+            the repo, allowing exactly five commands and nothing else:
+            <code>sheets.mjs read / inspect / write / append / clear</code>. Not <code>node</code>,
+            not Bash — anything else still meets the classifier.
+          </dd></div>
+          <div class="row"><dt>Proved end to end, then cleaned up</dt><dd>
+            Wrote a scratch cell at <code>B4010</code>, read it back, cleared it, verified it empty,
+            and confirmed the real rows unchanged — Tuesday's total still GNA 258, RB 1,865, R 573,
+            C 156, total 2,637. <strong>It took effect without restarting the session</strong>,
+            picked up on the <code>git pull</code>, against the expectation that settings only load
+            at startup.
+          </dd></div>
+          <div class="row"><dt>Why it had to be committed, and why Brendon had to write it</dt><dd>
+            <strong>A Routine inherits it.</strong> A fired session clones the repo and gets the
+            file, so an unattended sheet write now works — which was the entire point. A rule in a
+            session's own settings would not survive, because the container is wiped.
+            And <strong>a session cannot create this file itself</strong>: writing it was refused as
+            <code>[Self-Modification]</code>. The harness will not let the agent grant itself
+            permissions, which is the correct behaviour and was not worked around. If the file is
+            ever lost, <strong>Brendon recreates it on GitHub</strong>.
           </dd></div>
         </dl>
       
@@ -2301,7 +2311,7 @@ unless the file or its label changes.</div>
     </div>
 
     <div class="section-head" style="margin-top:40px">
-      <h2>Eight things this register got wrong</h2>
+      <h2>Nine things this register got wrong</h2>
       <p>Kept visible on purpose. A register that quietly deletes its mistakes cannot be trusted on the rest.
       The newest, on 22 September, is the most expensive: a platform limit stated as permanent was
       never tested from the one angle that beat it.</p>
@@ -2310,7 +2320,7 @@ unless the file or its label changes.</div>
       <article class="item worked" data-kind="corrections">
         <div class="item-head"><h3>Corrections</h3><span class="tag t-worked">All fixed</span></div>
         <p class="gist">Every claim this page has got wrong, kept visible on purpose.</p>
-        <details class="drill"><summary>Read all eight</summary>
+        <details class="drill"><summary>Read all nine</summary>
         <dl class="rows">
           <div class="row"><dt>ANSWERED</dt><dd>
             Listed <code>Connected</code>, <code>Answered</code> and <code>Call connected</code> — a
@@ -2359,6 +2369,14 @@ unless the file or its label changes.</div>
             routing three separate jobs around an Apps Script that was never written. Same failure
             shape as the shading correction below it: <strong>a narrow limit written down as an
             absolute one</strong>, and nobody asked which of the two it was.
+          </dd></div>
+          <div class="row"><dt>"A test write is still a write, so leave it"</dt><dd>
+            Offered as the cautious option when the write path was untested: find out the first time
+            there is a real write to do. <strong>Wrong call, and Brendon overruled it in three
+            words.</strong> Testing took ten seconds, left nothing behind, and surfaced a second
+            platform gate that would otherwise have been discovered by a Routine failing silently at
+            2am with Curia waiting on the file. <strong>An untested write path is not a neutral
+            state.</strong>
           </dd></div>
           <div class="row"><dt>"Curia's results page stops before September 2026"</dt><dd>
             Recorded 18 September while searching for Sunday 13's missing GNA, and used as one of
