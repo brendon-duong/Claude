@@ -904,6 +904,13 @@ answer is that it is missing, not that it does not exist. What was checked:
 2. **Curia's results page** (`1H5xMVXnq…`) — read in full via
    `get_file_metadata` + `MAX_ALLOWED`. It has a GNA column, but the rows stop
    well before September 2026. Nothing for 13/9.
+   **CORRECTED 22 Sep 2026: that claim was wrong — the snippet was truncating,
+   the sheet was not short.** Read through the service account (below), the
+   `PL Staff Record` tab is fully current: day blocks for 13/9 through 22/9,
+   last populated row 2397. The 13/9 block is there with 11 callers. What is
+   true is narrower: 13/9 has no GNA, because nobody declared one — which is
+   what Brendon accepted on 18 Sep. **Never conclude a Google Sheet is short
+   from a `contentSnippet` read.** It truncates, and it truncates silently.
 3. **Elaine's `Audit - PL.xlsx`** — `modifiedTime` is **10 September 2026**, so
    she has not audited any day of this week. Her total-calls column, which would
    have let GNA be derived as `total − RB − R − C`, does not cover it.
@@ -1789,7 +1796,61 @@ dials from **1051**; ext 1035 made no calls at all in the week and looks like a
 dead account. Also `Licup, Krysztin Aeiyn Franzcis` (ext 1053) made 8 calls on
 14 September and **never declared a result** — open question.
 
-**Writing to it is blocked.** The Google Sheets connector returns:
+### THE SHEETS GATE IS BEATEN — a service account, set up 22 September 2026
+
+**`scripts/sheets.mjs` reads and writes Google Sheets from this repo, and it does
+not touch the Google Sheets connector at all.** Everything below about the
+Cloud-project gate is still true of *the connector*; it is simply no longer the
+only route, and the connector is now the wrong tool to reach for.
+
+The gate was never about permissions on a document — it is Anthropic's own Cloud
+project (`454021123290`) not being enrolled in the Workspace Developer Preview
+Program. A service account in **Brendon's own** Cloud project shares nothing with
+that project, so the gate does not apply to it.
+
+    project        pacific-link-claude-mcp     (brendon.duong10@gmail.com)
+    service acct   sheets-bot@pacific-link-claude-mcp.iam.gserviceaccount.com
+    credentials    .env.local at the repo root - GITIGNORED, mode 600, never commit
+    APIs enabled   Google Sheets API, Google Drive API
+
+    node scripts/sheets.mjs inspect <sheet>
+    node scripts/sheets.mjs read    <sheet> [range] [--limit N] [--json]
+    node scripts/sheets.mjs write   <sheet> <range> '[["a","b"]]'
+    node scripts/sheets.mjs append  <sheet> <range> '[["a","b"]]'
+    node scripts/sheets.mjs clear   <sheet> <range>
+
+`<sheet>` takes an ID or a full URL. Auth was proved end to end on 22 Sep —
+Google issued a Bearer token — and `inspect` then `read` both returned live data
+from Curia's results page.
+
+**A SERVICE ACCOUNT SEES ONLY WHAT IS SHARED WITH IT.** It has no Drive of its
+own and cannot browse. Each sheet has to be shared with the address above,
+**Editor**, notification unticked (there is no inbox behind it and Google can
+error trying to mail it). A sheet nobody shared returns 403 or 404, and
+`sheets.mjs` translates both into "share it with this address" rather than
+printing Google's error.
+
+**What it cannot reach: sheets Brendon does not own.** Curia's schedule
+(`1klLUYXNLTk…`, owned by David Farrar) can only be shared by David. Keep reading
+that one with `download_file_content`, which already works and preserves empty
+cells.
+
+**The .env.local file is the password to every sheet shared with the bot.** Never
+print it, never commit it, never paste a private key into a message. `.gitignore`
+covers `.env.local` and `.env.*.local`; that was verified with `git check-ignore`,
+not assumed.
+
+**Reading it does NOT relax draft-everything-send-nothing.** Curia read this
+results page. A write lands in front of them and shows in version history as an
+edit by `sheets-bot`. Reads are free; **every write waits for Brendon to ask.**
+
+**This supersedes "the Apps Script is the only route" for reading and writing
+cells.** The Apps Script is still the answer for **shading cells green**, which
+neither this nor any connector can do to a file in place.
+
+**~~Writing to it is blocked.~~ True of the CONNECTOR only — see the service
+account section immediately above, which writes this sheet today.** The Google
+Sheets connector returns:
 
     Access to this tool requires that your Google Cloud project (454021123290)
     be enrolled in the Google Workspace Developer Preview Program.
