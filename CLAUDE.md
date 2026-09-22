@@ -1844,6 +1844,23 @@ not assumed.
 results page. A write lands in front of them and shows in version history as an
 edit by `sheets-bot`. Reads are free; **every write waits for Brendon to ask.**
 
+**AND A SECOND GATE SITS BEHIND THE FIRST — found 22 Sep.** Brendon asked for a
+dummy write (one throwaway cell at row 4010, read back, cleared). **The harness
+refused it twice:**
+
+    Permission for this action was denied by the Claude Code auto mode
+    classifier. Reason: [Modify Shared Resources].
+
+**Google never saw the request.** This is the same classifier that refuses
+`slack_send_message` at random and refused `trash_file` outright — the harness's
+own safety layer, not a connector, not the Cloud project, and not something
+Editor access fixes. So: reads through the service account work untouched;
+**writes are blocked at the harness until Brendon adds a Bash permission rule**,
+which is what the refusal itself names as the remedy. On this sheet that costs
+nothing — he was going to read every write anyway — but **a Routine that writes a
+sheet unattended cannot work until that rule exists.** Do not report the Sheets
+problem as solved without this caveat.
+
 **This supersedes "the Apps Script is the only route" for reading and writing
 cells.** The Apps Script is still the answer for **shading cells green**, which
 neither this nor any connector can do to a file in place.
