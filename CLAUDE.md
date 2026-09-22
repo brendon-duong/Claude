@@ -2605,6 +2605,35 @@ Consistency between two reads is not accuracy.
 - He runs this business alone. Anything that needs twenty manual repetitions
   will not happen, so prefer the shape that needs one action from him.
 
+## CALL SHEETS GO TO GOOGLE DRIVE, NOT SHAREPOINT — Brendon, 22 Sep 2026
+
+*"I think that means we do not need to transition things over to Microsoft."*
+
+He is right, and it closes three long-standing asks at once. Drive's
+`share_file(fileId, emailAddress, role)` grants to a **named address**, which
+SharePoint has no equivalent for in the M365 connector. So:
+
+- **external sharing on `/sites/callsheets` — no longer needed**
+- **the 48 manual folder shares — no longer needed**
+- **the Purview label decision — moot**, twice over: the declared half comes from
+  Slack screenshots, and the library stops mattering
+
+**Microsoft is NOT dropped entirely.** Brendon's mail is M365
+(`brendon@pacificlinkglobal.com`) and the weekly performance review emails him
+there. What is dropped is moving **call sheets** to SharePoint. If Curia ever
+require SharePoint, the blockers come straight back — they were never solved, just
+routed around.
+
+**The old forwardable-link problem does not return.** The 2025 call sheets were
+open because they were link-shared. `share_file` to one person's own address is
+the opposite shape.
+
+**What is left on call sheets is two answers from Brendon, not code.** Generation,
+green shading, upload and rename are all proved on real Curia pools. The open
+questions: does Curia accept a NEW file rather than an edit of their master in
+place, and does each caller get a folder shared once or a file shared daily.
+Sharing with a real caller stays behind his say-so — it is outward-facing.
+
 ## Where things live
 
 | What | Where |
