@@ -1005,6 +1005,36 @@ performance problem — the rostering score already normalises within a window,
 but any report shown to Brendon or Curia should name the poll beside the
 number.
 
+### THE DECLARED-RESULTS RUN MOVED TO 10am SYDNEY, THE MORNING AFTER — 22 Sep 2026
+
+Brendon: *"change it for the next day at 10am Australian Eastern time so Sydney
+time."* `trig_01STiXp444UCGUpdqWzUyxjK` is now **`0 0 * * 1-6`** — 00:00 UTC,
+Monday to Saturday, which is **10am AEST the morning after each shift**. Renamed
+to "Declared results for Curia — 10am Sydney, morning after".
+
+**This solves the late-declaration problem outright.** At 10pm Manila the run
+raced the channel: callers post 4pm–9:30pm Manila and sometimes past midnight, so
+anyone late never reached Curia at all (the prompt forbids back-filling). At 8am
+Manila the next morning every declaration is in.
+
+**Mon–Sat, not Mon–Fri**, so a Friday shift is collected on Saturday — Curia added
+a Friday shift on 25 Sep and the day list must never be assumed.
+
+**THE PROMPT HAD TO CHANGE WITH THE CRON, AND THIS IS THE WHOLE LESSON AGAIN.** It
+said "compile TODAY'S MANILA DATE", which was right at 10pm Manila and wrong at
+8am. Left alone it would have compiled an empty day and written it to a sheet
+Curia read. It now derives the shift date as **yesterday in Manila**, works it out
+from UTC rather than trusting a word like "today", and **states the date it
+settled on at the top of every summary** so a wrong one is visible. It also now
+stops with "no shift" rather than inventing a day, and reads the channel far
+enough back to catch post-midnight declarations, which belong to the shift date
+and not to the day they were posted.
+
+**DST trap.** `0 0 * * 1-6` is 10am Sydney only on AEST. **From 4 October 2026
+(AEDT, UTC+11) it becomes 11am**; to hold 10am the cron moves to `0 13 * * 0-5`.
+An hour's drift is harmless for this job — it is long after the channel stops
+filling — so do not "correct" it without knowing which way you are compensating.
+
 ### THE POLL COLUMN — settled by Brendon, 22 Sep 2026
 
 *"For the poll refer back to Curia Schedule to see what's rostered on and people
