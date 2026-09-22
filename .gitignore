@@ -17,3 +17,9 @@ agent/config.json
 service-account*.json
 *credentials*.json
 .env
+
+# Google service-account credentials for scripts/sheets.mjs.
+# .env.local holds the private key — it must never be committed.
+.env.local
+.env.*.local
+node_modules/
