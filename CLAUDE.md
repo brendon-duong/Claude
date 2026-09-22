@@ -1005,6 +1005,59 @@ performance problem — the rostering score already normalises within a window,
 but any report shown to Brendon or Curia should name the poll beside the
 number.
 
+### THE DECLARED-RESULTS ROUTINE NOW WRITES CURIA'S SHEET — 22 Sep 2026
+
+Brendon asked for this explicitly and chose **unattended**, not draft-and-approve:
+*"I want the routine with unattended... so then basically that means I don't
+actually have to do anything."* `trig_01STiXp444UCGUpdqWzUyxjK`'s prompt was
+rewritten the same day to write the rows itself after producing the CSV.
+
+**Everything it needs was proved from a FIRED session, not assumed**, because a
+Routine's container shares nothing with an interactive one:
+
+    creds present        GOOGLE_SERVICE_ACCOUNT_EMAIL / GOOGLE_PRIVATE_KEY
+    network              *.googleapis.com reachable
+    npm install          googleapis installs in a fresh clone
+    read                 'PL Staff Record'!B2398:J2398 -> 2637 total
+    inspect              both tabs listed
+    zoom                 api.zoom.us 401 (expected, unauthenticated)
+
+Three setup steps were needed and each is a trap a future session could repeat:
+
+1. **The credentials go on the ENVIRONMENT, not in the repo.** `.env.local` is
+   gitignored, so a fired session has none. They are environment variables on
+   `Pacific Link` (`env_01Tbj77FEPUKBePCjAFhG2Jn`), same as `ZOOM_CLIENT_SECRET`.
+   The dialog warns these are visible to anyone using the environment — Brendon
+   accepted that, as he already had for Zoom.
+2. **`*.googleapis.com` had to be added to that environment's allowlist.** It
+   only had `zoom.us` and `api.zoom.us`. Without it the Routine gets a tunnel
+   failure that **looks exactly like a bad key** — the documented Zoom trap,
+   pointed at Google. The prompt now curls `sheets.googleapis.com` before
+   trusting any credential.
+3. **A one-character typo cost a whole round.** The email variable saved as
+   `OOGLE_SERVICE_ACCOUNT_EMAIL`. A missing variable does not error, it is just
+   absent, so the script says "No credentials found" and the obvious conclusion
+   is a bad key. **Print the variable NAMES when checking, not just the values.**
+
+**Verify a Routine's environment from a fired session before trusting it.**
+`create_session` against the same `environment_id` and repo, with a read-only
+prompt, costs a couple of minutes and catches all three of the above. Three were
+run on 22 Sep and each found something.
+
+What the prompt now does, beyond the CSV: checks today's date is not already in
+the sheet (a duplicated day is worse than a missing one), finds the last
+populated row rather than hardcoding it, copies the previous block's shape,
+fetches each caller's DID fresh from `/v2/phone/users` (never copying a number
+forward — DIDs get reassigned), leaves GNA and Total blank where a caller
+declared no GNA, never writes column L, and **reads the written range back and
+compares it cell for cell**. On a mismatch it stops and says so rather than
+attempting a repair on a sheet Curia read.
+
+**Known nit, fix it next time that prompt is edited:** the intro says the Zoom
+call for the Phone column is "see step 30"; after renumbering it is step 23.
+Harmless in context, but it is exactly the stale-cross-reference class this file
+warns about.
+
 ### The fourth Routine — declared results for Curia
 
 **`trig_01STiXp444UCGUpdqWzUyxjK`, "Declared results for Curia — 10pm Manila
