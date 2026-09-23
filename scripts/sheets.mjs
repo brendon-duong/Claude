@@ -219,6 +219,15 @@ async function cmdWriteBook(id, payloadPath) {
     have.delete(existing[0].title);
     have.add(wanted[0]);
   }
+  // A caller dropping out is a rename, not a rebuild: the tab keeps its number
+  // block and changes whose name is on it, so nobody's numbers move.
+  for (const r of payload.rename ?? []) {
+    const from = existing.find(p => p.title === r.from);
+    if (!from) die('No tab named ' + r.from + ' to rename.');
+    requests.push({ updateSheetProperties: {
+      properties: { sheetId: from.sheetId, title: r.to }, fields: 'title' } });
+    have.delete(r.from); have.add(r.to);
+  }
   for (const title of wanted) {
     if (!have.has(title)) { requests.push({ addSheet: { properties: { title } } }); have.add(title); }
   }
