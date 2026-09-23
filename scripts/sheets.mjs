@@ -201,8 +201,8 @@ async function cmdWriteBook(id, payloadPath) {
   } catch {
     die('Could not read ' + path + ' as JSON.');
   }
-  const tabs = payload.tabs;
-  if (!tabs || typeof tabs !== 'object') die('Payload needs a "tabs" object: {"tabs": {"Name": [[...]]}}');
+  const tabs = payload.tabs ?? {};
+  if (typeof tabs !== 'object') die('Payload "tabs" must be an object: {"tabs": {"Name": [[...]]}}');
 
   const { sheets } = await api();
   const meta = await sheets.spreadsheets.get({ spreadsheetId: id, includeGridData: false });
@@ -213,7 +213,7 @@ async function cmdWriteBook(id, payloadPath) {
   const have = new Set(existing.map(p => p.title));
   // The lone untouched default tab becomes the first one we want, so a new
   // spreadsheet does not keep an empty "Sheet1" beside the real tabs.
-  if (existing.length === 1 && !have.has(wanted[0]) && /^Sheet1$/i.test(existing[0].title)) {
+  if (wanted.length && existing.length === 1 && !have.has(wanted[0]) && /^Sheet1$/i.test(existing[0].title)) {
     requests.push({ updateSheetProperties: {
       properties: { sheetId: existing[0].sheetId, title: wanted[0] }, fields: 'title' } });
     have.delete(existing[0].title);
@@ -225,6 +225,32 @@ async function cmdWriteBook(id, payloadPath) {
   if (requests.length) {
     await sheets.spreadsheets.batchUpdate({ spreadsheetId: id, requestBody: { requests } });
     console.log('tabs prepared: ' + requests.length);
+  }
+
+  // Background colour is the one thing a values write cannot carry, and it is
+  // how both Curia and Pacific Link mark a number as spent. A payload may name
+  // row bands to fill: {"shade": [{tab, firstRow, lastRow, color: [r,g,b]}]},
+  // where firstRow/lastRow are 1-based sheet rows.
+  async function shade(bands) {
+    const fresh = await sheets.spreadsheets.get({ spreadsheetId: id, includeGridData: false });
+    const byTitle = new Map(fresh.data.sheets.map(s => [s.properties.title, s.properties.sheetId]));
+    const reqs = [];
+    for (const b of bands) {
+      const sid = byTitle.get(b.tab);
+      if (sid === undefined) die('No tab named ' + b.tab + ' to shade.');
+      const [r, g, bl] = b.color;
+      reqs.push({ repeatCell: {
+        range: { sheetId: sid, startRowIndex: b.firstRow - 1, endRowIndex: b.lastRow,
+                 startColumnIndex: 0, endColumnIndex: b.columns ?? 2 },
+        cell: { userEnteredFormat: { backgroundColor: { red: r/255, green: g/255, blue: bl/255 } } },
+        fields: 'userEnteredFormat.backgroundColor' } });
+    }
+    // One band can span tens of thousands of rows; Google takes them in batches.
+    for (let i = 0; i < reqs.length; i += 20) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: id, requestBody: { requests: reqs.slice(i, i + 20) } });
+    }
+    console.log('shaded ' + bands.length + ' band(s)');
   }
 
   let cells = 0;
@@ -239,6 +265,7 @@ async function cmdWriteBook(id, payloadPath) {
     console.log('  ' + title.padEnd(26) + String(res.data.updatedCells).padStart(7) + ' cells');
   }
   console.log('wrote ' + cells + ' cell(s) across ' + wanted.length + ' tab(s)');
+  if (Array.isArray(payload.shade) && payload.shade.length) await shade(payload.shade);
 }
 
 async function cmdWrite(id, range, rowsArg) {
