@@ -1672,6 +1672,103 @@ each day or a folder of their own shared once. The rename worry is **resolved**:
 `update_file` is metadata only, so renaming a pool is safe and cannot touch its
 contents.
 
+### 23 SEPTEMBER: CURIA AND PACIFIC LINK DREW THE SAME 1,000 NUMBERS
+
+The worst failure this project has had, and every part of it is preventable.
+
+**What happened.** Call sheets were built and emailed at ~11am. At 1:41pm Curia
+(Mila) allocated from the **same two pools** for their own callers, shading rows
+1–1399 of Te Tai Hauauru red and 1–1004 of Te Tai Tonga. Our first five Hauauru
+callers had already been sent numbers inside that range. The whole day had to be
+rebuilt an hour before the shift.
+
+**The cause is that neither side can see the other's draw while it is happening.**
+Curia mark with red shading plus a title; we could only manage the title. Both
+sides were working in the same hour.
+
+**THE POOL MARK IS A ROW NUMBER, NOT AN ID.** Curia renamed to `USE FROM 1400`
+and `USE FROM 1005` — those are **positions in the sheet**, not number ids. This
+project had been writing ids into titles (`USE FROM 61457`), which Curia would
+read as a row far past the end of the pool. `parse_high_water` returns it as an
+id either way and **nothing warns you**. Always state which the title means, and
+match whatever Curia last wrote.
+
+**Green shading of Curia's pools is BLOCKED, and the reason is the file format,
+not permissions.** Proved live, in this order:
+
+1. `share_file` of Curia's pool to anyone → `The caller does not have permission`.
+   Brendon holds edit rights but not sharing rights; `get_file_permissions`
+   returns only `curiaresearch@gmail.com`.
+2. Brendon then shared both pools with `sheets-bot` by hand. The error changed to
+   `This operation is not supported for this document. The document must not be
+   an Office file.` **That is the whole answer: they are .xlsx.**
+3. The Sheets API only touches native Google Sheets. `copy_file` does not convert.
+   `update_file` is metadata only. The Apps Script has the same limitation —
+   `SpreadsheetApp` will not open an .xlsx either.
+
+**So the ONLY unblock is Curia converting the pools to Google Sheets.** Once they
+are, `sheets-bot` is already shared and `scripts/sheets.mjs write <id> @payload`
+shades them in place — the code is written and committed. Until then the title is
+the only mark available, and it is not enough when both sides draw the same hour.
+
+**Do not "fix" this by shading a copy.** A copy is not the file Curia read, so it
+prevents nothing. It was tried and deleted.
+
+### The order of operations, and why it is this order
+
+Today's second failure was self-inflicted: the 24 old per-caller sheets were
+trashed **before** anyone had the new link. Callers clicking this morning's email
+got *"Document look-up failed"* and *"File is in owner's trash — Make a copy"*.
+Several nearly took that button, which would have had them working in private
+copies whose results never reach the roster.
+
+**The order, every time:**
+
+1. Read the pool **immediately** before drawing, and read the *cells*, not the
+   title — `download_file_content`, then check how far the red shading goes.
+   Curia edited this pool **four times in ninety minutes** on 23 Sep.
+2. Draw, build, and **write the new sheets**.
+3. **Share** them with every caller.
+4. **Post the link** and confirm people are in.
+5. **Only then** delete the old sheets.
+6. Rename the pool title to the next free **row**.
+
+**Never delete before step 4.** A dead link in front of 24 people an hour before a
+shift costs more than a stale file ever will.
+
+### Centralised: one spreadsheet per poll, one tab per caller
+
+Brendon, 23 Sep. Replaces one file per caller.
+
+    Te Tai Tonga 500 - 23-09-2026     13 tabs
+    Te Tai Hauauru 500 - 23-09-2026   11 tabs
+
+Each tab carries the poll, caller, date, shift, their block, **the survey link**,
+Time in / Time out / Break, and the RESULTS block (C / RB / R / GNA / TOTAL).
+That RESULTS block is also the answer to the long-open "one shared template" ask —
+every caller now declares in the same shape.
+
+**Share BOTH sheets with EVERY caller, not just their own poll's.** Posting two
+links to a 130-person WhatsApp group guarantees people tap the wrong one and get
+"request access". Cross-sharing removes a whole class of support traffic; the tab
+name is what tells a caller where to work.
+
+**`share_file` cannot revoke, and cannot re-notify.** It only grants, and
+re-granting a role someone already has is a silent no-op — Google emails only on a
+new grant. So a caller who has the wrong link cannot be helped by re-sharing;
+the link has to be posted. Removing someone is a manual job in the Share dialog.
+
+**Callers have more than one Google account.** Nilyn turned up as a third address
+(`nilynlisondra05@gmail.com`) with **reader** access after requesting it, so she
+could open the sheet and not type in it. Check for `role: reader` in the
+permissions before concluding someone is fine.
+
+**When the pool runs short, split it evenly rather than dropping anyone.** Curia
+left 2,031 Tonga numbers against 2,600 needed for 13 callers at 200. The answer
+Brendon gave was to divide what is left — 156 each — not to cut three people. Same
+rule used the spare the other way: Hauauru had 2,504 for 11, so 227 each rather
+than 200 and 304 left idle.
+
 ### SHADING IS POSSIBLE AFTER ALL — proved 19 Sep 2026. Correct the claim below.
 
 This file and the build register both said cell shading "cannot be applied to an
