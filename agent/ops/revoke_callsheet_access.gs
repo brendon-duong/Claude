@@ -36,6 +36,19 @@ var DRY_RUN = true;
 // Which files to touch. Matched case-insensitively against the file name.
 var NAME_CONTAINS = 'callsheet';
 
+// Or name the exact files instead, by Drive file ID. When this list is not
+// empty it REPLACES the name search entirely and only these files are touched.
+//
+// Use this for a day's call sheets, whose names carry the poll and the date
+// rather than the word "callsheet" — and because naming the file you mean is
+// safer than a name match that might sweep up something you forgot about.
+//
+// Wednesday 23 September 2026, the two sheets the callers were given:
+var ONLY_FILE_IDS = [
+  '1mqcE4A-5zcEKJ0shEpnlT3oy9PMwer5WfG9VrU5YG2U',  // Te Tai Tonga 500 - 23-09-2026
+  '1Qg3Rd90rQsKBUeEFKtyJZzmZoqo2dwM3t63TcE9WgwA',  // Te Tai Hauauru 500 - 23-09-2026
+];
+
 // Addresses that keep their access. Put yourself and anyone who genuinely
 // still needs these — a co-owner, an accountant, your client contact.
 var KEEP_ACCESS = [
@@ -52,7 +65,9 @@ var SKIP_FILE_IDS = [
 function auditCallsheets() {
   var report = scan_();
   Logger.log('=== CALL SHEET ACCESS AUDIT ===');
-  Logger.log('Files owned by you matching "%s": %s', NAME_CONTAINS, report.total);
+  Logger.log(ONLY_FILE_IDS.length
+    ? 'Files named explicitly by ID: ' + report.total
+    : 'Files owned by you matching "' + NAME_CONTAINS + '": ' + report.total);
   Logger.log('');
 
   if (report.linkShared.length) {
@@ -91,9 +106,7 @@ function revokeCallsheetAccess() {
   var skip = {};
   SKIP_FILE_IDS.forEach(function (id) { skip[id] = true; });
 
-  var files = DriveApp.searchFiles(
-    'title contains "' + NAME_CONTAINS + '" and "me" in owners and trashed = false'
-  );
+  var files = targets_();
 
   var closed = 0, removed = 0, seen = 0, failed = 0;
   while (files.hasNext()) {
@@ -155,14 +168,33 @@ function revokeCallsheetAccess() {
 
 
 /** Gather the current state without changing anything. */
-function scan_() {
-  var files = DriveApp.searchFiles(
+/**
+ * The files both passes work on.
+ *
+ * Naming exact file IDs wins over the name search: it is the difference
+ * between closing two sheets and closing everything that happens to be called
+ * something similar. Both the audit and the revoke pass call this, so what you
+ * read in the audit is exactly what gets closed.
+ */
+function targets_() {
+  if (ONLY_FILE_IDS.length) {
+    var picked = ONLY_FILE_IDS.map(function (id) { return DriveApp.getFileById(id); });
+    var i = 0;
+    return { hasNext: function () { return i < picked.length; },
+             next: function () { return picked[i++]; } };
+  }
+  return DriveApp.searchFiles(
     'title contains "' + NAME_CONTAINS + '" and "me" in owners and trashed = false'
   );
+}
+
+
+function scan_() {
+  var queue = targets_();
   var report = { total: 0, linkShared: [], individuals: [] };
 
-  while (files.hasNext()) {
-    var file = files.next();
+  while (queue.hasNext()) {
+    var file = queue.next();
     report.total++;
     try {
       var access = String(file.getSharingAccess());
