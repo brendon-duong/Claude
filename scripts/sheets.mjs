@@ -10,6 +10,7 @@
 //   node scripts/sheets.mjs inspect <sheet>
 //   node scripts/sheets.mjs read    <sheet> [range] [--limit N] [--json]
 //   node scripts/sheets.mjs write   <sheet> <range> '[["a","b"],["c","d"]]'
+//   node scripts/sheets.mjs write   <sheet> @payload.json      (whole workbook)
 //   node scripts/sheets.mjs append  <sheet> <range> '[["a","b"]]'
 //   node scripts/sheets.mjs clear   <sheet> <range>
 //
@@ -180,8 +181,69 @@ async function cmdRead(id, range, opts) {
   }
 }
 
+// A payload file lets a whole workbook go up in one call, instead of the rows
+// being retyped as a JSON argument. Hand-copying tens of thousands of cells is
+// how a call sheet picks up a silent transcription error, so the rows are read
+// from disk and never pass through an argument.
+//
+//   node scripts/sheets.mjs write <sheet> @/path/payload.json
+//   payload: {"tabs": {"Tab name": [[row], [row]], ...}}
+//
+// Tabs named in the payload that do not exist yet are created. A brand-new
+// spreadsheet arrives with one empty default tab; that one is renamed to the
+// first tab in the payload rather than left behind as a stray.
+async function cmdWriteBook(id, payloadPath) {
+  const path = payloadPath.slice(1);
+  if (!existsSync(path)) die('No payload file at ' + path);
+  let payload;
+  try {
+    payload = JSON.parse(readFileSync(path, 'utf8'));
+  } catch {
+    die('Could not read ' + path + ' as JSON.');
+  }
+  const tabs = payload.tabs;
+  if (!tabs || typeof tabs !== 'object') die('Payload needs a "tabs" object: {"tabs": {"Name": [[...]]}}');
+
+  const { sheets } = await api();
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: id, includeGridData: false });
+  const existing = meta.data.sheets.map(s => s.properties);
+  const wanted = Object.keys(tabs);
+
+  const requests = [];
+  const have = new Set(existing.map(p => p.title));
+  // The lone untouched default tab becomes the first one we want, so a new
+  // spreadsheet does not keep an empty "Sheet1" beside the real tabs.
+  if (existing.length === 1 && !have.has(wanted[0]) && /^Sheet1$/i.test(existing[0].title)) {
+    requests.push({ updateSheetProperties: {
+      properties: { sheetId: existing[0].sheetId, title: wanted[0] }, fields: 'title' } });
+    have.delete(existing[0].title);
+    have.add(wanted[0]);
+  }
+  for (const title of wanted) {
+    if (!have.has(title)) { requests.push({ addSheet: { properties: { title } } }); have.add(title); }
+  }
+  if (requests.length) {
+    await sheets.spreadsheets.batchUpdate({ spreadsheetId: id, requestBody: { requests } });
+    console.log('tabs prepared: ' + requests.length);
+  }
+
+  let cells = 0;
+  for (const [title, rows] of Object.entries(tabs)) {
+    const res = await sheets.spreadsheets.values.update({
+      spreadsheetId: id,
+      range: "'" + title.replace(/'/g, "''") + "'!A1",
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values: rows },
+    });
+    cells += res.data.updatedCells;
+    console.log('  ' + title.padEnd(26) + String(res.data.updatedCells).padStart(7) + ' cells');
+  }
+  console.log('wrote ' + cells + ' cell(s) across ' + wanted.length + ' tab(s)');
+}
+
 async function cmdWrite(id, range, rowsArg) {
   if (!range) die('Give me a range to write to, e.g. \'Sheet1!A1\'');
+  if (range.startsWith('@')) return cmdWriteBook(id, range);
   const rows = parseRows(rowsArg);
   const { sheets } = await api();
   const res = await sheets.spreadsheets.values.update({
