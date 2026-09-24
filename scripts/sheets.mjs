@@ -280,11 +280,17 @@ async function cmdWriteBook(id, payloadPath) {
     console.log('cleared ' + wanted.length + ' tab(s) before writing');
   }
 
+  // Callers work down their tab live during a shift, so topping a sheet up
+  // mid-shift must never write over the rows they are in. A tab may be given as
+  // {"at": "A100", "rows": [[...]]} to start the write at a named cell instead
+  // of A1; a bare array still means A1.
   let cells = 0;
-  for (const [title, rows] of Object.entries(tabs)) {
+  for (const [title, spec] of Object.entries(tabs)) {
+    const rows = Array.isArray(spec) ? spec : spec.rows;
+    const at = Array.isArray(spec) ? 'A1' : (spec.at ?? 'A1');
     const res = await sheets.spreadsheets.values.update({
       spreadsheetId: id,
-      range: "'" + title.replace(/'/g, "''") + "'!A1",
+      range: "'" + title.replace(/'/g, "''") + "'!" + at,
       valueInputOption: 'USER_ENTERED',
       requestBody: { values: rows },
     });
