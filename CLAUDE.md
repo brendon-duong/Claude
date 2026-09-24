@@ -2673,6 +2673,34 @@ changed; diff the rows before announcing anything. **But re-reading the same wro
 twice proves nothing** — the rows were identical *and* both readings of them were wrong.
 Consistency between two reads is not accuracy.
 
+## NEVER PUT A RESPONDENT'S PERSONAL DETAILS ON A CALL SHEET — Brendon, 24 Sep 2026
+
+*"Going forward never include personal details please delete those from the
+spreadsheets... We must never disclose people's information like that."*
+
+The Tamaki Part 3 pool ships **Name, Suburb and Age** beside each number, and those
+columns were carried straight onto the call sheets. That put **2,000 named New
+Zealand voters, with their suburb and age, in front of 46 Google accounts** — every
+caller on the shift, on all three sheets, because the sheets are cross-shared.
+Cleared the same day, mid-shift.
+
+**The rule: a call sheet carries ID, Number, Outcome and Notes. Nothing else about
+the person being called.** Strip every demographic column at build time, before the
+workbook is written — not after it is shared. Te Tai Tonga and Te Tai Hauauru were
+already clean because they are ring-backs; it is the fresh pools that carry the
+extra columns, so **check the pool's columns every time a new one arrives.**
+
+**Detect the columns by content, never by position.** Callers rearrange their own
+tabs: of 20 Tamaki tabs, 17 had Name/Suburb/Age at E/F/G, one at F/G/H and one at
+C/D/E, and two had deleted the header block entirely so their data began at row 1.
+The safe detector finds the **age** column (>90% of values integers 18-110), then
+takes name = age-2 and suburb = age-1, and **refuses to clear a column where more
+than 20% of values are outcome words** (COMPLETED / RINGBACK / REFUSED / GNA / ...).
+Clearing an outcome column mid-shift destroys work nobody can get back.
+
+**Clear, do not delete the column.** Deleting shifts every column to its right, and
+two callers keep their results tally out at I/J.
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,
