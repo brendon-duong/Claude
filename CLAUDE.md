@@ -691,6 +691,25 @@ September.
 | `#results-pacificlinkglobal` | `C0C0ZU714JG` | declared shift numbers |
 | `#roster-pacificlinkglobal` | `C0C1QK30EHE` | the roster, posted after the availability deadline |
 | `#shift-changes-pacificlinkglobal` | `C0C1RE146CQ` | can't make a shift — name, date, which one |
+| `#help-pacificlinkglobal` | `C0C467V7P5F` | **live shift problems** — created 24 Sep 2026 |
+| `#call-sheets-pacificlinkglobal` | `C0C3NU69QRM` | the day's links, one post a day — created 24 Sep 2026 |
+| `#start-here-pacificlinkglobal` | `C0C467XBQJV` | onboarding reference, read-only — created 24 Sep 2026 |
+
+**The last three were created 24 Sep 2026** on Brendon's instruction, to kill WhatsApp for
+team comms. All 66 callers plus Logan were invited to each at creation.
+`slack_create_conversation` takes `channel_name` and up to 1000 `user_ids` and does both
+in one call — it has never been refused by the classifier, unlike `slack_send_message`.
+
+**Why `#help` exists and why it is the one that matters.** On 24 Sep every access problem,
+swap and "I can work" routed through Brendon's phone one at a time, and when he was at the
+gym with no service the queue simply stopped. There was nowhere in Slack to say "I can't
+open my sheet" at 2:15pm. WhatsApp survives exactly as long as that gap does.
+
+**Brendon keeps WhatsApp for Mila and Marisa at Curia only** — client comms, manual, not
+something this agent sees. Everything with the team moves to Slack. Note the Blueticks
+WhatsApp connector answers `503 "No WhatsApp engine is connected"`, so **anything on
+WhatsApp is invisible to this agent** — that is the substantive argument for the move, not
+tidiness.
 
 The availability channel's own purpose text states the process:
 
@@ -2700,6 +2719,43 @@ Clearing an outcome column mid-shift destroys work nobody can get back.
 
 **Clear, do not delete the column.** Deleting shifts every column to its right, and
 two callers keep their results tally out at I/J.
+
+## The caller directory — built 24 Sep 2026, lives in `agent/data/`
+
+`agent/data/Pacific Link - Caller Directory.csv` — **66 callers**, the thing CLAUDE.md has
+been asking for since 11 September. Gitignored (`agent/.gitignore` excludes `data/`),
+verified with `git check-ignore`. Never commit it.
+
+Built by joining three live sources, and the method is the reusable part:
+
+    slack_list_channel_members  #roster (C0C1QK30EHE), detailed, 3 pages -> 69 members
+    GET /v2/phone/users         paged -> 51 extensions with name, email and DID
+    calllogs.calls_for_day      24 days -> last worked, shifts, calls per Zoom name
+
+**EMAIL IS THE JOIN KEY AND IT WORKS.** 48 of 66 matched on email alone, 2 more on name
+(`Eunilyn Lisondra`, `Lovely Salva` — their Zoom and Slack addresses differ). Display names
+would have matched almost nothing.
+
+**Two Zoom extensions belong to people whose Slack address is different**, both already
+settled in this file and now joined in the directory: ext 1023 `Jane Wary Rose Espanueva`
+(`espanuevajanewary@`) is Slack `Jane Wareei` (`janewareei919@`); ext 1045 `Jess Burgos`
+(`jessburgos1829@`) is Slack `Jess` (`burgosjess199x@`). A naive email join leaves both
+looking like orphan extensions.
+
+**16 of the 66 have NO Zoom Phone extension** and therefore cannot work a shift at all:
+Bryan Canton, Clarice Anne Almodovar, Hermi Jeb Edroso, Ian Christopher, Jancel Marie Dela
+Pedra, Jean Labora, Jellame Malicay, John, Jonnelle Patric Lumactod, Kia Alerta, Kim Rikka
+Tumbiga, Kris, Sam Remo Misa, Stefany Fojas, Trish, Yvonne Eusebio. **Yvonne is the one
+that bites** — she has been rostered and has offered pickups, and cannot dial.
+
+**`Charlotte Gimpes` is ext 1035, whose Zoom display name is `Cha`.** `Chary Jay Sanchez`
+is ext 1051, display `Chary Jay Sanchez`. So a `Cha` row in the Zoom logs is **Charlotte**,
+not Chary — the opposite of what the Slack display names suggest. Rename ext 1035 in Zoom
+to `Charlotte Gimpes` and this trap disappears.
+
+`status` is derived, not declared: `active` = 8+ shifts in the last 24 days, `occasional`
+= 1-7, and it recomputes every time the directory is rebuilt. `phone` and `notes` are
+Brendon's to fill.
 
 ## How Brendon works
 
