@@ -50,6 +50,27 @@ Accuracy is the whole point of this document. Every constraint in it should have
 been checked against the live tool, and entries say so. If something was assumed
 rather than tested, label it as assumed.
 
+## Standing instruction: keep the agent map current
+
+`https://claude.ai/artifact/G4JokCeZEbgC2HwzZr7n5A` — **"Pacific Link Agent Map"**.
+Brendon asked on 24 Sep 2026 that it be updated **as the work happens**, not when
+asked. Same rule as the build register: any session that changes what a Routine
+does, wires or unwires one, closes a gap or finds a new one, updates the map
+before it ends.
+
+It is **one row per job, ten rows, in week order** — `Reads -> Works out ->
+Writes -> Tells you`. The first version was a five-column node graph with 48
+crossing wires and Brendon could not follow it; **do not go back to that shape.**
+Arrows must only ever join two boxes side by side.
+
+The data is two arrays at the foot of the file, `JOBS` and `FOUND` — edit those,
+not the markup. Read the artifact first (`action: "read"`), merge onto what comes
+back, then publish with `url` set to it. Bump the date in `.eyebrow` and keep the
+tally counts matching the sections.
+
+It is a **snapshot, not live**, and the page says so. Do not describe it to
+Brendon as live.
+
 ## Standing instruction: there is no memory, so read the store first
 
 A session remembers nothing from the last one. The container is wiped and
@@ -710,6 +731,56 @@ something this agent sees. Everything with the team moves to Slack. Note the Blu
 WhatsApp connector answers `503 "No WhatsApp engine is connected"`, so **anything on
 WhatsApp is invisible to this agent** — that is the substantive argument for the move, not
 tidiness.
+
+### 24 SEPTEMBER 2026: WHATSAPP IS RETIRED. EVERYTHING IS SLACK.
+
+Posted the evening of 24 Sep, by Brendon, through this agent. The transition is
+**done**, not planned:
+
+- **`#start-here`** carries the full guide — shift times, the four codes, how to
+  post results, what to do when something breaks — and is pinned.
+- **`#call-sheets`** carries what lands there and how to use it.
+- **`#all-pacific-link-global`** carries the announcement, with step-by-step
+  notification instructions and a seeded ✅ to acknowledge. **Subtract the seed
+  when counting acknowledgements** — it posts as Brendon's own account.
+- The WhatsApp farewell was pasted by Brendon by hand.
+
+**Why this matters to the agent and not just to the team: WhatsApp was invisible
+here.** The Blueticks connector's `engine status` returns an empty result — no
+engine is connected, and never has been. Everything the team says is now
+readable. Any prompt or note that still treats WhatsApp as a source of
+declarations, problems or availability is stale.
+
+**BREAKS ARE 5 MINUTES MAXIMUM — Brendon, 24 Sep 2026.** Written into
+`#start-here`: a short break, then straight back on the phone, and anything
+longer gets posted in `#help` **before** the caller goes. This is policy and it
+is public. It does **not** license messaging anyone about their off-phone time —
+that measure still reads up to 4x the manual audit and the gate on it stands.
+
+### The Slack connector cannot do four things — re-checked live 24 Sep 2026
+
+Against the full tool surface. All four are Brendon's clicks, not permissions he
+can grant:
+
+| | |
+|---|---|
+| **delete a message** | no tool. A wrong post is corrected by posting again and asking him to delete the old one. |
+| **edit a message** | no tool. Same. |
+| **pin a message** | no tool. Hover -> ⋮ -> Pin to channel. |
+| **set a channel purpose/topic/description** | no tool. Channel name -> Settings -> Edit description. |
+| **set posting permissions** | no tool. Channel name -> Settings -> Posting permissions. **Desktop only** — the option does not exist in the Slack mobile app. |
+| **change notification preferences** | no tool, for Brendon or anyone. It is a per-account setting only the account holder can set, so it can never be done for him — give him the steps instead. Asked on 24 Sep. |
+
+Because there is no edit, **a correction is a second message**, and Brendon has to
+delete the first. Say that explicitly when posting a correction — on 24 Sep he
+looked at the original, saw it unchanged, and reasonably concluded nothing had
+happened. Tell him it is a new message at the bottom of the channel, not an edit.
+
+**When he says a task is done, verify it rather than ticking it.** On 24 Sep he
+edited the pinned RESOURCES message and fixed one of its two WhatsApp references;
+the bullet `Problems and questions -> WhatsApp` was still live. `slack_search_channels`
+returns channel purposes and `slack_read_channel` returns message text — both are
+free, and both caught something that a trusting checklist would have missed.
 
 The availability channel's own purpose text states the process:
 
