@@ -228,6 +228,13 @@ async function cmdWriteBook(id, payloadPath) {
       properties: { sheetId: from.sheetId, title: r.to }, fields: 'title' } });
     have.delete(r.from); have.add(r.to);
   }
+  // Removing a tab is for a caller who is no longer on the shift. Their numbers
+  // have already been redistributed by the time this runs, so leaving the tab
+  // behind would show a block that now belongs to somebody else.
+  for (const title of payload.delete ?? []) {
+    const gone = existing.find(p => p.title === title);
+    if (gone) { requests.push({ deleteSheet: { sheetId: gone.sheetId } }); have.delete(title); }
+  }
   for (const title of wanted) {
     if (!have.has(title)) { requests.push({ addSheet: { properties: { title } } }); have.add(title); }
   }
@@ -260,6 +267,17 @@ async function cmdWriteBook(id, payloadPath) {
         spreadsheetId: id, requestBody: { requests: reqs.slice(i, i + 20) } });
     }
     console.log('shaded ' + bands.length + ' band(s)');
+  }
+
+  // A re-split gives each caller FEWER rows than before, so writing over the top
+  // would leave the tail of the previous block sitting there — numbers that now
+  // belong to someone else. Clear the tab first when asked.
+  if (payload.clearFirst) {
+    for (const title of wanted) {
+      await sheets.spreadsheets.values.clear({
+        spreadsheetId: id, range: "'" + title.replace(/'/g, "''") + "'" });
+    }
+    console.log('cleared ' + wanted.length + ' tab(s) before writing');
   }
 
   let cells = 0;
