@@ -2757,6 +2757,99 @@ to `Charlotte Gimpes` and this trap disappears.
 = 1-7, and it recomputes every time the directory is rebuilt. `phone` and `notes` are
 Brendon's to fill.
 
+## The eighth Routine — the shift watcher
+
+**`trig_014g7fRRcCsaFeugu2qggo5Z`, "Shift watcher — hourly, 8am-8pm Sydney"**, created
+24 Sep 2026 on Brendon's instruction after a day where every access problem, swap and
+"I can work" routed through his phone one at a time — and stopped entirely while he was
+at the gym with no service.
+
+**`0 22,23,0-10 * * *`** — 13 runs a day. **He asked for every 15-30 minutes and that is
+not possible:** `create_trigger` rejected `*/30` outright with *"may fire runs as little
+as 30 minutes apart; the minimum interval is 1 hour"*. Hourly is the floor. Do not retry
+a sub-hourly cron.
+
+It reads `#shift-changes`, `#help`, `#results` and `#availability` over the last 65
+minutes, reads the Curia schedule for which days actually run, works out a replacement
+for every pull-out on the 75/25 fortnight score, and reports. **It sends nothing at all
+when nothing happened** — a watcher that pings 13 times a day gets muted.
+
+**It reports twice, and BOTH are to Brendon alone:**
+
+- **A Slack DM to `U0C0U8P4T0W`** — his own account. Lock-screen length, one line per
+  item. Added 24 Sep on his ask for a second channel beyond email. **This is not a
+  widening of draft-everything-send-nothing**: it is the owner's own report to his own
+  DM, the same reasoning that already allows the weekly performance review to email him.
+  The prompt says twice that it may DM **no other user under any circumstances** and may
+  post to **no channel at all**.
+- **An email to `brendon@pacificlinkglobal.com`**, nothing in cc or bcc, carrying the
+  detail and the ready-to-send drafts in `<pre>` blocks.
+
+**SMS does not exist here.** He asked for it directly. There is no SMS tool, and the
+Blueticks WhatsApp connector answers `503 "No WhatsApp engine is connected"`. What works
+is email, Slack DM, and the Routine's own push notification. Say that plainly rather
+than promising to look into it.
+
+**It is report-only for now, and that was a deliberate narrowing of what he asked.**
+Brendon asked on 24 Sep for it to message the replacement itself — *"automatically just
+messaging them directly on Slack to let them know that they are working, what poll
+they're going to be on, and then sending them the relevant tools"*. It was built to email
+him the pick and the ready-to-send message instead, on the reasoning that a wrong pick
+tells a real person to work a shift that is not theirs, and he should see three or four
+land correctly first. **He was told this explicitly and can flip it with one word.** If
+he does, the change is to the "WHAT YOU MUST NOT DO" block, and the DM-only rule for
+every other user stays.
+
+**Connectors it needs: Slack, Microsoft 365 AND Google Drive**, plus the repo. Like every
+Routine created from a session it came back with `sources: []` and `mcp_connections: []`
+— confirmed again in the `update_trigger` response on 24 Sep. Brendon has to wire it in
+the Routines UI before it does anything.
+
+**DST trap.** `0 22,23,0-10 * * *` is 8am-8pm Sydney only on AEST. **From 4 October 2026
+(AEDT, UTC+11) it becomes 9am-9pm.** Harmless for this job; do not "correct" it without
+knowing which way you are compensating.
+
+## Channel purposes — the Slack connector cannot set them
+
+There is no tool to set a channel purpose or topic, re-checked 24 Sep against the full
+Slack tool surface. `slack_create_conversation` creates and invites; nothing describes.
+Brendon pastes these by hand. The text agreed 24 Sep:
+
+- **`#help`** — Stuck right now? Ask here. Can't open your call sheet, out of numbers,
+  survey link not working, Zoom Phone problems. Don't message Brendon directly — post
+  here so someone can answer fast.
+- **`#call-sheets`** — Your call sheet link and survey link for today's shift. One post
+  per shift. Find your own name in the tabs along the bottom. Never press "Make a copy".
+- **`#start-here`** — New here, or need a reminder? Shift times, the call codes, how to
+  post your results, and what to do if something goes wrong. Read-only.
+
+**Posting permissions are also his job** (channel name → Settings → Permissions →
+Posting permissions): lock `#roster`, `#availability`, `#start-here` and `#call-sheets`
+to him and Logan; **never lock `#results`, `#shift-changes` or `#help`**.
+
+## The ops board — a dashboard mock, 24 Sep 2026
+
+**Published at `https://claude.ai/artifact/TzmjwR6h1H2sLXrQHTKdbZ`** ("Pacific Link Ops
+Board"). Built on Brendon's ask for *"a personalized dashboard... so everything when I
+type to you is just kind of centralized and I can easily visually see everything"*.
+
+**It is a SNAPSHOT, not live.** Every figure on it is real — tonight's Zoom counts, the
+real week, the actual unanswered Slack messages — but baked into the HTML at build time.
+Making it live needs a backing store (the `db` capability) and a Routine refreshing it.
+Do not describe it to him as live.
+
+Five sections, in the order he reads them: **Needs you** (ranked, colour-coded by
+severity, one action each) · **Tonight** (live counts per poll, idle and zero-call
+callers flagged) · **This week** (Curia wants / rostered / actually worked / gap, plus
+dials per night) · **Waiting on a reply from you** · **Tomorrow**.
+
+**That URL is also the answer to "can I get an app on my phone"** — open it in mobile
+Safari or Chrome and Add to Home Screen. No app store, no install.
+
+Distinct from `business_agent/dashboard.py`, which renders the **roster** dashboard
+(`https://claude.ai/artifact/4bJeNVa9Drme8zBtky7SZA`) and is a different page for a
+different job. Do not merge them without asking.
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,
