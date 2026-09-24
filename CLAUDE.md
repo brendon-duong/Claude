@@ -2868,10 +2868,33 @@ different job. Do not merge them without asking.
   every ✅ and ❌ by name, silence treated as the third state, and the Curia
   schedule read for the days that actually run.
 
+- **A THIRD EXCEPTION, granted 24 Sep 2026 — covering a pull-out.** Brendon:
+  *"when someone pulls out of work... make a message onto Slack for the shift
+  changes so then people know that there's actually someone available... and
+  then obviously if someone's really good and can work then just ask them to
+  work and then just do that automatically, you don't even need my approval."*
+
+  So, without asking first:
+  - **post in `#shift-changes-pacificlinkglobal`** that a spot has opened, naming
+    the day and the shift time, when a rostered caller withdraws
+  - **confirm a volunteer onto that shift** — reply to them, or DM them — when
+    they have call history, a Zoom extension, and have not withdrawn from that day
+
+  The condition in his own words is *"if someone's really good"*. That means
+  rank the volunteers on the 75/25 score over a fortnight and take the best;
+  it does **not** mean take the first reply regardless. Someone with no Zoom
+  extension is never a valid cover, however keen — 16 of the 66 are in that
+  position and cannot dial at all.
+
+  **Do not name the poll unless it is settled.** On 24 Sep the Friday poll was
+  genuinely unknown (David might extend the Te Tai polls instead of running
+  Waitaki 400), so the post said the poll would be confirmed rather than guessing.
+  A wrong poll name in front of 66 people is worse than no poll name.
+
   **Everything else is unchanged.** Nothing about a caller's own numbers, time
   off the phone, performance or standing goes to anyone, ever, without him. No
-  email, no WhatsApp, no DM, no message to Curia. Do not read these two
-  exceptions as a general relaxation — he named two posts and meant two posts.
+  email, no WhatsApp, no message to Curia. Three posting exceptions now exist —
+  availability, roster, and covering a pull-out — and they are exactly three.
 - Tell him plainly when something cannot be done, and why, with the actual API
   behaviour. He makes better decisions with the real constraint than with a
   hedge. He has repeatedly been right when he pushed back — treat his objections
