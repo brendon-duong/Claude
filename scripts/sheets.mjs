@@ -337,6 +337,97 @@ async function cmdClear(id, range) {
   console.log('cleared ' + res.data.clearedRange);
 }
 
+// --- formatting ------------------------------------------------------------
+//
+// Curia's results page is painted, not just filled with values: each day's
+// caller rows carry a pale fill, the TOTAL row is the same fill in bold, and a
+// grey band separates one day from the next. Day blocks vary in length - 24
+// callers one night, 40 the next - so any pre-painted band drifts out of
+// alignment the moment a block is a different size than the rows beneath it
+// were painted for. That is exactly what happened on 25 September 2026: the
+// grey separator ended up on row 2426, on top of a real caller's data.
+//
+// These two commands exist so a run can paint the block it just wrote instead
+// of leaving it to land on whatever formatting happens to be there.
+//
+// copyformat COPIES THE FORMAT OF AN EXISTING ROW rather than setting colours
+// from constants. That is deliberate: nobody has to know the hex values, and if
+// Curia restyle the sheet the copy follows them automatically.
+
+function parseA1(ref) {
+  // "'PL Staff Record'!A2399:L2399" -> {title, startRowIndex, endRowIndex, ...}
+  const m = /^(?:'([^']+)'|([^'!]+))!([A-Z]+)(\d+)(?::([A-Z]+)(\d+))?$/.exec(ref.trim());
+  if (!m) die('Range must look like \'Tab name\'!A1:L1 — got: ' + ref);
+  const title = m[1] ?? m[2];
+  const colNum = (c) => [...c].reduce((n, ch) => n * 26 + (ch.charCodeAt(0) - 64), 0) - 1;
+  const c1 = colNum(m[3]), r1 = parseInt(m[4], 10) - 1;
+  const c2 = m[5] ? colNum(m[5]) : c1, r2 = m[6] ? parseInt(m[6], 10) - 1 : r1;
+  return {
+    title,
+    startRowIndex: Math.min(r1, r2), endRowIndex: Math.max(r1, r2) + 1,
+    startColumnIndex: Math.min(c1, c2), endColumnIndex: Math.max(c1, c2) + 1,
+  };
+}
+
+async function gridRange(sheets, id, ref) {
+  const g = parseA1(ref);
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: id, includeGridData: false });
+  const tab = meta.data.sheets.find((s) => s.properties.title === g.title);
+  if (!tab) die('No tab called "' + g.title + '" in this spreadsheet.');
+  const { title, ...rest } = g;
+  return { sheetId: tab.properties.sheetId, ...rest };
+}
+
+async function cmdCopyFormat(id, fromRef, toRef) {
+  if (!fromRef || !toRef) die("Give me a source and a destination, e.g. 'Tab'!B2399:L2399 'Tab'!B2425:L2425");
+  const { sheets } = await api();
+  const source = await gridRange(sheets, id, fromRef);
+  const destination = await gridRange(sheets, id, toRef);
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: id,
+    requestBody: {
+      requests: [{
+        copyPaste: { source, destination, pasteType: 'PASTE_FORMAT', pasteOrientation: 'NORMAL' },
+      }],
+    },
+  });
+  console.log('copied formatting  ' + fromRef + '  ->  ' + toRef);
+}
+
+// Reading the paint back is what makes a format change verifiable. A write to
+// this sheet is seen by the client, so "I painted it" is not good enough.
+async function cmdShowFormat(id, ref) {
+  if (!ref) die("Give me a range, e.g. 'Tab'!B2424:L2426");
+  const { sheets } = await api();
+  const g = parseA1(ref);
+  const res = await sheets.spreadsheets.get({
+    spreadsheetId: id,
+    ranges: [ref],
+    includeGridData: true,
+    fields: 'sheets.data.rowData.values(effectiveFormat(backgroundColor,textFormat(bold,foregroundColor)))',
+  });
+  const hex = (c) => {
+    if (!c) return '(none)';
+    const b = (v) => Math.round((v ?? 0) * 255).toString(16).padStart(2, '0');
+    return '#' + b(c.red) + b(c.green) + b(c.blue);
+  };
+  const rowData = res.data.sheets?.[0]?.data?.[0]?.rowData ?? [];
+  console.log('\n' + ref + '\n');
+  rowData.forEach((row, i) => {
+    const cells = row.values ?? [];
+    const fills = [...new Set(cells.map((c) => hex(c.effectiveFormat?.backgroundColor)))];
+    const bolds = [...new Set(cells.map((c) => (c.effectiveFormat?.textFormat?.bold ? 'bold' : 'normal')))];
+    const texts = [...new Set(cells.map((c) => hex(c.effectiveFormat?.textFormat?.foregroundColor)))];
+    console.log(
+      '  row ' + String(g.startRowIndex + 1 + i).padEnd(6) +
+      'fill ' + fills.join(' / ').padEnd(22) +
+      'text ' + texts.join(' / ').padEnd(22) +
+      bolds.join(' / ')
+    );
+  });
+  console.log('');
+}
+
 // --- entry point -----------------------------------------------------------
 
 const USAGE = `
@@ -356,6 +447,14 @@ sheets.mjs — read and write Google Sheets as the sheets-bot service account
 
   node scripts/sheets.mjs clear <sheet> <range>
       empty the cells, leaving the rows in place
+
+  node scripts/sheets.mjs copyformat <sheet> <fromRange> <toRange>
+      copy one row's formatting onto another. Values are untouched.
+      e.g. copyformat <id> "'PL Staff Record'!B2399:L2399" "'PL Staff Record'!B2425:L2425"
+
+  node scripts/sheets.mjs showformat <sheet> <range>
+      print the fill colour, text colour and bold state of each row, so a
+      format change can be verified instead of assumed
 
 <sheet> is a spreadsheet ID or its full https://docs.google.com/... URL.
 The sheet must be shared with the service account first.
@@ -382,6 +481,8 @@ async function main() {
       case 'write':   await cmdWrite(id, a, b); break;
       case 'append':  await cmdAppend(id, a, b); break;
       case 'clear':   await cmdClear(id, a); break;
+      case 'copyformat': await cmdCopyFormat(id, a, b); break;
+      case 'showformat': await cmdShowFormat(id, a); break;
       default: die('Unknown command "' + cmd + '".' + USAGE);
     }
   } catch (err) {
