@@ -2065,6 +2065,63 @@ arithmetic, and **Shift Notes** from the audit's own break detection, which find
 breaks in exactly that start–end shape. GNA/RB/R/C come from Slack. Only **Poll**
 needs a source — Curia's survey email names it.
 
+### THE SHEET IS PAINTED, AND WE CAN NOW PAINT IT OURSELVES — 25 Sep 2026
+
+Brendon, 25 Sep: *"the Total format should be followed as Tuesday 22 September
+where it's in bold and has a yellow colour with black text. Then the grey colour
+is to seperate the days and is not to be written on."* Then, after one block went
+out unpainted: *"Going forward we can't have that."*
+
+**The format, read off the live sheet and verified with `showformat`, not assumed:**
+
+    A                        empty margin — NEVER WRITE, NEVER PAINT
+    caller rows      B:K     fill #ffffff (white), black text, NOT bold
+    TOTAL row        B:J     fill #fff2cc (pale yellow), black text, BOLD
+    TOTAL row        K       fill #ffffff, NOT bold — THE YELLOW STOPS AT J
+    grey spacer      B:L     fill #666666 — separates days, nothing written on it
+    column L                 Status. Curia's. Never write it, never paint it.
+
+**`scripts/sheets.mjs` now does formatting — added 25 Sep, commit `cc8950a`:**
+
+    node scripts/sheets.mjs copyformat <sheet> "'Tab'!B2398:K2398" "'Tab'!B2500:K2540"
+    node scripts/sheets.mjs showformat <sheet> "'Tab'!B2500:L2502"
+
+`copyformat` is `copyPaste` with `pasteType: PASTE_FORMAT`; `showformat` reads
+`effectiveFormat.backgroundColor` and `textFormat.bold` back as hex. Both are in
+`.claude/settings.json`'s allow list (commit `bf904c9`), so **a Routine inherits
+them** — the declared-results run paints its own block unattended.
+
+**COPY THE FORMAT FROM A ROW THAT IS ALREADY RIGHT. NEVER SET COLOURS FROM
+CONSTANTS.** If Curia restyle the sheet, a copy follows them and a hardcoded hex
+silently diverges. Row 2398 is a known-good TOTAL row; take caller rows and the
+grey spacer from the nearest correct block above.
+
+**THEN VERIFY WITH `showformat`.** This is not optional and it is how the bug was
+found: `showformat` revealed TOTAL rows **2424 and 2466 had never been formatted
+at all**, weeks after they were written. Nobody would have noticed by looking.
+
+**Why pre-painted bands can never work:** day blocks vary in length — 24 callers
+one night, 40 the next — so any band painted in advance drifts out of alignment
+within a week. The block has to be painted after it is written, every time.
+
+### Shift Notes: DECLARED AWAY-FROM-PHONE TIME ONLY
+
+Brendon, 25 Sep: *"For this only for the shift notes put in time that people have
+declared away from the phone."*
+
+So a Shift Note is `Had breaks between 2:13 - 2:18` and nothing else. **Our own
+working notes must never go in that column** — Curia read it. On 25 Sep it held 22
+internal remarks (`Sheet does not reconcile...`, `Screenshot unreadable...`),
+which were cleared; the 10 conforming break notes were kept and the full record
+was saved off the sheet first.
+
+**Never put a computed off-phone figure there either.** That measure still reads
+up to 4x the manual audit, and the column is Curia-facing.
+
+**`Processed for audit` in column L is Curia's own note to themselves**, marking a
+day they have audited (Brendon, 25 Sep). It is not a status we set, react to, or
+wait on.
+
 ### The Phone column: how to get it, and why a fixed list is WRONG
 
 Brendon, 18 Sep 2026: *"we need to add in a phone number that they dial with,
