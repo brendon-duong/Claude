@@ -3107,10 +3107,38 @@ different job. Do not merge them without asking.
   Waitaki 400), so the post said the poll would be confirmed rather than guessing.
   A wrong poll name in front of 66 people is worse than no poll name.
 
+- **A FOURTH EXCEPTION, granted 25 Sep 2026 — posting the call sheet.** Brendon:
+  *"Can you automatically post it for me and do that going forward everytime you
+  have a callsheet?"*
+
+  So, without asking first: **post the call sheet link to
+  `#call-sheets-pacificlinkglobal` (`C0C3NU69QRM`) whenever call sheets have been
+  built.** One post per shift, naming the poll and the shift time, with the
+  find-your-own-tab instruction, the never-make-a-copy warning, the 5-minute break
+  rule, and a pointer to `#help`.
+
+  **This is standing, not one-off** — "going forward every time" are his words.
+
+  Two conditions that are the substance of it, not formalities:
+
+  - **Post only AFTER the sheets are built AND shared**, per the order of
+    operations above. A link posted before the shares land gives 20 people a
+    "request access" screen an hour before a shift.
+  - **Never assume Google's share email reached anyone.** `share_file` does not
+    report whether a notification was sent, so **this post is the only delivery
+    that can be relied on.** Treat it as load-bearing. Saying otherwise to
+    Brendon was a mistake made on 25 Sep and corrected the same hour.
+
   **Everything else is unchanged.** Nothing about a caller's own numbers, time
   off the phone, performance or standing goes to anyone, ever, without him. No
-  email, no WhatsApp, no message to Curia. Three posting exceptions now exist —
-  availability, roster, and covering a pull-out — and they are exactly three.
+  email, no WhatsApp, no message to Curia. **Four posting exceptions now exist —
+  availability, roster, covering a pull-out, and the call sheet — and they are
+  exactly four.**
+
+  **A Routine that builds call sheets does not inherit this automatically.** No
+  Routine does that job yet; when one is built, the exception has to be written
+  into its prompt, and the shift watcher's "post to NO channel except
+  #shift-changes" rule stays as it is — the watcher does not build call sheets.
 - Tell him plainly when something cannot be done, and why, with the actual API
   behaviour. He makes better decisions with the real constraint than with a
   hedge. He has repeatedly been right when he pushed back — treat his objections
