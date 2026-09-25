@@ -402,12 +402,30 @@ exact, settled, one candidate, ambiguous or unmatched — and **a shared first
 name is ambiguous** (`Jean S` is `Jean` or `Jean Carla Sumarago`, so it is
 neither). Extend `ALIASES` only on a decision from Brendon, never by inference.
 
-**Shifts run Sunday to Thursday only** (Brendon, 12 Sep). Curia's own Drive
-folder corroborates it: September has day folders for 1, 2, 3, 6, 7, 8, 9 and
-10 — exactly Sun–Thu. Friday and Saturday have no shift.
+**~~Shifts run Sunday to Thursday only~~ THAT IS NO LONGER TRUE AND MUST NOT BE
+ASSUMED ANYWHERE.** It was right on 12 Sep — September had day folders for 1, 2,
+3, 6, 7, 8, 9 and 10, exactly Sun–Thu. Since then Curia have added a Sunday
+(20 Sep), a Friday (25 Sep) and another Friday (2 Oct), and on 25 September
+Brendon said plainly: *"we have been getting work on Friday for the next few
+weeks."*
 
-**A Routine named "Shift audit — 10pm Manila (Sun–Thu)"
-(`trig_01FBfhpRM9zCJp5ygLHrfzKN`) fires at 14:00 UTC, Sunday to Thursday** —
+**THE SHIFT DAYS ARE WHATEVER CURIA'S SCHEDULE SAYS, READ FRESH, EVERY TIME.**
+Never hard-code a day list into a cron or a prompt. The three Routines that used
+to be `* * 0-4` now fire EVERY DAY and decide for themselves whether a shift ran:
+
+| Routine | Cron | How it decides |
+|---|---|---|
+| Shift audit | `0 14 * * *` | pulls the call logs first; no calls at all = no shift, one line to Brendon, stop |
+| Curia call log upload | `0 10 * * *` | same test, uploads nothing and stops |
+| Declared results for Curia | `0 0 * * 1-6` | reads the schedule; no PL poll for that date = say so, write nothing, stop |
+
+Daily-with-a-guard is strictly better than any fixed day list, because it
+survives Curia adding a day without anyone noticing. Do not "tidy" these back
+into a day range.
+
+**A Routine named "Shift audit — 10pm Manila (daily, stops if no shift)"
+(`trig_01FBfhpRM9zCJp5ygLHrfzKN`) fires at 14:00 UTC, EVERY DAY** (it was Sunday
+to Thursday until 24 Sep) —
 10pm Manila, 2am NZ until the clocks change on 27 Sep 2026, 3am after — into a
 fresh session in the `Pacific Link` cloud environment
 (`env_01Tbj77FEPUKBePCjAFhG2Jn`, the one with `zoom.us` allowlisted).
@@ -468,7 +486,7 @@ never Slack, and the logs are complete the moment the shift ends. Leaving it at
 
 ### The second Routine — Curia's call log upload
 
-**`trig_01JuNxDGwHQovzFDYuA2Dyna`, "Curia call log upload (Sun–Thu)"**, created
+**`trig_01JuNxDGwHQovzFDYuA2Dyna`, "Curia call log upload (daily, stops if no shift)"** — `0 10 * * *` since 24 Sep, was `0 10 * * 0-4`. Created
 12 Sep 2026 on Brendon's instruction. Same schedule and environment as the
 audit: `0 10 * * 0-4`, `env_01Tbj77FEPUKBePCjAFhG2Jn`. It runs
 `calllog_export`, finds or creates the month and `D/M` day folder under the 2026
@@ -1205,8 +1223,9 @@ warns about.
 
 ### The fourth Routine — declared results for Curia
 
-**`trig_01STiXp444UCGUpdqWzUyxjK`, "Declared results for Curia — 10pm Manila
-(Sun–Thu)"**, created 15 Sep 2026 on Brendon's instruction. **`0 14 * * 0-4`**
+**`trig_01STiXp444UCGUpdqWzUyxjK`, "Declared results for Curia — 10am Sydney,
+morning after"** — `0 0 * * 1-6`, which collects SUNDAY THROUGH FRIDAY shifts the
+morning after each. Created 15 Sep 2026 on Brendon's instruction. **`0 14 * * 0-4`**
 (moved from `0 10` on 18 Sep — see the audit Routine above for why), same
 environment as the others. **Repo, Slack and Google Drive attached 18 Sep.** Reads `#results-pacificlinkglobal`, maps to GNA/RB/R/C under the
 catch-all rule above, refuses to guess at anything ambiguous, cross-checks
