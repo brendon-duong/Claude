@@ -3097,10 +3097,19 @@ different job. Do not merge them without asking.
     they have call history, a Zoom extension, and have not withdrawn from that day
 
   The condition in his own words is *"if someone's really good"*. That means
-  rank the volunteers on the 75/25 score over a fortnight and take the best;
-  it does **not** mean take the first reply regardless. Someone with no Zoom
-  extension is never a valid cover, however keen — 16 of the 66 are in that
-  position and cannot dial at all.
+  rank the volunteers on the 75/25 score over a fortnight and take the best.
+  **CORRECTED 25 Sep 2026 — a missing Zoom extension is NOT a filter.**
+  Brendon: *"Don't worry about whether or not they have a Zoom subscription.
+  We only have a limited amount and we can just edit who has a subscription
+  when it comes to the day."* Zoom Phone licences are a reassignable pool, not
+  a per-person right — 53 licences cover 66+ callers, and Brendon moves one
+  onto whoever is confirmed. The only hard requirement for a valid cover is
+  call history in the last fortnight (so the 75/25 score can rank them); an
+  empty `zoom_ext` in the caller directory does not disqualify anyone. This
+  file previously said the opposite ("someone with no Zoom extension is never
+  a valid cover... 16 of the 66 are in that position and cannot dial at all")
+  — that was wrong and would have excluded up to 15 people from ever covering
+  a shift. Do not reinstate it.
 
   **Do not name the poll unless it is settled.** On 24 Sep the Friday poll was
   genuinely unknown (David might extend the Te Tai polls instead of running
