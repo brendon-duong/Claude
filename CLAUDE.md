@@ -1781,6 +1781,75 @@ each day or a folder of their own shared once. The rename worry is **resolved**:
 `update_file` is metadata only, so renaming a pool is safe and cannot touch its
 contents.
 
+### 25 SEPTEMBER: GREEN SHADING IN PLACE WORKS. THE BLOCKER WAS THE FILE FORMAT, AND IT IS GONE.
+
+The Waitaki pool arrived as a **native Google Sheet owned by Brendon**
+(`brendon.duong10@gmail.com`), not an .xlsx owned by Curia. Both halves of the
+23 Sep blocker vanish at once: the Sheets API works on native sheets, and Brendon
+can share his own file with `sheets-bot`. **Curia's pools shaded in place is now
+a solved problem whenever they send a Google Sheet.**
+
+Proved end to end on `18DnDnRaGhSP_qvGcGrgJC2zNE-P99XVpSpS2KmzLFBM`:
+
+    pool        5,788 rows, IDs 1-5788 contiguous, ZERO blank phone numbers
+    unshaded    checked rows 2/3/100/1000/3000/5000/5789 -> all #ffffff
+    allocated   20 callers x 200 = IDs 1-4000
+    shaded      rows 2-4001, all 17 columns, #c6efce
+    verified    row 1 #1f4e78 (Curia's header, untouched) | row 2 green
+                row 4001 green | ROW 4002 WHITE = ID 4001, the first free number
+    renamed     "Waitaki Numbers September 2026 USE FROM 4001"
+
+**`scripts/sheets.mjs write <sheet> @payload.json` ALREADY DOES EVERYTHING —
+this session wrongly told Brendon the tooling was missing before reading the
+file.** The payload supports `tabs` (**and creates any tab that does not exist**),
+`rename`, `delete`, `clearFirst`, per-tab `at` for a mid-shift top-up, and
+**`shade`**: `[{tab, firstRow, lastRow, color:[r,g,b], columns}]`, 1-based rows,
+`columns` defaulting to 2 — **pass `columns: 17` or only columns A-B go green.**
+Rows are read from disk and never pass through a tool argument.
+
+`Bash(node scripts/sheets.mjs write *)` is already in `.claude/settings.json`, so
+**no new permission is needed and a Routine inherits this.** Before concluding a
+capability is missing, read `sheets.mjs` — it is further ahead than this file.
+
+**A brand-new spreadsheet is made with `Google_Drive__create_file`**
+(`contentMimeType: application/vnd.google-apps.spreadsheet`), which puts it in
+**Brendon's** Drive, then `share_file` it to `sheets-bot` as writer before writing.
+Do not create spreadsheets as the service account: it has no Drive of its own and
+Brendon would not own the result. The lone default `Sheet1` is renamed to the
+first payload tab automatically, so no stray tab is left behind.
+
+**The title mark is still ambiguous and the shading is what actually protects us.**
+This pool's ID *n* sits at row *n+1*, so `USE FROM 4001` reads as ID 4001 (correct,
+the first free number) or as row 4001 (ID 4000, already spent) — one number of
+overlap either way. Say which you mean; rely on the green.
+
+### THE FRESH POOLS CARRY RESPONDENT PERSONAL DETAILS — CHECK EVERY NEW ONE
+
+Waitaki's 17 columns include **Full Name, Last Name, Age Bracket, Meshblock ID,
+Residential Postal Code, Residential Suburb, Maori Descent** and two phone-source
+columns. Per Brendon's 24 Sep rule, **none of it may reach a call sheet.** It was
+stripped at build time, before the workbook was written: each tab carries
+**ID, Phone Number, Outcome, Notes** and nothing else.
+
+The number to dial is the **last column, `Phone`** (index 16), not `Home Phone` or
+`Mobile` — it is the resolved one and was populated on all 5,788 rows. Read it by
+header name, never by position.
+
+### The Waitaki call sheet, 25 Sep - the shape that worked under time pressure
+
+One spreadsheet per poll, one tab per caller, per the 23 Sep decision:
+`Waitaki 400 - 25-09-2026` (`19ZeRGUh0ktFiqt4bC9xIoRQOMZX1jK4ekL_pv--Uh24`) in
+folder `1NN40_zkUm6HqOxopxfzwWcrznrqls484`. Each tab: poll, caller, date, shift,
+their ID block, the **survey link**, Time in / Time out / Break, a RESULTS block
+(C / RB / R / GNA / TOTAL with `=SUM`), the four codes, the 5-minute break rule,
+then the numbers from row 20. Shared `writer` to each caller's own address —
+22 permissions verified: 20 callers, Brendon as owner, `sheets-bot`.
+
+**Curia send the survey link separately from the numbers, and sometimes not at
+all.** David's "Waitaki numbers" email carried only the .xlsx; the link came from
+Brendon by hand. **Never fetch the Live link** — it registers as a partial
+response in Curia's real data. It goes on the sheet as text, unopened.
+
 ### 23 SEPTEMBER: CURIA AND PACIFIC LINK DREW THE SAME 1,000 NUMBERS
 
 The worst failure this project has had, and every part of it is preventable.
