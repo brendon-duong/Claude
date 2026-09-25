@@ -5,7 +5,9 @@
       "Bash(node scripts/sheets.mjs inspect *)",
       "Bash(node scripts/sheets.mjs write *)",
       "Bash(node scripts/sheets.mjs append *)",
-      "Bash(node scripts/sheets.mjs clear *)"
+      "Bash(node scripts/sheets.mjs clear *)",
+      "Bash(node scripts/sheets.mjs copyformat *)",
+      "Bash(node scripts/sheets.mjs showformat *)"
     ]
   }
 }
