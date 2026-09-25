@@ -3135,6 +3135,22 @@ different job. Do not merge them without asking.
   availability, roster, covering a pull-out, and the call sheet — and they are
   exactly four.**
 
+  **TAG THE ROSTERED CALLERS IN THE POST — Brendon, 25 Sep:** *"You got to tag the
+  team members working too going forward so they are able to see it."* A call sheet
+  post without mentions notifies nobody; people do not sit watching the channel.
+  **One post per shift, with the `<@USERID>` mentions inside it** — on 25 Sep the
+  link and the tags went as two messages because the link had already gone out,
+  and that is the fallback, not the shape to aim for.
+
+  **THE MENTION FORMAT IS `<@USERID>`, AND NOTHING ELSE PINGS ANYBODY.** This cost
+  two corrections on 25 September alone. `**@Erika Jane Boiser**` and `*@Lovely*`
+  render as literal bold text — the person is never notified and the post looks
+  fine to everyone including the author. Slack confirms a real mention by echoing
+  it back as `<@U0C1XDNFMLG|Erika Jane Boiser>` when the channel is read again;
+  **read the post back and check for the `|Name` half** rather than trusting that
+  it worked. User IDs come from `slack_list_channel_members` with
+  `response_format: "detailed"`.
+
   **A Routine that builds call sheets does not inherit this automatically.** No
   Routine does that job yet; when one is built, the exception has to be written
   into its prompt, and the shift watcher's "post to NO channel except
