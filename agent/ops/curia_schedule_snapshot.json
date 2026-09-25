@@ -1,51 +1,46 @@
 {
  "schedule": {
-  "2026-09-24": {
-   "Tamaki ACT 750": 20,
-   "Te Tai Hauauru 500": 11,
-   "Te Tai Tonga 500": 10
-  },
   "2026-09-25": {
    "Waitaki 400": 20
   },
   "2026-09-27": {
+   "NZNP 333": 7,
    "ACT 1000": 22,
-   "Mt Albert 400": 8,
-   "NZNP 333": 7
+   "Mt Albert 400": 8
   },
   "2026-09-28": {
-   "ACT 1000": 18,
-   "Mt Albert 400": 12,
    "NZNP 333": 7,
+   "Mt Albert 400": 12,
+   "ACT 1000": 18,
    "Nelson 400": 5
   },
   "2026-09-29": {
+   "NZNP 333": 7,
    "ACT 1000": 4,
    "Hauraki-Waikato 500": 26,
-   "NZNP 333": 7,
    "Nelson 400": 5
   },
   "2026-09-30": {
-   "Hauraki-Waikato 500": 10,
    "NZNP 333": 7,
-   "Nelson 400": 5,
+   "Hauraki-Waikato 500": 10,
+   "Waiariki 500": 10,
    "Rangitikei 400": 10,
-   "Waiariki 500": 10
+   "Nelson 400": 5
   },
   "2026-10-01": {
    "Corp 1000": 19,
    "NZNP 333": 7,
-   "Nelson 400": 5,
    "Waiariki 500": 9,
-   "Wgtn 1000": 2
+   "Wgtn 1000": 2,
+   "Nelson 400": 5
   },
   "2026-10-02": {
    "Wgtn 1000": 13
   },
   "2026-10-04": {
    "Corp 1000": 15,
-   "NZNP 333": 7,
-   "Wgtn 1000": 10
+   "Wgtn 1000": 10,
+   "NZNP 333": 7
   },
   "2026-10-05": {
    "Corp 1000": 15,
@@ -57,12 +52,12 @@
    "Wellington 1000": 8
   },
   "2026-10-07": {
-   "Ikaroa-Rawhiti 500": 10,
-   "NZNP 333": 7
+   "NZNP 333": 7,
+   "Ikaroa-Rawhiti 500": 10
   },
   "2026-10-08": {
-   "Ikaroa-Rawhiti 500": 10,
-   "NZNP 333": 7
+   "NZNP 333": 7,
+   "Ikaroa-Rawhiti 500": 10
   },
   "2026-10-11": {
    "NZNP 333": 7
@@ -77,13 +72,13 @@
    "Tukituki 400": 20
   },
   "2026-10-14": {
-   "ACT 1000": 22,
    "NZNP 333": 7,
+   "ACT 1000": 22,
    "Tamaki Makaurau 500": 18
   },
   "2026-10-15": {
-   "ACT 1000": 22,
    "NZNP 333": 7,
+   "ACT 1000": 22,
    "Tamaki Makaurau 500": 18
   },
   "2026-10-18": {
@@ -96,13 +91,13 @@
    "NZNP 333": 7
   },
   "2026-10-21": {
-   "Ak Ctl 400": 18,
+   "NZNP 333": 7,
    "Gen Maori 500": 6,
-   "NZNP 333": 7
+   "Ak Ctl 400": 18
   },
   "2026-10-22": {
-   "Gen Maori 500": 6,
-   "NZNP 333": 7
+   "NZNP 333": 7,
+   "Gen Maori 500": 6
   },
   "2026-10-25": {
    "NZNP 333": 7
@@ -111,19 +106,19 @@
    "NZNP 333": 7
   },
   "2026-10-27": {
-   "ACT 1000": 22,
-   "NZNP 333": 7
+   "NZNP 333": 7,
+   "ACT 1000": 22
   },
   "2026-10-28": {
-   "ACT 1000": 11,
-   "Corp 1000": 20,
    "NZNP 333": 7,
-   "Tamaki 400": 10
+   "ACT 1000": 11,
+   "Tamaki 400": 10,
+   "Corp 1000": 20
   },
   "2026-10-29": {
+   "NZNP 333": 7,
    "ACT 1000": 11,
    "Corp 1000": 20,
-   "NZNP 333": 7,
    "Tamaki 400": 10
   },
   "2026-11-01": {
@@ -167,5 +162,5 @@
    "Corp 1000": 10
   }
  },
- "taken_at": "2026-09-24T07:34:10Z (Curia modifiedTime)"
+ "taken_at": "2026-09-24T07:34:10.024Z (Curia modifiedTime)"
 }
