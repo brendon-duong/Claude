@@ -3151,6 +3151,28 @@ different job. Do not merge them without asking.
   it worked. User IDs come from `slack_list_channel_members` with
   `response_format: "detailed"`.
 
+  **IT COVERS THE WHOLE DELIVERY, NOT JUST THE POST — Brendon, 25 Sep:** *"Send the
+  call sheets automatically going forward too once they are created."* So the entire
+  chain runs without asking: **draw the pool -> build the sheets -> `share_file` them
+  to each rostered caller's own address -> shade the pool -> post to `#call-sheets`
+  with the callers tagged -> rename the pool.** This supersedes the older note that
+  *"sharing with a real caller stays behind his say-so"* — that was written while the
+  mechanism was untested, and it was tested on 20 real callers on 25 Sep.
+
+  **Sharing is the one step that cannot be undone from here.** `share_file` only
+  grants; there is no revoke call, and re-granting is a silent no-op. So a sheet
+  shared against a wrong roster stays shared until Brendon removes the person by
+  hand in the Share dialog. **The roster is therefore the thing to get right before
+  sharing, not after** — read the latest `#roster` post for that day AND
+  `#shift-changes` for withdrawals and pickups, exactly as the watcher does.
+
+  **Individual per-caller emails are NOT part of this and should not be revived.**
+  The 23 Sep "Your call sheet — <poll> — <date>" emails predate
+  `#call-sheets`; now that the channel exists with the callers tagged, a separate
+  email to each of twenty people is duplicate noise on a team that has just moved
+  off WhatsApp specifically to have one place for things. Ask before adding them
+  back.
+
   **A Routine that builds call sheets does not inherit this automatically.** No
   Routine does that job yet; when one is built, the exception has to be written
   into its prompt, and the shift watcher's "post to NO channel except
