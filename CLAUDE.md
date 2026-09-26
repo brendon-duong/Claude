@@ -427,6 +427,13 @@ from 27 Sep, and back to 13:30 on 5 April 2027 with nobody touching it.
 **The general rule: anything quoted in Manila time is a derived figure. Derive
 it from 6pm NZ every time.**
 
+**AND THE TIME IS ALWAYS DECLARED TO CALLERS IN MANILA TIME — Brendon, 27 Sep 2026:**
+*"the time must always be declared in Manila time as this makes it easiest for our callers to
+understand."* So every roster post, availability post, call sheet, DM and `#start-here` states
+the **Manila** window; NZ time may follow in brackets as context, never instead of it. The
+derivation above is internal — a caller must never be asked to convert anything. The two rules
+work together: derive from 6pm NZ, publish in Manila.
+
 **THE THREE ROUTINES THAT WRITE A SHIFT TIME WERE PATCHED 27 Sep 2026 — do not re-hardcode
 one.** `Post availability` (`trig_018DK3nkDkvoWnvGBkLhMzwb`), `Weekly roster draft`
 (`trig_01RgT6rGxMXmu6XgtyQ96tse`) and `Shift watcher` (`trig_014g7fRRcCsaFeugu2qggo5Z`) each
@@ -3291,6 +3298,16 @@ different job. Do not merge them without asking.
 
   The condition in his own words is *"if someone's really good"*. That means
   rank the volunteers on the 75/25 score over a fortnight and take the best.
+  **EXTENDED 27 Sep 2026 — ASK THE BENCH FIRST, AND ASK THE NEW PEOPLE TOO.** Brendon:
+  *"Make sure to ask the additional callers that voted to work straight away if someone drops
+  out. Also if anyone new has not worked yet make sure to ask them to work as well if anyone
+  drops out."* So call history is **no longer a requirement for cover at all**, and the order
+  is fixed: **Tier 1** the bench — anyone who voted ✅ on that day and is not rostered on it,
+  asked *immediately* rather than waiting for a volunteer, best 75/25 score first; **Tier 2**
+  new starters who have never worked, newest joiner first; **Tier 3** people with history who
+  did not vote. A ❌ on that day is still a no. Written into the shift watcher's prompt
+  (`trig_014g7fRRcCsaFeugu2qggo5Z`) the same day.
+
   **CORRECTED 25 Sep 2026 — a missing Zoom extension is NOT a filter.**
   Brendon: *"Don't worry about whether or not they have a Zoom subscription.
   We only have a limited amount and we can just edit who has a subscription
