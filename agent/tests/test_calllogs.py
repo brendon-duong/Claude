@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta, timezone
 
 from business_agent.calllogs import (
     COMPLETE_SECONDS,
-    EARLIEST_START,
+    EARLY_GRACE,
     IDLE_SECONDS,
     SHIFT_HOURS,
     MANILA,
@@ -304,9 +304,8 @@ class TestTheThreeHourShift(unittest.TestCase):
             call(hour=4, minute=0, seconds=60),    # 12:00 Manila
             call(hour=7, minute=0, seconds=60),
         ))
-        self.assertEqual(
-            (shift.started_at().hour, shift.started_at().minute), EARLIEST_START
-        )
+        floor = ShiftCalls.shift_start(shift.calls[0].started) - EARLY_GRACE
+        self.assertEqual(shift.started_at(), floor)
 
     def test_the_shift_ends_when_the_last_call_ends_not_when_it_starts(self):
         # A six-minute call at the end is six minutes of work.
@@ -517,7 +516,8 @@ class TestNeverReachingTheShift(unittest.TestCase):
     def test_a_stray_early_call_plus_a_real_shift_is_still_on_shift(self):
         shift = ShiftCalls("Lia", DAY, (call(hour=4), call(hour=7)))
         self.assertTrue(shift.on_shift)
-        self.assertEqual((shift.started_at().hour, shift.started_at().minute), EARLIEST_START)
+        floor = ShiftCalls.shift_start(shift.calls[0].started) - EARLY_GRACE
+        self.assertEqual(shift.started_at(), floor)
 
 
 class TestWhatCountsAsBeingThere(unittest.TestCase):
@@ -573,5 +573,50 @@ class TestWhatCountsAsBeingThere(unittest.TestCase):
         # Kept exactly as it was: the clock starts at 1:30, and the wait until
         # the first real call at 3pm is time away.
         shift = ShiftCalls("Lia", DAY, (call(hour=4, minute=0, seconds=60), call(hour=7, minute=0, seconds=60)))
-        self.assertEqual((shift.started_at().hour, shift.started_at().minute), EARLIEST_START)
+        floor = ShiftCalls.shift_start(shift.calls[0].started) - EARLY_GRACE
+        self.assertEqual(shift.started_at(), floor)
+        self.assertEqual((floor.hour, floor.minute), (13, 30))  # DAY is before NZ DST
         self.assertEqual(shift.idle_time(), timedelta(hours=1, minutes=30))
+
+
+class TestTheShiftFollowsNewZealandDaylightSaving(unittest.TestCase):
+    """The shift is 6pm New Zealand. Manila is derived, and Manila moves.
+
+    A hardcoded 1:30pm Manila floor was correct all winter and broke on
+    27 September 2026, when New Zealand went onto daylight saving and the
+    shift moved to 1pm Manila. Every genuine call in the first half hour
+    would have been discarded and all 37 callers on shift that night would
+    have read as thirty minutes short.
+    """
+
+    @staticmethod
+    def _noon_manila(d):
+        return datetime(d.year, d.month, d.day, 12, 0, tzinfo=MANILA)
+
+    def test_before_the_change_the_shift_is_2pm_manila(self):
+        start = ShiftCalls.shift_start(self._noon_manila(date(2026, 9, 26)))
+        self.assertEqual((start.hour, start.minute), (14, 0))
+
+    def test_from_the_change_the_shift_is_1pm_manila(self):
+        start = ShiftCalls.shift_start(self._noon_manila(date(2026, 9, 27)))
+        self.assertEqual((start.hour, start.minute), (13, 0))
+
+    def test_it_goes_back_again_in_april(self):
+        self.assertEqual(
+            ShiftCalls.shift_start(self._noon_manila(date(2027, 4, 3))).hour, 13)
+        self.assertEqual(
+            ShiftCalls.shift_start(self._noon_manila(date(2027, 4, 5))).hour, 14)
+
+    def test_the_floor_is_half_an_hour_before_the_shift_on_either_side(self):
+        for day, want in [(date(2026, 9, 26), (13, 30)), (date(2026, 9, 27), (12, 30))]:
+            f = ShiftCalls.shift_start(self._noon_manila(day)) - EARLY_GRACE
+            self.assertEqual((f.hour, f.minute), want, day)
+
+    def test_a_one_oclock_call_counts_after_the_change_and_not_before(self):
+        # The exact call that the old hardcoded floor would have thrown away.
+        for day, expected in [(date(2026, 9, 26), 0), (date(2026, 9, 27), 1)]:
+            at_one = datetime(day.year, day.month, day.day, 13, 0, tzinfo=MANILA)
+            c = Call(caller="Lia", caller_number="+63288001",
+                     callee_number="+6421234567", started=at_one,
+                     seconds=60, result="Auto Recorded", owner="Lia")
+            self.assertEqual(len(ShiftCalls("Lia", day, (c,)).present), expected, day)

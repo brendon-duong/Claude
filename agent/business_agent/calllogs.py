@@ -42,7 +42,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 TOKEN_URL = "https://zoom.us/oauth/token"
 API_ROOT = "https://api.zoom.us/v2"
@@ -95,10 +96,23 @@ IDLE_SECONDS = 60
 # shift is measured from a caller's own first call rather than against 2pm.
 SHIFT_HOURS = 3
 
-# The earliest a shift may begin, Manila time. Calls before this do not start
-# the clock — otherwise someone could dial once at noon, stop, and have their
-# three hours run out before the work began.
-EARLIEST_START = (13, 30)
+# THE SHIFT IS DEFINED IN NEW ZEALAND TIME — 6pm there, always. Manila is the
+# derived figure, and it MOVES: New Zealand keeps daylight saving and the
+# Philippines does not, so 6pm NZ is 2pm Manila over the southern winter and
+# 1pm Manila from the last Sunday in September to the first Sunday in April.
+SHIFT_START_NZ = time(18, 0)
+NEW_ZEALAND = ZoneInfo("Pacific/Auckland")
+
+# How early a caller may start and still have it count as the shift beginning.
+# Calls before this do not start the clock — otherwise someone could dial once
+# at noon, stop, and have their three hours run out before the work began.
+#
+# THIS USED TO BE A HARDCODED (13, 30) AND THAT BROKE ON 27 SEPTEMBER 2026.
+# New Zealand went onto daylight saving that morning, the shift moved to 1pm
+# Manila, and a floor fixed at 1:30pm would have discarded every genuine call
+# in the first half hour — reporting all 37 callers on shift that night as
+# thirty minutes short. Derive it, never write it down.
+EARLY_GRACE = timedelta(minutes=30)
 
 
 class ZoomError(RuntimeError):
@@ -267,12 +281,20 @@ class ShiftCalls:
         )
 
     @staticmethod
-    def _floor(when: datetime) -> datetime:
+    def shift_start(when: datetime) -> datetime:
+        """When the shift begins, in Manila, on the Manila day of `when`.
+
+        Resolved through New Zealand rather than stated, so it follows their
+        daylight saving in both directions without anyone remembering to.
+        """
+        day = when.astimezone(MANILA).date()
+        start = datetime.combine(day, SHIFT_START_NZ, tzinfo=NEW_ZEALAND)
+        return start.astimezone(MANILA)
+
+    @classmethod
+    def _floor(cls, when: datetime) -> datetime:
         """The earliest permitted start on the Manila day of `when`."""
-        local = when.astimezone(MANILA)
-        return local.replace(
-            hour=EARLIEST_START[0], minute=EARLIEST_START[1], second=0, microsecond=0
-        )
+        return cls.shift_start(when) - EARLY_GRACE
 
     @property
     def present(self) -> tuple[Call, ...]:

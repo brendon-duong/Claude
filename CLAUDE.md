@@ -384,6 +384,54 @@ a **third** Jane spelling and is not yet known to be Jane Labora.
 The one name resolved so far: Zoom's `Khars -` is the `Kharen Mae Pihana`
 folder, confirmed by Brendon. The other 16 are still open.
 
+### THE SHIFT IS 6PM NEW ZEALAND. MANILA IS DERIVED, AND MANILA MOVES.
+
+Brendon, 27 Sep 2026: *"the work actually starts at 6pm NZ time and now it's
+daylight savings."* The shift has always been **6pm-9pm New Zealand**. The Manila
+figure everyone quotes is the derived one, and it changes twice a year because
+**New Zealand keeps daylight saving and the Philippines does not**:
+
+| | NZ | Manila | Sydney |
+|---|---|---|---|
+| NZST (early Apr - late Sep) | 6pm-9pm | **2pm-5pm** | 4pm-7pm (AEST) |
+| NZDT (late Sep - early Apr) | 6pm-9pm | **1pm-4pm** | 3pm-6pm AEST / 4pm-7pm AEDT |
+
+**NZ DST began 3am Sunday 27 September 2026** — the morning of a shift day, so
+the first affected shift was that same afternoon. It ends the first Sunday in
+April. Sydney's own change is a week later (4 Oct 2026), so for one week the
+Sydney figure is 3pm and after it 4pm.
+
+**`EARLIEST_START = (13, 30)` WAS HARDCODED AND THAT WAS THE BUG.** The floor
+exists so a stray noon call cannot start the three-hour clock; it sat at 1:30pm
+Manila, which is shift-start minus thirty minutes — correct all winter. The
+moment the shift moved to 1pm Manila it became *after* the start, so every
+genuine call in the first half hour would have been dropped from
+`ShiftCalls.present` and **all 37 callers rostered that night would have read as
+thirty minutes short**, in a report that goes to Brendon.
+
+It is now derived, never written down:
+
+    SHIFT_START_NZ = time(18, 0)          # the definition
+    NEW_ZEALAND    = ZoneInfo("Pacific/Auckland")
+    EARLY_GRACE    = timedelta(minutes=30)
+
+    ShiftCalls.shift_start(when)  ->  6pm NZ on the MANILA date of `when`,
+                                      converted to Manila
+    ShiftCalls._floor(when)       ->  shift_start - EARLY_GRACE
+
+Resolved through the **Manila date**, not the NZ date — a late-evening Manila
+call maps to the next NZ day and would otherwise floor against tomorrow's shift.
+Verified: 13:30 on every pre-27-Sep date (so no historical audit moves), 12:30
+from 27 Sep, and back to 13:30 on 5 April 2027 with nobody touching it.
+
+**The general rule: anything quoted in Manila time is a derived figure. Derive
+it from 6pm NZ every time.** That applies to call sheet headers, roster posts,
+the availability messages and `#start-here` — all of which said 2pm-5pm and were
+corrected by a follow-up post on 27 Sep, because Slack has no edit tool.
+
+**The Routine crons are NOT affected** — they are absolute UTC and already carry
+their own documented DST traps. Do not "fix" them to chase this change.
+
 ### The CLI, and the 6pm run
 
 `python3 -m business_agent.audit_day [YYYY-MM-DD] [--xlsx PATH] [--json PATH]`
