@@ -2580,6 +2580,44 @@ Mon ACT 1000 (20) · Tue ACT 1000 (20) · Wed Rotorua 400 (10) + Tukituki 400
 names in the 9 Sep dashboard, which had been flagged here as unverified; they
 were right.
 
+### The schedule-diff watcher, and a false "removed" it can produce
+
+`agent/business_agent/schedule_value.py` reads the schedule with
+`download_file_content` (never `get_file_metadata` + `MAX_ALLOWED`, per the
+rule above), and compares it against a baseline at
+`agent/ops/curia_schedule_snapshot.json` (`{"schedule": {...}, "taken_at":
+"<Curia modifiedTime>"}`) to report only what Curia actually changed. This is
+the source for the recurring "Curia changed the schedule" DM + email to
+Brendon. `diff()` and `describe()` are the reporting primitives; `snapshot()`
+turns a list of `Day`s into the comparable `date -> poll -> headcount` form.
+
+**Found 26 Sep 2026: comparing `base` and `live` when only `live` is filtered
+to "today onward" produces a false "removed" entry for every day in the
+baseline that has since passed — even with zero real Curia edits.** The
+baseline is taken once and keeps whatever days were current *then*; a day
+that was tomorrow when the baseline was written is yesterday by the time the
+next run compares it, and `live` (correctly filtered to today onward) no
+longer has it. `diff(base, live)` then reads that as Curia removing the poll,
+when nothing happened — the day simply aged out of the window on both sides.
+Seen live: baseline taken 24 Sep with `2026-09-25: {"Waitaki 400": 20}` still
+in it; run on 26 Sep (after the 25th had passed) reported "2026-09-25 -
+Waitaki 400 removed (was 20 callers)" although `modifiedTime` had not moved
+and every day still in both windows was byte-identical.
+
+**The fix: filter `base` to `>= date.today()` the same way `live` is
+filtered, before calling `diff()`:**
+
+    base_full = json.load(open('ops/curia_schedule_snapshot.json'))['schedule']
+    base = {k: v for k, v in base_full.items()
+            if dt.date.fromisoformat(k) >= dt.date.today()}
+
+Do this every time, not just when a prior run looks stale — any baseline more
+than a day old will have at least one aged-out date once the routine runs
+often enough. `diff()` itself stays a plain dict comparison (it is tested
+against fixed 2026 dates and must not call `date.today()` internally); the
+date alignment belongs at the call site, in every place that loads the
+baseline before diffing.
+
 ## The availability chase of Sat 19 Sep 2026 — and how to read a short week
 
 Brendon asked who had not voted, for WhatsApp drafts, and for the non-voters to be
