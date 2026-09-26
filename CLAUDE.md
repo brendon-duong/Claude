@@ -425,7 +425,19 @@ Verified: 13:30 on every pre-27-Sep date (so no historical audit moves), 12:30
 from 27 Sep, and back to 13:30 on 5 April 2027 with nobody touching it.
 
 **The general rule: anything quoted in Manila time is a derived figure. Derive
-it from 6pm NZ every time.** That applies to call sheet headers, roster posts,
+it from 6pm NZ every time.**
+
+**THE THREE ROUTINES THAT WRITE A SHIFT TIME WERE PATCHED 27 Sep 2026 — do not re-hardcode
+one.** `Post availability` (`trig_018DK3nkDkvoWnvGBkLhMzwb`), `Weekly roster draft`
+(`trig_01RgT6rGxMXmu6XgtyQ96tse`) and `Shift watcher` (`trig_014g7fRRcCsaFeugu2qggo5Z`) each
+carried a literal `2pm–5pm Manila` in the text they compose. Left alone, next Friday's
+availability post and next Saturday's roster would have gone out an hour wrong to the whole
+team. All three now open with a `THE SHIFT TIME IS 6pm-9pm NEW ZEALAND` block carrying the
+`Pacific/Auckland` → `Asia/Manila` one-liner, and the day headings say `<derived Manila
+window>`. The other four Routines never write a shift time and were left alone.
+The roster prompt also gained two rules learned the same weekend: **both ✅ and ❌ on one day
+reads as available** (it cost Sunday two people), and **a missing Zoom extension is not a
+filter** — list them for Brendon instead. That applies to call sheet headers, roster posts,
 the availability messages and `#start-here` — all of which said 2pm-5pm and were
 corrected by a follow-up post on 27 Sep, because Slack has no edit tool.
 
@@ -2124,7 +2136,9 @@ the five legs pass on the live file; only the shading is impossible.**
    `A1:B325285`. **325,284 numbers.** Note `read_only=True` needs
    `calculate_dimension(force=True)`; the sheet is unsized without it. IDs read
    as floats (`1.0`, `2.0`) and `load_pool` handles that.
-   **NZNP 500 and ACT 1000 draw from ONE pool, not two** — this is the whole-year
+   **NZNP (any size) and ACT 1000 draw from ONE pool, not two** — confirmed again by Brendon
+   27 Sep 2026: *"NZNP 333 is also with NZ Numbers."* So NZNP 333, NZNP 500 and ACT 1000 all
+   draw from `NZ Numbers 2026 - 2027 - USE FROM <n>.xlsx`. This is the whole-year
    master list, so "for NZNP 500 and ACT 1000" is one file, not a file each.
 3. **Parse and resume** — `load_pool` read all 325,284 rows and resumed after
    6399, straight off the `USE FROM 6400` in the filename.
