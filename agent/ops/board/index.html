@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week Ahead Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EFF2F1; --surface:#FFFFFF; --sunk:#E4E9E8; --line:#CCD5D3; --hair:#DEE5E4;
+  --ink:#0F1618; --mid:#53625F; --faint:#87938F;
+  --accent:#C2551B; --accent-wash:rgba(194,85,27,.08);
+  --ok:#24785C; --ok-wash:rgba(36,120,92,.12);
+  --warn:#9A6B08; --warn-wash:rgba(154,107,8,.13);
+  --bad:#B03428; --bad-wash:rgba(176,52,40,.11);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0C1214; --surface:#151E21; --sunk:#1B262A; --line:#27353A; --hair:#1F2B2F;
+  --ink:#E6ECEA; --mid:#9AA8A5; --faint:#6B7975;
+  --accent:#E8813F; --accent-wash:rgba(232,129,63,.12);
+  --ok:#49B189; --ok-wash:rgba(73,177,137,.15);
+  --warn:#D6A63C; --warn-wash:rgba(214,166,60,.15);
+  --bad:#E3695C; --bad-wash:rgba(227,105,92,.15);
+}}
+:root[data-theme="dark"]{
+  --bg:#0C1214; --surface:#151E21; --sunk:#1B262A; --line:#27353A; --hair:#1F2B2F;
+  --ink:#E6ECEA; --mid:#9AA8A5; --faint:#6B7975;
+  --accent:#E8813F; --accent-wash:rgba(232,129,63,.12);
+  --ok:#49B189; --ok-wash:rgba(73,177,137,.15);
+  --warn:#D6A63C; --warn-wash:rgba(214,166,60,.15);
+  --bad:#E3695C; --bad-wash:rgba(227,105,92,.15);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.5;
+  padding-inline:16px}
+.wrap{max-width:1000px;margin:0 auto}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+h1,h2,h3,.big{font-family:'Bricolage Grotesque','IBM Plex Sans',sans-serif}
+
+header{padding:34px 0 22px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 10px;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none;font-style:normal}
+h1{font-size:clamp(30px,6vw,50px);font-weight:800;letter-spacing:-.03em;margin:0 0 8px;line-height:1}
+.lede{margin:0;color:var(--mid);max-width:62ch}
+
+.hero{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;margin:24px 0 6px;
+  background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--bad);border-radius:4px;padding:18px 20px}
+.hero .n{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(46px,11vw,74px);font-weight:800;
+  line-height:.85;letter-spacing:-.045em;color:var(--bad);font-variant-numeric:tabular-nums}
+.hero p{margin:0;font-size:14.5px;color:var(--mid)}
+.hero b{color:var(--ink)}
+
+section{padding:32px 0 4px}
+h2{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--mid);margin:0 0 6px;display:flex;gap:10px;align-items:center}
+h2::after{content:'';flex:1;height:1px;background:var(--line)}
+.sub{margin:0 0 18px;color:var(--faint);font-size:13.5px;max-width:74ch}
+
+/* day strip */
+.days{display:grid;gap:9px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.day>summary{list-style:none;cursor:pointer;padding:13px 16px;display:grid;
+  grid-template-columns:minmax(96px,auto) 1fr minmax(120px,auto) 74px;gap:14px;align-items:center}
+.day>summary::-webkit-details-marker{display:none}
+.day[data-s="bad"]{border-left:4px solid var(--bad)}
+.day[data-s="warn"]{border-left:4px solid var(--warn)}
+.day[data-s="ok"]{border-left:4px solid var(--ok)}
+.dname{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.015em}
+.dname small{display:block;font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:9.5px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin-top:2px}
+.bar{height:9px;background:var(--sunk);border-radius:99px;overflow:hidden;position:relative}
+.bar span{position:absolute;inset:0 auto 0 0;border-radius:99px}
+.day[data-s="bad"] .bar span{background:var(--bad)}
+.day[data-s="warn"] .bar span{background:var(--warn)}
+.day[data-s="ok"] .bar span{background:var(--ok)}
+.count{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--mid);text-align:right;white-space:nowrap}
+.count b{color:var(--ink);font-weight:600}
+.pill{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:.06em;
+  padding:4px 7px;border-radius:3px;text-align:center;white-space:nowrap}
+.day[data-s="bad"] .pill{background:var(--bad-wash);color:var(--bad)}
+.day[data-s="warn"] .pill{background:var(--warn-wash);color:var(--warn)}
+.day[data-s="ok"] .pill{background:var(--ok-wash);color:var(--ok)}
+.inner{padding:2px 16px 16px;border-top:1px solid var(--hair)}
+.poll{margin-top:14px}
+.phead{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}
+.phead h3{margin:0;font-size:13.5px;font-weight:700;letter-spacing:-.01em}
+.phead .meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint);letter-spacing:.05em}
+.phead .short{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--bad);font-weight:600}
+.names{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:12px;padding:3px 8px;border-radius:3px;background:var(--sunk);color:var(--ink);white-space:nowrap}
+.chip u{text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--faint);margin-left:5px}
+.gapnote{margin-top:14px;padding:9px 11px;background:var(--bad-wash);border-radius:3px;font-size:12.5px;color:var(--ink)}
+.gapnote b{color:var(--bad)}
+.gapnote.ok{background:var(--ok-wash)}
+.gapnote.ok b{color:var(--ok)}
+.chip.new{background:var(--accent-wash);box-shadow:inset 0 0 0 1px var(--accent)}
+.chip.new u{color:var(--accent);font-weight:600}
+
+/* covers */
+.covers{display:grid;gap:8px}
+.cov{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:12px 15px;
+  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.cov .who{font-size:14px}
+.cov .out{color:var(--mid);text-decoration:line-through;text-decoration-thickness:1px}
+.cov .arw{color:var(--accent);margin:0 7px;font-weight:600}
+.cov .in{font-weight:600}
+.cov .why{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint);
+  letter-spacing:.04em;margin-top:3px}
+.cov time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--faint);white-space:nowrap}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:13px 15px}
+.tile b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:25px;font-weight:700;
+  letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile span{display:block;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--faint);margin-top:4px}
+.tile.ok b{color:var(--ok)} .tile.warn b{color:var(--warn)} .tile.bad b{color:var(--bad)}
+
+ul.todo{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+ul.todo li{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--warn);
+  border-radius:4px;padding:11px 15px;font-size:13.5px}
+ul.todo li.low{border-left-color:var(--faint)}
+ul.todo li b{font-family:'Bricolage Grotesque',sans-serif}
+
+footer{border-top:1px solid var(--line);margin-top:30px;padding:18px 0 40px;
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.05em;color:var(--faint);
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:620px){
+  .day>summary{grid-template-columns:1fr auto;grid-template-areas:'n p' 'b b' 'c c';gap:8px 12px}
+  .dname{grid-area:n} .pill{grid-area:p} .bar{grid-area:b} .count{grid-area:c;text-align:left}
+  .hero{grid-template-columns:1fr;gap:8px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow"><i></i><span id="stamp">reading the votes…</span></p>
+  <h1>Week Ahead Board</h1>
+  <p class="lede">Where next week stands right now: what Curia want, who has said yes, and who the roster would pick if it were built this minute. Refreshed from the live Slack votes — not live in the page.</p>
+</header>
+
+<div class="hero">
+  <div class="n" id="heroN">–</div>
+  <p><b>caller-shifts still unfilled</b> across Sun 27 – Fri 2 Oct, out of <b id="heroNeed">–</b> Curia want
+  — <b id="heroRisk">–</b> of revenue on the table.
+  Votes close <b>Saturday 6pm Manila</b> and the roster builds itself at <b>6:05pm</b>, so anything that changes after that misses the week.</p>
+</div>
+
+<div class="tiles" style="margin-top:9px">
+  <div class="tile" id="clockTile"><b id="clock">–</b><span id="clockLabel">until votes close</span></div>
+  <div class="tile ok"><b id="revSec">–</b><span>secured on today's votes</span></div>
+  <div class="tile bad"><b id="revRisk">–</b><span>at risk</span></div>
+  <div class="tile"><b id="firsts">–</b><span>first shifts in the draft</span></div>
+</div>
+
+<section>
+  <h2>The week, day by day</h2>
+  <p class="sub">Tap a day to see the preliminary roster. “Rankable” means they said yes <em>and</em> have call history in the last fortnight — a yes from someone with no history can’t be placed on a poll.</p>
+  <div class="days" id="days"></div>
+</section>
+
+<section>
+  <h2>Dropped out and covered</h2>
+  <p class="sub">Changes over the last two shifts. All five were covered from people who had already volunteered — nobody was picked at random, and each replacement was ranked or had been promised first refusal.</p>
+  <div class="covers" id="covers"></div>
+</section>
+
+<section>
+  <h2>New this week</h2>
+  <p class="sub">Hired but not yet in Slack, so they cannot vote and cannot be rostered. Each needs a workspace invite before the deadline.</p>
+  <div class="tiles" id="newies"></div>
+</section>
+
+<section>
+  <h2>Waiting on you</h2>
+  <div id="todo"></div>
+</section>
+
+<footer>
+  <span>Pacific Link Global</span>
+  <span id="footstamp">Refreshed hourly from the Slack votes</span>
+</footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const DAYS = ['Sun 27','Mon 28','Tue 29','Wed 30','Thu 1 Oct','Fri 2 Oct'];
+const money = n => '$' + Math.round(n).toLocaleString();
+const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+
+const T = DATA.totals;
+set('heroN', T.gap);
+set('heroNeed', T.need);
+set('heroRisk', money(DATA.revenue.week_at_risk));
+set('revSec', money(DATA.revenue.week_secured));
+set('revRisk', money(DATA.revenue.week_at_risk));
+set('firsts', T.firsts);
+
+const A = DATA.asAt;
+set('stamp', 'Votes read ' + A.manila + ' Manila (' + A.nz + ' NZ) — refreshed, not live');
+set('footstamp', 'Votes read ' + A.utc + ' · refreshed hourly');
+
+const mins = A.minsToDeadline;
+if (mins > 0) {
+  const h = Math.floor(mins / 60), m = mins % 60;
+  set('clock', h ? h + 'h ' + m + 'm' : m + 'm');
+  set('clockLabel', 'until votes close');
+  document.getElementById('clockTile').className = 'tile ' + (mins < 120 ? 'bad' : mins < 360 ? 'warn' : '');
+} else {
+  set('clock', 'closed');
+  set('clockLabel', 'votes are in, roster locked');
+  document.getElementById('clockTile').className = 'tile';
+}
+
+document.getElementById('days').innerHTML = DAYS.map(name => {
+  const w = DATA.week[name];
+  const gap = w.need - w.filled;
+  const pct = Math.round(w.filled / w.need * 100);
+  const state = gap <= 0 ? 'ok' : (gap / w.need <= 0.10 ? 'warn' : 'bad');
+  const label = gap <= 0 ? 'covered' : gap + ' short';
+  const polls = Object.entries(w.polls).map(([p, list]) => {
+    const cap = w.caps[p], missing = cap - list.length;
+    return '<div class="poll"><div class="phead"><h3>' + esc(p) + '</h3>' +
+      '<span class="meta">' + list.length + ' of ' + cap +
+        (w.balance && w.balance[p] ? ' &middot; strength ' + w.balance[p].toFixed(2) : '') + '</span>' +
+      (missing > 0 ? '<span class="short">' + missing + ' unfilled</span>' : '') +
+      '</div><div class="names">' +
+      list.map(([nm, sc, isNew]) => isNew
+        ? '<span class="chip new">' + esc(nm) + '<u>1st</u></span>'
+        : '<span class="chip">' + esc(nm) + '<u>' + sc.toFixed(2) + '</u></span>').join('') +
+      '</div></div>';
+  }).join('');
+  const firsts = w.firsts.length
+    ? '<div class="gapnote ok"><b>' + w.firsts.length + ' first shift' + (w.firsts.length > 1 ? 's' : '') + '.</b> ' +
+      w.firsts.map(esc).join(', ') + ' said yes and have no call history, so they are placed on merit of having volunteered, newest joiner first. Nothing to rank them on yet.</div>'
+    : '';
+  const gapnote = gap > 0
+    ? '<div class="gapnote"><b>' + gap + ' unfilled.</b> Everyone who said yes is already placed, rankable or not — this only closes if more people vote.</div>'
+    : '';
+  return '<details class="day" data-s="' + state + '"' + (state === 'bad' ? ' open' : '') + '>' +
+    '<summary><span class="dname">' + esc(name) + '<small>' + Object.keys(w.polls).length + ' polls</small></span>' +
+    '<span class="bar"><span style="width:' + Math.min(pct,100) + '%"></span></span>' +
+    '<span class="count"><b>' + w.filled + '</b> of <b>' + w.need + '</b> · ' +
+      money(w.filled * DATA.revenue.per_shift) + ' of ' + money(w.need * DATA.revenue.per_shift) +
+      (gap > 0 ? ' · <span style="color:var(--bad)">' + money(gap * DATA.revenue.per_shift) + ' at risk</span>' : '') +
+      '<br>' + w.yes + ' yes, ' + w.no + ' no · ' + w.rankable + ' rankable' +
+      (w.unranked ? ' + ' + w.unranked + ' new' : '') + '</span>' +
+    '<span class="pill">' + label + '</span></summary>' +
+    '<div class="inner">' + polls + gapnote + firsts + '</div></details>';
+}).join('');
+
+document.getElementById('covers').innerHTML = DATA.changes.map(([out, inn, why, when]) =>
+  '<div class="cov"><span class="who"><span class="out">' + esc(out) + '</span>' +
+  '<span class="arw">&rarr;</span><span class="in">' + esc(inn) + '</span>' +
+  '<span class="why">' + esc(why) + '</span></span><time>' + esc(when) + '</time></div>').join('');
+
+document.getElementById('newies').innerHTML = DATA.newJoiners.map(n =>
+  '<div class="tile warn"><b style="font-size:17px">' + esc(n) + '</b><span>needs a Slack invite</span></div>').join('');
+
+document.getElementById('todo').innerHTML = '<ul class="todo">' + [
+  ['Send three Slack invites', DATA.newJoiners.join(', ') + ' are hired and emailed, but no tool can invite them to the workspace — that is a click in Slack, and without it they cannot vote or be rostered.', ''],
+  ['Sunday is the thin one', DATA.week['Sun 27'].need - DATA.week['Sun 27'].filled + ' short with the shift the day after tomorrow. It is also the only day with a double-figure no vote (' + DATA.week['Sun 27'].no + ').', ''],
+  ['Who are Salvador Banila, Karla and John?', 'All three have voted and the draft now places them, because a yes with no history still counts. If any of the three should not be working, say so before 6:05pm.', ''],
+  ['CJ invoice #2', 'It carries Cheska Rejante&rsquo;s Wise details. $82.50 would pay the wrong person.', ''],
+  ['Pinned RESOURCES message', 'One bullet still points problems and questions at WhatsApp instead of #help.', 'low'],
+  ['Charlotte&rsquo;s Zoom name', 'Extension 1035 still reads &ldquo;Cha&rdquo;, which makes her call logs read as somebody else.', 'low'],
+].map(([h, b, c]) => '<li class="' + c + '"><b>' + h + '</b> &mdash; ' + b + '</li>').join('') + '</ul>';
+</script>
+</body>
+</html>
