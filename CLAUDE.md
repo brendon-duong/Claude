@@ -3081,6 +3081,99 @@ Brendon pastes these by hand. The text agreed 24 Sep:
 Posting permissions): lock `#roster`, `#availability`, `#start-here` and `#call-sheets`
 to him and Logan; **never lock `#results`, `#shift-changes` or `#help`**.
 
+## The ninth Routine — the Week Ahead Board refresh
+
+**The board is published at `https://claude.ai/artifact/EZywzKr45yzvVCYndp6jSZ`**
+("Week Ahead Board"). Source: `agent/ops/board/index.html`, which reads one file,
+`data.js`, and nothing else — so a refresh is: regenerate `data.js`, republish
+both. It is a different page from the **ops board**
+(`https://claude.ai/artifact/TzmjwR6h1H2sLXrQHTKdbZ`) and the **roster dashboard**
+(`https://claude.ai/artifact/4bJeNVa9Drme8zBtky7SZA`). Three pages, three jobs;
+do not merge them without asking.
+
+**`trig_01JzKJ8au9bTsx4wjbnshJPr`, "Week Ahead Board refresh — hourly Thu–Sat
+(voting window)"**, created 26 Sep 2026 on Brendon's ask: *"Update the week ahead
+board as someone votes please."*
+
+**A published page cannot read Slack itself, and hourly is the cron floor** —
+`create_trigger` rejects anything under an hour outright. So the board is
+**refreshed, never live**, and the page says so on its face with the time the
+votes were read.
+
+`0 * * * 4,5,6` as written; **the server anchored it to minute 39**, which is the
+documented "hourly starting now" behaviour and is not a typo. Thursday, Friday
+and Saturday only, with a **window guard as step 0**: it stops immediately before
+Thu 22:00 UTC (when the availability post goes up) or after Sat 10:00 UTC (the
+deadline). About half the firings exit there having read nothing, which is
+cheaper than a cron that tries to express "Thursday night through Saturday
+lunchtime" and cannot.
+
+**It posts nothing, emails nothing and does not even report to Brendon.** The one
+thing it changes in the world is the artifact. That is deliberate: a refresher
+that pings 36 times a week gets muted, and the page is the report.
+
+Like every Routine created from a session it came back with **no connectors and
+no repo** — it needs **Slack, Google Drive and the repo** wired in the Routines
+UI before it does anything. `notifications` is `{}` on purpose.
+
+### `business_agent/board.py` — the scoring and the draft, out of the scratchpad
+
+The board was built by a one-off script in `/tmp`, so "refresh it as people vote"
+had nothing to run. The half that can be written down now lives in the repo, with
+**30 tests**:
+
+    board.scores({name: (completes_per_shift, minutes_away_per_shift)})
+    board.snake_draft(ranked, caps)          -> {poll: [names]}
+    board.plan_day(voters, caps, score, joined=..., no=...)  -> Day
+    board.build(days, as_at=..., changes=..., new_joiners=...)  -> the page's JSON
+
+`build()` returns **exactly** what `ops/board/index.html` renders, so the figures
+and the arithmetic live in one tested place and the page only draws.
+
+Three things in it that look like bugs and are not:
+
+- **`_scale` bakes the direction in rather than letting the caller flip it.** The
+  away half is "lower is better"; scaling a flat away-time to 1 and then
+  subtracting gave every caller the **maximum** away penalty when all of them
+  were equally tidy — a whole roster scoring 0.75 instead of 1.00. Found by a
+  test, not in production.
+- **The draft reverses the LIVE poll list**, so once a poll fills early the
+  reversal still means something. The scratchpad script reversed the full order
+  and skipped filled polls, which hands consecutive picks to the same poll. The
+  two differ by a few names on Mon, Wed and Thu; **the committed one is what the
+  published board now shows**, so the module and the page agree.
+- **A first-shift caller is left out of `poll_balance`.** There is nothing to
+  compare them on, and including them as zero would make any poll carrying new
+  people look weak.
+
+**The 75/25 weights are Brendon's and are asserted in a test.** Do not tune them
+here.
+
+### The board's own numbers, 26 Sep 2026 — and what the new-joiner rule did
+
+Re-planned on the live votes at 3:38pm Manila, two and a bit hours before the
+deadline:
+
+| Day | Curia want | ✅ | ❌ | rankable | filled | gap | first shifts |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| Sun 27 | 37 | 33 | 15 | 31 | 33 | **−4** | 2 |
+| Mon 28 | 42 | 40 | 7 | 37 | 40 | −2 | 3 |
+| Tue 29 | 42 | 42 | 6 | 38 | 42 | ✅ | 4 |
+| Wed 30 | 42 | 41 | 6 | 38 | 41 | −1 | 3 |
+| Thu 1 Oct | 42 | 40 | 7 | 37 | 40 | −2 | 3 |
+| Fri 2 Oct | 13 | 38 | 8 | 35 | 13 | ✅ | 0 |
+| **Week** | **218** | | | | **209** | **−9** | **15** |
+
+**209 of 218 against 194 of 218 the day before**, and the whole of that gain is
+the step-19 rule — **15 first shifts**. Sunday is the thin day and the only one
+with a double-figure ❌ (15).
+
+**This is also the first time the three unidentified accounts get rostered.**
+Salvador Banila, Karla and John voted ✅, and a yes with no history is now still a
+yes, so the draft places them. CLAUDE.md has said since 19 Sep not to roster them
+until Brendon says who they are. **That question is now load-bearing, not
+housekeeping** — it is on the board's "waiting on you" list for that reason.
+
 ## The ops board — a dashboard mock, 24 Sep 2026
 
 **Published at `https://claude.ai/artifact/TzmjwR6h1H2sLXrQHTKdbZ`** ("Pacific Link Ops
