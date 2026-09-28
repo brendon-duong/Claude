@@ -1890,6 +1890,43 @@ This pool's ID *n* sits at row *n+1*, so `USE FROM 4001` reads as ID 4001 (corre
 the first free number) or as row 4001 (ID 4000, already spent) — one number of
 overlap either way. Say which you mean; rely on the green.
 
+### POOL TITLES: SAY WHICH NUMBER, AND SAY "ALL USED" WHEN IT IS SPENT — Brendon, 28 Sep 2026
+
+*"If the numbers are all used, then just mark it as all used. And then if there's only
+one number left, just allocate it to someone... keep the title of the name, but instead
+of USE FROM you just say ALL USED. And then just do that going forward."*
+
+**Three rules, and they apply every time call sheets are built:**
+
+1. **A pool with numbers left is titled `<pool name> - USE FROM ROW <n>`.** Write the
+   word **ROW** into the title. The 23 Sep double-draw happened partly because
+   `USE FROM 1400` could be read as a row or an id and nobody could tell which. Curia
+   use rows, so state it: `NZ Numbers 2026 - 2027 - USE FROM ROW 26602`.
+   **`<n>` is the first FREE row, not the last used one.** Because id *n* sits at row
+   *n+1*, first-free-row is the one value that cannot cause an overlap on either
+   reading - read as a row it is exactly right, read as an id it wastes at most one
+   number. The other direction hands out a number twice.
+2. **A spent pool is titled `<pool name> - ALL USED`.** No number at all. This is
+   Curia's own convention - they already have `Mt Albert Numbers Part 2 June 26 -
+   USE FROM ALL USED.xlsx` and `NZ Numbers 2026 - ALL USED .xlsx` in the drive.
+3. **Never leave one or two numbers stranded to make the arithmetic tidy.** Give the
+   remainder to the last caller in the draft order and close the pool out. On 28 Sep
+   Mt Albert had 3,257 numbers against 12 callers: 138 each used 1,656 of the 1,657
+   free, so id 3257 went to Charlotte Gimpes (139 numbers, her header updated to match)
+   and the pool was retitled ALL USED.
+
+**The green shading still governs, and it is what actually prevents a collision.** The
+title is a courtesy to whoever opens the file next; the shading is the record. Shade
+first, verify the boundary rows, then retitle.
+
+**Renaming works even where sharing does not.** `share_file` on a pool sitting inside
+Curia's own folder returns `The caller does not have permission` - Brendon owns the file
+but the folder's restriction wins, so `sheets-bot` cannot be added from a session and
+the cells cannot be shaded. `update_file` (metadata only) still renames it. So when
+shading is blocked, **put the allocation in the title instead**:
+`Nelson Numbers September 2026 - USE FROM ROW 1002 (PL took rows 2-1001)`. That is the
+mark David asked both sides for, and it needs nothing from him.
+
 ### THE FRESH POOLS CARRY RESPONDENT PERSONAL DETAILS — CHECK EVERY NEW ONE
 
 Waitaki's 17 columns include **Full Name, Last Name, Age Bracket, Meshblock ID,
