@@ -946,10 +946,10 @@ if a brand-new label ever turns up.
 
 | Code | Every label that maps to it |
 |---|---|
-| **C** | completed · Completed · COMPLETED · competed · comps |
-| **RB** | ring back · Ring back · ringback · Ringbacks · RB · RBs · RB's · Rbs · RB/VM · VM · Dialed RBs · Callback |
-| **GNA** | GNA · **NA** · GNA/Invalid · **Inactive** · Not Active · Invalid · Invalid/Not Active · Not Available · Disconnected · Busy line · Not in service |
-| **R** | refused · Refused · refusal · Refuse · **Disqualified · Unqualified · Not Qualified · Hang up · Do Not Call · Incomplete · INC · Already Done** |
+| **C** | completed · Completed · COMPLETED · competed · comps · **Complete** |
+| **RB** | ring back · Ring back · ringback · Ringbacks · RB · RBs · RB's · Rbs · RB/VM · VM · Dialed RBs · Callback · **Ringback/VM · Ringback/Voicemail/No Answer** |
+| **GNA** | GNA · **NA** · GNA/Invalid · **Inactive** · Not Active · Invalid · Invalid/Not Active · Not Available · Disconnected · Busy line · Not in service · **GNA (Generally Not Available)** |
+| **R** | refused · Refused · refusal · Refuse · **Disqualified · Unqualified · Not Qualified · Hang up · Do Not Call · Incomplete · INC · Incimplete (typo) · Already Done** |
 
 Three rulings worth stating plainly, because each was asked and answered:
 
@@ -3014,6 +3014,49 @@ none was rostered even though the week is short. Still waiting on Brendon.
 changed; diff the rows before announcing anything. **But re-reading the same wrong way
 twice proves nothing** — the rows were identical *and* both readings of them were wrong.
 Consistency between two reads is not accuracy.
+
+## RECYCLE RING-BACKS BEFORE DRAWING FRESH NUMBERS — Brendon, 28 Sep 2026
+
+*"You can preserve numbers sometimes going forward by looking at old callsheets and
+numbers that have been marked as a ring back for the NZ Numbers for polls that
+require it."*
+
+A **RB is the only one of the four codes that goes back in the pool** — it rang and
+nobody picked up, so the person was never reached and the number is still live. `C`,
+`R` and `GNA` are all spent: completed, refused (never call again), or dead.
+
+So **before allocating a fresh block, harvest the previous sheets for that poll and
+re-issue the ring-backs first.** Fresh numbers only make up the shortfall.
+
+**Measured on the 27 September sheets, 28 Sep:**
+
+| Poll | ring-backs recovered | needed that night | fresh still needed |
+|---|--:|--:|--:|
+| ACT 1000 | 1,629 | 4,400 | 2,771 |
+| NZNP 333 | 540 | 1,400 | 860 |
+| **Total** | **2,169** | **5,800** | **3,631** |
+
+**That is 2,169 NZ Numbers preserved in one night — 37% of the draw.** The pool is
+finite and this is the single biggest lever on making it last.
+
+Four things to get right:
+
+- **Recycle WITHIN the same poll.** An ACT 1000 ring-back goes back to ACT 1000. Both
+  NZNP and ACT draw from the same NZ Numbers master, so it is tempting to pool them —
+  but a ring-back belongs to the survey it was drawn for, and the caller is trying to
+  complete *that* questionnaire. **Whether Curia accept cross-poll reuse is an open
+  question for David; do not assume it.**
+- **Read the Outcome column, do not trust the declared totals.** The per-caller RB
+  figures in `#results` are a summary; the sheet has the actual IDs.
+- **The sheets are reliably filled in.** All 22 ACT tabs were 200/200 marked on 27 Sep;
+  two NZNP tabs had 15-18 blanks. So this is workable today, not aspirational.
+- **Labels vary per caller** — `RB`, `RINGBACK`, `RINGBACK/VM`,
+  `RINGBACK/VOICEMAIL/NO ANSWER` all appeared on the same night. Match against the
+  allocation table, never on an exact string.
+
+**One label is still unresolved: `GNS` (1 row, 27 Sep).** Probably a GNA typo but it is
+a guess, so it was excluded from the harvest rather than assumed. Ask Brendon if it
+recurs.
 
 ## NEVER PUT A RESPONDENT'S PERSONAL DETAILS ON A CALL SHEET — Brendon, 24 Sep 2026
 
