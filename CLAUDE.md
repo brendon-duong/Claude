@@ -3346,6 +3346,31 @@ Distinct from `business_agent/dashboard.py`, which renders the **roster** dashbo
 (`https://claude.ai/artifact/4bJeNVa9Drme8zBtky7SZA`) and is a different page for a
 different job. Do not merge them without asking.
 
+## Extras and pull-outs roll forward — Brendon, 29 Sep 2026
+
+*"Always remember extras and people that pull out can be rostered for the next
+day."* Two standing rules for every roster and every shift-change from now on:
+
+- **An "extra"** is anyone who volunteered for a shift (via `#shift-changes` or
+  `#availability`) but was not used that day — the poll filled before their name
+  came up, or there simply wasn't a spot. Don't treat that as a dead lead: they
+  are first in line for the next opening, and a future session should check
+  who's sitting unused before cold-asking the wider channel again. Brendon
+  already does this by hand (see the 28 Sep Friday Wgtn 1000 post: eight people
+  who put a hand up but weren't needed that day were told explicitly *"you're
+  first in line if anything else opens up this week"*) — that's the pattern to
+  follow everywhere, not just that one post.
+- **A pull-out is not a strike against someone.** Someone who can't make a
+  shift (family emergency, sickness, whatever) goes back in the pool for the
+  next day they're available — never held against them, never quietly dropped
+  from future rosters. Log the reason if one was given, but the rostering score
+  (75/25 completes/away-time) is what should decide their future shifts, not
+  the fact that they pulled out once.
+
+In practice: when a caller pulls out, note it here or wherever the roster
+build reads from, and when the next day's roster is drafted, check both the
+pull-out list and the unused-volunteer list before finalising who's on it.
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,
