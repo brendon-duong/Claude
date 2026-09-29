@@ -146,6 +146,14 @@ directory or into this file. That is the whole of the memory.
 
 ### Already settled, do not re-ask
 
+- **Always share call sheets to `lisondranilyn@gmail.com` for Nilyn, every
+  time, not just her Slack address.** Brendon, 29 Sep 2026. She has at least
+  three Google identities in play (her Slack account's Apple private-relay
+  address, which Drive rejects outright; `nilynlisondra05@gmail.com`; and
+  this one, her Zoom login) and regularly opens sheets signed into whichever
+  one isn't shared yet. Share to both `nilynlisondra05@gmail.com` and
+  `lisondranilyn@gmail.com` on every call sheet going forward — don't wait
+  for her to complain first.
 - **Giniel's Slack/Zoom account is `quickmelt25@gmail.com` — her husband's
   email, not a mistaken identity.** Brendon, 29 Sep 2026. Don't read the
   handle as belonging to someone else, and don't ask her to switch it.
