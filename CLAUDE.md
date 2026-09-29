@@ -146,6 +146,9 @@ directory or into this file. That is the whole of the memory.
 
 ### Already settled, do not re-ask
 
+- **Giniel's Slack/Zoom account is `quickmelt25@gmail.com` — her husband's
+  email, not a mistaken identity.** Brendon, 29 Sep 2026. Don't read the
+  handle as belonging to someone else, and don't ask her to switch it.
 - **Bryan Canton and Bon Ryan Canton are two different people.** Never merge
   them, however similar the names look to duplicate detection.
 - **Mary V** is Mary Joy Villacura; **Mary T** is Mary Joy Tongson. Two
