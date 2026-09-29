@@ -3388,6 +3388,22 @@ never a no-show, and say so plainly rather than asking the caller to account
 for a shift they were never given. Only call it a no-show once their name is
 confirmed present on that day's actual roster post.
 
+## Build roster lists from source, never retype them by hand — 29 Sep 2026
+
+The "52 vs 53" and "how am I short on the last one if I have 53 licences"
+confusion on 29 Sep traced to one root cause: the same roster list was
+hand-retyped from memory into a Python list literal several times over, and
+one retype silently dropped a name, throwing every count after it off by
+one. Nothing was wrong with the underlying data — the arithmetic error was
+self-inflicted, and it cost Brendon real back-and-forth before it was caught.
+
+**Whenever a roster, a licence list or any other named-people set needs
+checking twice, write it to a file once and read that file back** — from
+the call sheet tabs actually built, `slack_list_channel_members`, or
+whatever the authoritative source was — rather than retyping the same names
+into a second script from memory. A second hand-typed copy of a list is
+where this kind of error comes from, not bad source data.
+
 ## "Zoom subscription" means the AU/NZ Unlimited plan, checked for today only — Brendon, 29 Sep 2026
 
 Two scoping rules, settled after a confusing back-and-forth on 29 Sep that
