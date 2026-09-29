@@ -156,7 +156,10 @@ CAPS = [
     ("c3b", "I felt like my house was never clean enough", 1250, ["never"]),
     ("c4a", "Then I found the Nitidus Pet Hair Glove", 1250, ["nitidus"]),
     ("c4b", "One swipe. Hair rolls right off.", 1250, ["one", "swipe."]),
-    ("c5", "Guest-ready in 60 seconds", 1250, ["60", "seconds"]),
+    ("c5", "And now? I actually love having them over", 1250, ["love"]),
+    ("h1", "When your mother-in-law hugs you... and leaves wearing your dog", 1150, ["wearing", "dog"]),
+    ("h2", "The in-laws are 5 minutes away. My couch:", 1150, ["5", "minutes"]),
+    ("h3", "Dog moms: has your mother-in-law ever commented on the dog hair?", 1150, ["mother-in-law"]),
 ]
 
 if __name__ == "__main__":
