@@ -8,7 +8,8 @@ two() { # two <in> <out> <capA> <capB> <switch_t>
   ffmpeg -y -loglevel error -i "$1" -i "$3" -i "$4" -filter_complex "[0:v]$V[v];[v][1]overlay=enable='lt(t,$5)'[a];[a][2]overlay=enable='gte(t,$5)'[out];[0:a]aresample=48000[au]" -map "[out]" -map "[au]" $ENC "$2"; }
 for h in 1 2 3; do one clips/g$h.mp4 hk$h.mp4 ov/g$h.png; done
 two clips/m1.mp4 k1.mp4 ov/m1a.png ov/m1b.png "${M1_SWITCH:-3.2}"
-ffmpeg -y -loglevel error -i clips/4.mp4 -i clips/vo4.mp3 -i ov/m4a.png -i ov/m4b.png -filter_complex "[0:v]$V[v];[v][2]overlay=enable='lt(t,2.6)'[a];[a][3]overlay=enable='gte(t,2.6)'[out];[0:a]volume=0.35,aresample=48000[bg];[1:a]adelay=300|300,aresample=48000,volume=1.4[vo];[bg][vo]amix=inputs=2:duration=first:normalize=0[au]" -map "[out]" -map "[au]" $ENC k2.mp4
+# glove clip: hold last frame +1s; tighten the long mid-VO pause (4.4-5.0s)
+ffmpeg -y -loglevel error -i clips/4.mp4 -i clips/vo4.mp3 -i ov/m4a.png -i ov/m4b.png -filter_complex "[0:v]$V,tpad=stop_mode=clone:stop_duration=1[v];[v][2]overlay=enable='lt(t,2.8)'[a];[a][3]overlay=enable='gte(t,2.8)'[out];[0:a]volume=0.35,aresample=48000,apad[bg];[1:a]asplit[x][y];[x]atrim=0.45:4.4,asetpts=N/SR/TB[p1];[y]atrim=5.0:7.4,asetpts=N/SR/TB[p2];[p1][p2]concat=n=2:v=0:a=1,adelay=200|200,aresample=48000,volume=1.4[vo];[bg][vo]amix=inputs=2:duration=longest:normalize=0[au]" -map "[out]" -map "[au]" -t 7 $ENC k2.mp4
 ffmpeg -y -loglevel error -i clips/m5.mp4 -i clips/vo5.mp3 -i ov/m5.png -filter_complex "[0:v]$V[v];[v][2]overlay[out];[0:a]volume=0.35,aresample=48000[bg];[1:a]adelay=300|300,aresample=48000,volume=1.4[vo];[bg][vo]amix=inputs=2:duration=first:normalize=0[au]" -map "[out]" -map "[au]" $ENC k3.mp4
 ffmpeg -y -loglevel error -loop 1 -t 3.5 -i ov/endcard.png -f lavfi -t 3.5 -i anullsrc=r=48000:cl=stereo \
   -filter_complex "[0:v]scale=1188:2112,zoompan=z='min(1+0.0009*on,1.08)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=105:s=1080x1920:fps=30,setsar=1[out]" \
