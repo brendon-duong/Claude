@@ -3346,6 +3346,29 @@ Distinct from `business_agent/dashboard.py`, which renders the **roster** dashbo
 (`https://claude.ai/artifact/4bJeNVa9Drme8zBtky7SZA`) and is a different page for a
 different job. Do not merge them without asking.
 
+## A no-show call is not valid until the roster is checked — 29 Sep 2026
+
+**Florence and Charlotte were both wrongly called Monday 28 Sep no-shows, in this
+same file, earlier the same day.** Both had zero calls in the Zoom logs and no
+withdrawal in `#shift-changes`, which was read as "no-show, unexplained." Both
+came back and said they were never rostered that day — and a search of every
+`#roster-pacificlinkglobal` post for either name, any day, confirmed it:
+**zero mentions, for both, ever.** They were right. There was nothing to
+explain, because there was no shift to miss.
+
+**The reasoning had a hole in it.** "Zero calls + no withdrawal" was treated as
+two states — worked or pulled out — when it is really three: worked, pulled
+out, or **never rostered at all.** The Zoom call logs only show who dialled,
+never who was supposed to, so that third state is invisible to the logs and
+looks identical to a genuine no-show from that data alone.
+
+**The fix, and it is now mandatory:** before anyone is called a no-show off
+the call logs, search `#roster-pacificlinkglobal` for their name on that exact
+day, across every poll running, first. Not on it → it is a gap on our side,
+never a no-show, and say so plainly rather than asking the caller to account
+for a shift they were never given. Only call it a no-show once their name is
+confirmed present on that day's actual roster post.
+
 ## Extras and pull-outs roll forward — Brendon, 29 Sep 2026
 
 *"Always remember extras and people that pull out can be rostered for the next
