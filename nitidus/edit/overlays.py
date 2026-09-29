@@ -103,20 +103,20 @@ def endcard():
     bx, by = 830, 560
     d.ellipse([bx - 120, by - 120, bx + 120, by + 120], fill=YELLOW)
     d.text((bx, by - 38), "SAVE", font=f(BOLD, 44), fill=NAVY, anchor="mm")
-    d.text((bx, by + 24), "33%", font=f(BOLD, 84), fill=NAVY, anchor="mm")
+    d.text((bx, by + 24), "40%", font=f(BOLD, 84), fill=NAVY, anchor="mm")
 
     # price line
     y = 1080
-    old = "$29.95"
+    old = "$50"
     fo, fn = f(SEMI, 64), f(BOLD, 128)
-    ow, nw = d.textlength(old, font=fo), d.textlength("$19.95", font=fn)
+    ow, nw = d.textlength(old, font=fo), d.textlength("$29.95", font=fn)
     x0 = (W - (ow + 40 + nw)) / 2
     d.text((x0, y + 40), old, font=fo, fill=(130, 138, 150))
     d.line([x0 - 6, y + 80, x0 + ow + 6, y + 70], fill=(220, 50, 50), width=7)
-    d.text((x0 + ow + 40, y), "$19.95", font=fn, fill=NAVY)
+    d.text((x0 + ow + 40, y), "$29.95", font=fn, fill=NAVY)
 
     # bundle tiles
-    tiles = [("1 Glove", "$19.95", ""), ("2 Gloves", "$29.95", "MOST POPULAR"), ("3 Gloves", "$41.95", "BEST VALUE")]
+    tiles = [("1 Glove", "$29.95", ""), ("2 Gloves", "$49.95", "MOST POPULAR"), ("3 Gloves", "$64.95", "BEST VALUE")]
     tw_, th_, gap = 300, 210, 24
     tx = (W - (3 * tw_ + 2 * gap)) / 2
     ty = 1270

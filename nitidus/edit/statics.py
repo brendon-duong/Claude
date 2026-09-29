@@ -96,7 +96,7 @@ def logo(im, y, width=300):
 def price_block(im, d, y):
     w = im.width
     fo, fn = SEMI(50), BOLD(96)
-    old, new = "$29.95", "$19.95"
+    old, new = "$50", "$29.95"
     ow, nw = d.textlength(old, font=fo), d.textlength(new, font=fn)
     x0 = (w - (ow + 30 + nw)) / 2
     d.text((x0 + 2, y + 34), old, font=fo, fill=(0, 0, 0))
@@ -109,7 +109,7 @@ def price_block(im, d, y):
 
 def bundles(d, y, w):
     f = SEMI(34)
-    t = "2 for $29.95   |   3 for $41.95"
+    t = "2 for $49.95   |   3 for $64.95"
     tw = d.textlength(t, font=f)
     d.rounded_rectangle([(w - tw) / 2 - 26, y, (w + tw) / 2 + 26, y + 58], 29, fill=(255, 255, 255))
     d.text((w / 2, y + 29), t, font=f, fill=NAVY, anchor="mm")
