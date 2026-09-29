@@ -3427,6 +3427,16 @@ first) — never a generic "who can work?" post to the whole channel as the
 first move. A wide-net post is the fallback once the bench is asked and empty,
 not the default.
 
+**Brendon's own DMs count as bench signals, not just public channel posts.**
+Added 29 Sep after Peterson Lozano's "let me know if you still need one for
+tonight" — sent as a DM to Brendon, not a `#shift-changes` post — sat unread
+against Jess Burgos's NZNP 333 gap for over an hour before it was matched up.
+Brendon reads and replies to people directly, and this agent posts *as* his
+account, so those DMs are readable and are exactly as valid a signal as a
+channel reply. **Before treating a spot as unfilled, check Brendon's own
+recent DM threads for anyone who's already said they're free**, not only
+`#shift-changes` and `#availability`.
+
 This is the same Tier 1/2/3 order already built into the shift watcher Routine
 (`trig_014g7fRRcCsaFeugu2qggo5Z` — see "THE THIRD EXCEPTION" below), which
 already computes the bench-first pick every time someone pulls out. **That
