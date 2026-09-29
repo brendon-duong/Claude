@@ -3369,6 +3369,30 @@ never a no-show, and say so plainly rather than asking the caller to account
 for a shift they were never given. Only call it a no-show once their name is
 confirmed present on that day's actual roster post.
 
+## Verify the roster is actually full, and chase silence — Brendon, 29 Sep 2026
+
+Two more standing rules, from the same 29 Sep roster crisis that produced the
+no-show fix above:
+
+- **"Roster built" is not "roster full."** Never report a call-sheet build or
+  a roster post as done without stating the real numbers: Curia's live-confirmed
+  target for that day (read fresh, not from memory), any extras already rolled
+  in on top of it, and the actual confirmed headcount against that total. If
+  they don't match, say the gap out loud — don't let a partial roster read as
+  a finished one. This was missed on 29 Sep: three same-day pull-outs (Lily,
+  Ann, Shareea) landed after the sheets were built and posted, and the true
+  target (Curia's baseline plus the extras already promised) kept moving
+  further from what was actually confirmed without anyone stating the running
+  gap until asked.
+- **Consistently chase silence, not just refusals.** Availability has three
+  states — available, unavailable, and no answer — and CLAUDE.md has said since
+  September not to collapse the last two. This adds the action: silence is not
+  something to note and move past, it is something to follow up on. Anyone who
+  hasn't said ✅ or ❌ for a shift that still needs filling gets chased directly
+  (DM, or tagged in `#shift-changes`), the same way new hires and bench callers
+  were chased on 29 Sep, not left to be picked up passively if they happen to
+  reply.
+
 ## Extras and pull-outs roll forward — Brendon, 29 Sep 2026
 
 *"Always remember extras and people that pull out can be rostered for the next
