@@ -3372,6 +3372,26 @@ never a no-show, and say so plainly rather than asking the caller to account
 for a shift they were never given. Only call it a no-show once their name is
 confirmed present on that day's actual roster post.
 
+## Message the bench directly the moment a spot frees up — Brendon, 29 Sep 2026
+
+*"You always need to message the bench if a spot frees up."* When a rostered
+caller pulls out, the first move is a **direct message to the bench** (Tier 1:
+anyone who voted ✅ that day and isn't already rostered on it, best 75/25 score
+first) — never a generic "who can work?" post to the whole channel as the
+first move. A wide-net post is the fallback once the bench is asked and empty,
+not the default.
+
+This is the same Tier 1/2/3 order already built into the shift watcher Routine
+(`trig_014g7fRRcCsaFeugu2qggo5Z` — see "THE THIRD EXCEPTION" below), which
+already computes the bench-first pick every time someone pulls out. **That
+Routine currently only emails/DMs the pick to Brendon as a draft — it does not
+message the bench itself**, a deliberate narrowing he accepted on 24 Sep so a
+wrong pick wouldn't reach a real person unproven. 29 Sep is him asking for that
+to change. Until the Routine's prompt is updated to send rather than draft,
+**any interactive session covering a pull-out does this by hand**: check who's
+on the bench for that day before posting anything wider, DM them directly, and
+only open it to the whole channel if the bench doesn't cover it.
+
 ## Verify the roster is actually full, and chase silence — Brendon, 29 Sep 2026
 
 Two more standing rules, from the same 29 Sep roster crisis that produced the
