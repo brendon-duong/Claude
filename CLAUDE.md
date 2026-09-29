@@ -3488,6 +3488,29 @@ no-show fix above:
   were chased on 29 Sep, not left to be picked up passively if they happen to
   reply.
 
+## Verify before assuming which layer broke — 29 Sep 2026, and there is now a skill for it
+
+Three new hires (Jennifer, Lester, Charlotte) each opened the wrong poll's sheet tonight
+and asked what to do. The instinct was to assume a sharing problem and start re-sharing.
+**A full audit of all four polls' Drive permissions — every rostered caller's real email,
+checked against `get_file_permissions` on all four sheets — found zero missing or
+misdirected shares.** All 54 rostered callers, tonight's extras included, already had the
+correct grant on the correct sheet. The actual fault was never permissions: a post naming
+four polls and 54 names asks each caller to find their own row and tab, and three people
+didn't. The fix was a clear, direct per-person message with their own link and the exact
+tab name, not a re-share — and it worked for all three the moment it was sent.
+
+**A wrong-poll complaint and a bad-share complaint look identical from the caller's side,
+and only one of the fixes does anything.** Checking which one it actually is costs one
+`get_file_permissions` call; guessing wrong costs nothing and fixes nothing.
+
+**`.claude/skills/verify-work/SKILL.md` now exists** — load it before reporting any batch
+action (shares, roster posts, sheet writes, name lists) as done. It is a reflex to verify,
+not a new method: where CLAUDE.md already says how to check something (schedule reads,
+Curia row formatting, the sheets.mjs read-back), that exact method still applies. The
+skill's job is making sure the check happens before "done" is said, not replacing what the
+check is.
+
 ## Extras and pull-outs roll forward — Brendon, 29 Sep 2026
 
 *"Always remember extras and people that pull out can be rostered for the next
