@@ -65,14 +65,8 @@ def caption(name, text, y=1180, size=58, highlight=None):
 
 
 def disclaimer():
-    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    font = f(REG, 22)
-    t = "Dramatization. Contains AI-generated imagery and voices."
-    tw = d.textlength(t, font=font)
-    d.text(((W - tw) / 2 + 2, 1792 + 2), t, font=font, fill=(0, 0, 0, 160))
-    d.text(((W - tw) / 2, 1792), t, font=font, fill=(255, 255, 255, 220))
-    im.save(f"{OUT}/disclaimer.png")
+    """Blank placeholder: no on-video AI disclaimer (per client)."""
+    Image.new("RGBA", (W, H), (0, 0, 0, 0)).save(f"{OUT}/disclaimer.png")
 
 
 def endcard():
