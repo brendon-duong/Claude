@@ -3372,6 +3372,36 @@ never a no-show, and say so plainly rather than asking the caller to account
 for a shift they were never given. Only call it a no-show once their name is
 confirmed present on that day's actual roster post.
 
+## "Zoom subscription" means the AU/NZ Unlimited plan, checked for today only — Brendon, 29 Sep 2026
+
+Two scoping rules, settled after a confusing back-and-forth on 29 Sep that
+cost real time: *"When I am talking about Zoom phone subscriptions I am
+talking about the AU/NZ Unlimited assigned, and I am talking about on the
+day."*
+
+- **"Subscription" / "licence" means specifically the `AU/NZ Unlimited
+  Calling Plan`.** A Zoom Phone user having an extension (showing up in
+  `/v2/phone/users`) is NOT the same as having this plan — check the
+  `calling_plans` array on that user, not just whether they exist in the
+  list. Someone can have an extension number and zero calling plans, which
+  means they cannot make a single call despite looking provisioned. That
+  is a real, recurring state — several established callers have hit it.
+- **"Who needs one" and "who's spare" are both scoped to TODAY's shift,
+  never the week.** Don't factor in Thursday's or Friday's rosters when
+  answering a same-day question — someone not working today is a valid
+  swap candidate for today regardless of what they're doing later in the
+  week, and Brendon will re-sort it again for the next day it matters.
+  Answering with a whole-week view when he asked about today produced a
+  wrong "you're short" conclusion that a same-day-only view corrected.
+
+**Also worth knowing from that session: Brendon can and does reassign plans
+himself in the Zoom Admin Portal while a session is mid-analysis.** The
+`/v2/phone/users` read is live, not cached — if the numbers shift between
+one fetch and the next with no error, the live account state has genuinely
+changed, most likely because he is actively working the Admin Portal in
+parallel. Re-fetch fresh rather than trusting an older read, and don't
+assume a tool bug when two consecutive reads disagree.
+
 ## Message the bench directly the moment a spot frees up — Brendon, 29 Sep 2026
 
 *"You always need to message the bench if a spot frees up."* When a rostered
