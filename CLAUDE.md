@@ -146,6 +146,14 @@ directory or into this file. That is the whole of the memory.
 
 ### Already settled, do not re-ask
 
+- **Always share call sheets to `salvadorbanila041284@gmail.com` for Salvador
+  Banila, never his Slack address.** Brendon, 29 Sep 2026. His Slack/profile
+  email is `salvadorbanila@yahoo.com`, and Drive's `share_file` rejects it
+  outright with "invalid argument" — tested twice, consistent failure, not a
+  fluke. He gave Brendon the Gmail directly in `#help` on 27 Sep when asked
+  for a non-Yahoo address. Share every call sheet to the Gmail, and whenever
+  he's rostered, tell him directly in the confirmation message to check that
+  same Gmail account rather than assuming he'll find it.
 - **Always share call sheets to `lisondranilyn@gmail.com` for Nilyn, every
   time, not just her Slack address.** Brendon, 29 Sep 2026. She has at least
   three Google identities in play (her Slack account's Apple private-relay
