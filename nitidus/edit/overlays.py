@@ -42,6 +42,8 @@ def wrap(draw, text, font, maxw):
 
 
 def caption(name, text, y=1180, size=58, highlight=None):
+    if name[0] in "gm":
+        size = 64
     """TikTok-style white rounded boxes, one per line, black text."""
     im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
@@ -154,6 +156,15 @@ CAPS = [
     ("h1", "When your mother-in-law hugs you... and leaves wearing your dog", 1150, ["wearing", "dog"]),
     ("h2", "The in-laws are 5 minutes away. My couch:", 1150, ["5", "minutes"]),
     ("h3", "Dog moms: has your mother-in-law ever commented on the dog hair?", 1150, ["mother-in-law"]),
+    # 50+ mums set
+    ("g1", "The grandkids are coming Sunday... and look at my couch", 1150, ["grandkids"]),
+    ("g2", "My back can't handle the vacuum anymore", 1150, ["back"]),
+    ("g3", "I was buying lint roller refills every single week", 1150, ["every", "week"]),
+    ("m1a", "I've had dogs my whole life", 1250, ["whole", "life"]),
+    ("m1b", "Then my daughter sent me this", 1250, ["daughter"]),
+    ("m4a", "No bending. No sticky sheets.", 1250, ["no"]),
+    ("m4b", "One swipe and it rolls right up", 1250, ["one", "swipe"]),
+    ("m5", "Now the grandkids can roll around all they want", 1250, ["grandkids"]),
 ]
 
 if __name__ == "__main__":
