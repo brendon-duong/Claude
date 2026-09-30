@@ -146,6 +146,11 @@ directory or into this file. That is the whole of the memory.
 
 ### Already settled, do not re-ask
 
+- **Lily (Lilibeth Pinca) is unavailable Wednesday 30 Sep through Thursday 1 Oct — family
+  matters.** She said so herself in `#shift-changes`, 30 Sep. Do not roster her on any poll
+  in that window; she's back in the pool from Friday 2 Oct. Kim Rikka Tumbiga covered her
+  Wednesday Nelson 400 spot.
+
 - **Always share call sheets to `salvadorbanila041284@gmail.com` for Salvador
   Banila, never his Slack address.** Brendon, 29 Sep 2026. His Slack/profile
   email is `salvadorbanila@yahoo.com`, and Drive's `share_file` rejects it
