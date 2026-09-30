@@ -3835,3 +3835,30 @@ Sharing with a real caller stays behind his say-so — it is outward-facing.
   **no answer**. Never collapse the last two. Leave is normal; silence is a
   caller drifting off, and they need different responses.
 - Rates are per **active week**, so leave never reads as unreliability.
+
+## Wed 30 Sep no-shows, settled 1 Oct — only one was real
+
+Of six people who didn't call on 30 Sep, only **Jean Carla Sumarago** was an actual
+no-show — no message anywhere, before, during or after, confirmed by a full search of her
+Slack history. **Lovely Salva was wrongly flagged as a no-show and is not one** — she
+posted in #shift-changes before the shift even started saying her internet was down, and
+followed up mid-shift confirming it never came back and she'd work the next day. Melburne,
+Yvonne, Angeli and Lily all gave notice too (pull-outs, not no-shows). Don't re-flag any of
+these four as no-shows from call-log silence alone — check `#shift-changes` and DM threads
+first, not just the Zoom logs.
+
+## Revenue rate, confirmed 1 Oct: $19.50/hour, 3hr shifts = $58.50/caller-shift
+
+Derived from Curia's own schedule-change email math (`$2,164.50 / 111.0 hours` for a
+37-caller-shift Sunday) and confirmed against every other day in the same table. Use this
+rate for any revenue question: `caller-shifts × 3 × 19.50`. Caller-shifts come from the
+Curia schedule's `PL Staff Confirmed` column (or the live roster count when the sheet is
+stale), summed across every poll running that day.
+
+**The schedule sheet lags real-time asks from Curia.** On 1 Oct, Brendon had a verbal ask
+for "5 extra for Hauraki-Waikato 500" plus "4 more, poll TBD" for Thursday — neither
+appears in the Curia schedule Google Sheet (`modifiedTime` unchanged since 30 Sep 04:13
+UTC). When a same-day headcount from Brendon disagrees with the sheet, the sheet is not
+necessarily stale/wrong here — it simply hasn't caught up to a phone call or verbal ask
+yet. Trust Brendon's own count for anything Curia asked for same-day; don't wait for the
+sheet to catch up before acting on it.
