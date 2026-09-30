@@ -3536,6 +3536,71 @@ In practice: when a caller pulls out, note it here or wherever the roster
 build reads from, and when the next day's roster is drafted, check both the
 pull-out list and the unused-volunteer list before finalising who's on it.
 
+## Wednesday 30 Sep 2026 — the five-poll build, and two pool findings worth keeping
+
+Full call sheets built for all five Wednesday polls (NZNP 333, Hauraki-Waikato 500, Waiariki
+500, Rangitikei 400, Nelson 400 — 48 tabs), shared to every rostered caller's own email
+(verified with `get_file_permissions` on all five sheets — nothing missing), posted to
+`#call-sheets-pacificlinkglobal` with real `<@ID|Name>` tags (verified by reading the post
+back). Chery Custadillo and Francine Tena went on NZNP 333 per Brendon's ask.
+
+**The 50 vs 53 confusion was a stale number, and the true count is checkable in one call.**
+Brendon was told "50 call sheets" at some point Tuesday night; the real final count — counted
+directly from `sheets.mjs inspect` on all four Tuesday spreadsheets — was **54 tabs** (NZNP
+333: 10, ACT 1000: 13, Hauraki-Waikato 500: 26, Nelson 400: 5), matching his own Slack thread's
+"53 of 53" then "54 of 53" (Gina, one extra above target). If a caller-count question ever
+comes up again, `sheets.mjs inspect <sheetId>` on every day-sheet and sum the tab counts —
+don't trust a number carried in conversation.
+
+**Three more number pools now have a home, two of them permanently folder-restricted:**
+
+- **`NZ Numbers 2026 - 2027`** (`1rB4tzZTg8cGr7OUR2H-009L1YmwLO9-SqvUhVh-YmAE`) and
+  **`Nelson Numbers September 2026`** (`13nX6NwK41iEv2-7l6hCZ8VyzoYxxEIaRZ809o8JrDew`) sit in
+  the **shareable** folder (`0AA2IL8tCFjvlUk9PVA`) — `sheets-bot` can shade and rename them
+  directly. NZNP 333 and Nelson 400 both draw from these.
+- **`Rangitikei Numbers September 2026`** (`1uhH_GcejhzQLIqhSuHib9pJeR6YjzJcZ4qOCN4N4ogY`),
+  **`Waiariki Numbers Sep 2026`** (`19IlDK71WL7y4Z4ZXMy4TTydQrhH2H42dyY447-FyIpo`), and
+  **`Hauraki Waikato Numbers Sep 2026 Part 2`** (`1KAS09Qwhej3vCTDyp1dhZ4SRvTKKmTUy`, David
+  Farrar's own .xlsx) all sit in the **folder-restricted** parent
+  (`1V7Hfhhs2mp1VEwDkkxlZLKSj1n0FvC7T`) — `share_file` to `sheets-bot` fails with "The caller
+  does not have permission" even though Brendon owns two of the three. **Shading is not
+  possible on any of the three.** The workaround used: `download_file_content` (with
+  `exportMimeType` to force a real .xlsx on the two native sheets), read and allocate locally
+  with `openpyxl`, then `update_file` (metadata-only, works regardless of the restriction) to
+  write the allocation into the title instead of the cells — per the existing "when shading is
+  blocked, put it in the title" rule.
+- **Waiariki's pool has non-sequential IDs — do not compare `ID >= n` to find a resume
+  point.** Its title said "USE FROM 1681" with no word ROW, and the minimum ID anywhere in the
+  4,412-row file is 11226 — there is no ID near 1681 at all, so `ID >= 1681` trivially matched
+  row 2 and would have re-issued the whole pool from the start. Read as a **row** reference
+  instead (row 1681 = the 1680th data row): that lands on ID 32023, which is a real, unused
+  number. **Confirm which reading a bare "USE FROM n" title means by checking whether an ID
+  that low actually exists in the file — if it doesn't, it's a row.**
+- **Hauraki-Waikato Part 2 ran out.** Only 1,181 numbers were left (IDs 11820–13000) against
+  2,000 needed for 10 callers — confirmed by loading the whole file and finding no rows past
+  13000, and confirmed there is no Part 3 by searching Drive for every "Hauraki" title. Split
+  118–119 each per the standing even-split rule and flagged it in the call-sheet post. **Ask
+  Curia for a fresh Hauraki-Waikato pool before this poll runs again** — Part 2 is now titled
+  `ALL USED`.
+- **Some fresh pools' phone numbers arrive unformatted** (`hw2.xlsx`'s "Phone number" column
+  was raw digits like `0212922470`, no spaces) where others (Rangitikei, Waiariki, NZ Numbers,
+  Nelson) already carry NZ-grouped spacing. `business_agent.calllog_export._group_nz` handles
+  either — it expects a national-format (`0`-prefixed) string, not `+64`, so call it directly
+  on the raw digits rather than through `format_nz` (which expects the Zoom `+64` shape).
+
+**Live pull-out mid-build, handled per the standing 3rd/"roll forward" rules:** Lily withdrew
+from tonight's Nelson 400 spot (family matters, out through Friday) partway through this
+build. Posted the opening to `#shift-changes` immediately, no name-and-shame — per "extras and
+pull-outs roll forward," she goes back in the pool for whenever she's next available, not held
+against her.
+
+**Two no-show covers from Tuesday are still unfilled as of this build.** Brendon's own post
+(09:26am, `#shift-changes`) asked for "two people who missed their last shift with no word"
+without naming them — checked Tuesday's Zoom logs against every #shift-changes withdrawal and
+every near-zero-activity name (Karla, Shareea, Lily, Charlene) already had a same-night
+replacement with notice given, so the two silent no-shows are still unidentified. Don't
+manufacture an answer Brendon himself hasn't given — leave it open and say so.
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,
