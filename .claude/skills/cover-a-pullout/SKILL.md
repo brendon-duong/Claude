@@ -63,3 +63,27 @@ Query the caller directory for zero-history people explicitly — don't rely on 
 "active/occasional" filter, it silently excludes exactly the tier this skill is about.
 If the directory itself might be stale (built on a fixed date, per its own notes), say so
 rather than treating an empty query result as proof nobody's available.
+
+## If nobody covers it same-day, say out loud that it rolls forward — don't let it just sit
+
+"Rolls forward" is two separate things, and both need to be stated explicitly or they get
+lost as an unresolved loose end in old chat history — which is what nearly happened to
+Melburne's NZNP 333 block on 30 Sep (Peterson declined, Lester never replied, and the block
+sat unresolved until someone went looking).
+
+1. **The caller's own standing rolls forward.** A pull-out is never held against them —
+   they go back in the pool for the *next day they're available*, ranked the same as
+   anyone else on the 75/25 score. Never quietly drop them from a future roster. This part
+   tends to happen naturally, because nobody's actively punishing anyone.
+2. **Their specific undialled number block rolls forward too, and this part does NOT
+   happen automatically.** If the three tiers above all come up empty same-day, the block
+   doesn't get abandoned or left as "already tried, move on." It carries to that **same
+   poll's next running day** — check the schedule for when the poll actually runs again,
+   don't assume it's simply tomorrow (a poll doesn't necessarily run daily, and the
+   schedule moves under you — see the Rangitikei/Nelson-to-Friday move the same week).
+
+**Before ending coverage on any shift that had an unfilled pull-out, write down explicitly
+which block carries forward and to which date** — in `#shift-changes` or wherever the gap
+was originally posted, not left implicit. A block that "rolls forward" only in principle,
+with no one told when or where, is a block that gets rediscovered by accident days later
+or never dialled at all.
