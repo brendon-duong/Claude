@@ -3545,6 +3545,40 @@ In practice: when a caller pulls out, note it here or wherever the roster
 build reads from, and when the next day's roster is drafted, check both the
 pull-out list and the unused-volunteer list before finalising who's on it.
 
+## A pull-out is a number block unworked, not just a headcount gap — Brendon, 30 Sep 2026
+
+**Checking a poll's headcount against Curia's target is never enough.** Each
+caller dials their own distinct ID range on the call sheet, not a shared pool
+— so a poll can read "over target" on names while a pulled-out caller's entire
+200-number block sits completely undialed, because whoever else is on the poll
+already has their own separate range and does not automatically also pick up
+the vacated one.
+
+**Found live 30 Sep 2026, all four missed the same way:** NZNP 333 read "12 of
+10 needed" after Melburne pulled out, which was reported as "no gap" — wrong.
+His block (ID 31001–31200) was never reassigned. Same poll, same night:
+Yvonne pulled out too (block 32401–32600) and Jennifer Tarinay's later
+confirmation was read as covering it, but Jennifer's tab was a **fresh** block
+(32601–32800) — Yvonne's original numbers were still untouched. Same again on
+Nelson 400: Kim Rikka Tumbiga was confirmed as "covering Lily's spot," and got
+her own fresh block (3001–3200) — Lily's actual numbers (2401–2600) were never
+reassigned. Three of four pull-outs that night looked resolved and were not;
+only Angeli's (Rangitikei 400, 201–400) was being correctly chased as a real
+gap.
+
+**The fix, every time someone pulls out:** read the specific number range off
+their own tab first (`sheets.mjs read '<sheet>' "'<Name>'!A1:B5"`, the "YOUR
+NUMBERS" row) before deciding whether the poll is actually covered. Get a
+caller onto that **exact range** — either a new person, or someone already on
+the poll picking up a second block once done with their own — never just a
+fresh block for whoever replies next, which leaves the original numbers
+orphaned. If nobody can cover it same-day, the block rolls forward to be
+dialled the next day rather than being lost, the same way a caller's whole
+day rolls forward when their poll itself moves (see Lily/Rangitikei-and-
+Nelson-to-Friday, above). **Never report a poll as "covered" from headcount
+alone** — check every stale tab's number range against whether it has
+actually been picked up by someone.
+
 ## Wednesday 30 Sep 2026 — the five-poll build, and two pool findings worth keeping
 
 Full call sheets built for all five Wednesday polls (NZNP 333, Hauraki-Waikato 500, Waiariki
