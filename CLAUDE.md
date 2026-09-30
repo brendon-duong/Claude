@@ -146,10 +146,14 @@ directory or into this file. That is the whole of the memory.
 
 ### Already settled, do not re-ask
 
-- **Lily (Lilibeth Pinca) is unavailable Wednesday 30 Sep through Thursday 1 Oct — family
-  matters.** She said so herself in `#shift-changes`, 30 Sep. Do not roster her on any poll
-  in that window; she's back in the pool from Friday 2 Oct. Kim Rikka Tumbiga covered her
-  Wednesday Nelson 400 spot.
+- **Lily (Lilibeth Pinca) is unavailable for the rest of the week of 30 Sep — family
+  matters.** Corrects an earlier note here that said she was back Friday 2 Oct; she told
+  Brendon directly (via WhatsApp, relayed) later the same day that it's the rest of the
+  week, not just through Thursday. Do not roster her on any poll through Fri 2 Oct — not
+  even Wgtn 1000, which she was already down for. Per "extras and pull-outs roll forward,"
+  this is not held against her; she goes back in the pool whenever she's next available.
+  Kim Rikka Tumbiga covered her Wednesday Nelson 400 spot; Ms Jen (first on the Friday
+  reserve list) was asked to cover her Friday Wgtn 1000 spot.
 
 - **Always share call sheets to `salvadorbanila041284@gmail.com` for Salvador
   Banila, never his Slack address.** Brendon, 29 Sep 2026. His Slack/profile
