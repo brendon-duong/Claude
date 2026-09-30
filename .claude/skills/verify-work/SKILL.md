@@ -1,6 +1,6 @@
 ---
 name: verify-work
-description: Verify your own output before telling Brendon something is done — call sheets, shares, roster posts, Curia-facing sheet writes, or any batch action touching multiple callers. Load this before reporting a task complete whenever it involved more than one person or a write to a shared file.
+description: Verify your own output before telling Brendon something is done — call sheets, shares, roster posts, Curia-facing sheet writes, or any batch action touching multiple callers. Load this before reporting a task complete whenever it involved more than one person or a write to a shared file. Building or posting ANY call sheet requires the survey-link check below — this is the major-fuck-up item, check it every time, not just when asked.
 ---
 
 # Verify before you say "done"
@@ -20,6 +20,41 @@ share, a wrong link, or a cluttered post — and each has a different fix. Verif
 costs one read call; re-sharing the wrong thing costs nothing and fixes nothing.
 
 ## The checklist, by what you just did
+
+**Built or posted a call sheet — THE SURVEY LINK, EVERY TAB, EVERY TIME. THIS IS THE MAJOR ONE.**
+Found 30 Sep 2026: all 14 tabs on that night's NZNP 333 sheet carried the SAME wrong survey
+link — Tuesday's (`CD369819`), not Wednesday's (`DE393DF2`) — and had carried it since the
+sheet was built that morning, before the shift even started. Every active caller had been
+dialing against it for over two hours before Brendon asked "is everyone using the link
+that is meant for Wednesday" and it was actually checked. Nobody had noticed, because
+**every tab agreed with every other tab** — the stale link was copied consistently across
+the whole sheet, so cross-tab comparison alone would have found nothing wrong. The other
+four polls that same night (Rangitikei 400, Nelson 400, Hauraki-Waikato 500, Waiariki 500)
+were all correct — this isn't rare enough to skip checking, and it isn't universal enough
+to assume either.
+
+**Why this is the major one and not an ordinary nit:** a wrong survey link is not an
+internal inconvenience like a bad share or a confusing post. It means live call data —
+real completed surveys, mid-shift — goes into Curia's WRONG dataset. That is a data
+integrity problem on the client's side, not just ours, and it cannot be un-sent once a
+caller has submitted through it.
+
+**The check, before any call sheet is shared or posted, not after a complaint:** find that
+poll's actual current-day `Live:` link from Curia's own source email (Gmail, search
+`from:curiaresearch@gmail.com` plus the poll name — David Farrar's forward carries `Live:`
+and `Test:` links; use `Live:` only, never `Test:`, and never open either — just read the
+URL as text) and diff it character-for-character against the `SURVEY LINK` cell on the
+sheet. Do this for every poll being built or reviewed that day, not just the one someone
+flagged. If no dated source email can be found for a poll (it happens — some polls only
+got one email at setup and never a daily refresh), say so explicitly rather than assuming
+the sheet's existing link is current.
+
+**If a stale link is found on a live shift:** fix the cell on every affected tab
+immediately, then post to the affected callers by name in `#call-sheets-pacificlinkglobal`
+telling them to stop and switch — a call sheet delivery correction, already covered by the
+standing exception to post there without asking. Flag to Brendon separately, once, that
+some data may already be logged against the wrong survey — whether to tell Curia is his
+call, not something to act on unilaterally.
 
 **Shared a file with someone (`share_file`):** `share_file` never reports whether the
 grant landed correctly on the *right* file — it just returns success. Read the permissions
