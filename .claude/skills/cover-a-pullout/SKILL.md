@@ -87,3 +87,30 @@ which block carries forward and to which date** — in `#shift-changes` or where
 was originally posted, not left implicit. A block that "rolls forward" only in principle,
 with no one told when or where, is a block that gets rediscovered by accident days later
 or never dialled at all.
+
+## A rolled-forward shortfall is ADDITIVE — "they're already on tomorrow's roster" does NOT cancel it
+
+**This is the mistake that keeps recurring, stated plainly by Brendon after it happened
+again on 1 Oct:** a caller already being rostered on the next day's shift is a completely
+separate fact from whether their MISSED shift's shortfall has been covered. Do not let the
+first fact make you think the second is resolved.
+
+Concretely: Melburne and Yvonne pulled out of Wednesday 30 Sep's NZNP 333, and their
+undialled blocks (31001–31200, 32401–32600) never got covered that night. Both of them are
+*also* separately rostered on NZNP 333 for Thursday 1 Oct. **Asked "who's missing from
+yesterday that needs to be added to today's total," the wrong answer is "nobody, they're
+already on today's roster."** That confuses their own Thursday shift (already counted) with
+Wednesday's unfilled shortfall (a separate slot that still needs a body on it, on top of
+whatever Thursday already has them down for). The right answer counts the shortfall as an
+**addition** to today's headcount — it can be filled by the same person doing extra on top
+of their own numbers, or by someone else entirely, but either way it is additive, not
+already-covered-by-coincidence.
+
+**The general rule: when totalling who's needed "today," always ask two separate
+questions per person who missed a prior shift:**
+1. Are they confirmed for *today's own* roster? (a yes here answers nothing about #2)
+2. Is the shortfall from the shift *they missed* covered yet? (check the specific number
+   block, not just whether the person is accounted for anywhere)
+
+Only "yes" to both means nothing needs adding for that person. A "yes" to #1 and an
+unchecked or "no" on #2 still means **add it to today's total**.
