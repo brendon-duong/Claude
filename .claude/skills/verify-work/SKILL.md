@@ -1,6 +1,6 @@
 ---
 name: verify-work
-description: Verify your own output before telling Brendon something is done — call sheets, shares, roster posts, Curia-facing sheet writes, or any batch action touching multiple callers. Load this before reporting a task complete whenever it involved more than one person or a write to a shared file. Building or posting ANY call sheet requires the survey-link check below — this is the major-fuck-up item, check it every time, not just when asked.
+description: Verify your own output before telling Brendon something is done — call sheets, shares, roster posts, Curia-facing sheet writes, or any batch action touching multiple callers. Load this before reporting a task complete whenever it involved more than one person or a write to a shared file. Building or posting ANY call sheet requires two checks every time, not just when asked: the survey-link-on-the-sheet check, and the actual-sheet-URL-in-the-post check — both are major-fuck-up items with their own incidents below.
 ---
 
 # Verify before you say "done"
@@ -55,6 +55,21 @@ telling them to stop and switch — a call sheet delivery correction, already co
 standing exception to post there without asking. Flag to Brendon separately, once, that
 some data may already be logged against the wrong survey — whether to tell Curia is his
 call, not something to act on unilaterally.
+
+**Posted a call-sheet link to `#call-sheets-pacificlinkglobal` — THE ACTUAL URL MUST BE IN THE
+POST, EVERY TIME.** Found 1 Oct 2026: all four of that day's call-sheet posts (Corp 1000,
+NZNP 333, Hauraki-Waikato 500, Waiariki 500) said "your call sheet and survey link are in
+your tab, shared to your own email" and tagged everyone — but never once pasted the actual
+Google Sheets URL. Every caller on every poll that day had nothing to click. It surfaced
+only when Jane Wareei said she "hadn't got the call sheet link" — and the fix was not
+re-sharing (she was already shared correctly) or re-explaining the survey link (that was
+also already correct on her tab) — it was that the post itself never carried a link at all.
+`share_file` succeeding and the post "sounding complete" are not the same thing as a human
+being able to open the sheet. **Before posting to `#call-sheets`, read the message back and
+confirm a real `<https://docs.google.com/spreadsheets/...>` URL is visibly in the text for
+every poll named** — not implied, not "shared to your email," an actual link. This is a
+separate check from the survey-link-on-the-sheet check above: that one verifies the link
+*inside* the tab is correct; this one verifies the link *to* the tab is in the post at all.
 
 **Shared a file with someone (`share_file`):** `share_file` never reports whether the
 grant landed correctly on the *right* file — it just returns success. Read the permissions
