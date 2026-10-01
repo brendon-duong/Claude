@@ -3862,3 +3862,25 @@ UTC). When a same-day headcount from Brendon disagrees with the sheet, the sheet
 necessarily stale/wrong here — it simply hasn't caught up to a phone call or verbal ask
 yet. Trust Brendon's own count for anything Curia asked for same-day; don't wait for the
 sheet to catch up before acting on it.
+
+## A rolled-forward shortfall is ADDITIVE to today's total — it does not cancel out, Brendon 1 Oct 2026
+
+Got this wrong the same day it was supposedly already fixed: asked who from Wednesday's
+no-shows needs adding to Thursday's headcount, answered "nobody, Melburne and Yvonne are
+already on Thursday's roster" — wrong. **Being rostered on today's shift is a completely
+separate fact from whether the shift THEY MISSED has been covered.** Melburne's and
+Yvonne's Wednesday NZNP 333 blocks (31001–31200, 32401–32600) were never picked up by
+anyone; that shortfall rolls onto NZNP 333's next running day as an **addition** to that
+day's total, on top of — never cancelled by — Melburne and Yvonne already having their own
+separate Thursday slot. Brendon, verbatim: *"the shift rolls over to today, so then you
+need to make that a memory... that shift can be assigned to someone else."*
+
+**When totalling who's needed "today," ask two separate questions per person who missed a
+prior shift — a "yes" on the first answers nothing about the second:**
+1. Are they confirmed for *today's own* roster?
+2. Is the shortfall from the shift *they missed* actually covered (check the specific
+   number block, not just whether the person is accounted for anywhere)?
+
+Full detail and the "additive, not cancelled" framing live in
+`.claude/skills/cover-a-pullout/SKILL.md` — load it the moment a pull-out, a rolled-forward
+block, or a "how many do we need today" question comes up.
