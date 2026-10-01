@@ -29,6 +29,13 @@ anything else below, then work the tiers in parallel with it.
    `shifts_24d == 0` (or equivalent: zero shifts in the directory) and go through them by
    hand. A missing Zoom Phone extension does NOT disqualify anyone here — Brendon
    reassigns licences from the pool on the day. Don't filter them out for it.
+
+   **Check that day's own ❌ vote before DMing anyone in this tier.** Found 1 Oct 2026:
+   batch-DM'd 13 never-worked people for today without checking today's availability
+   reactions first, and 5 of them had already voted ❌ for that exact day (Jellame Malicay,
+   Hermi, Clarice Anne Almodovar, Jonnelle Patric Lumactod, Jean Labora). A ❌ is the one
+   real "no" this skill already treats as final — pull that day's reaction list and exclude
+   anyone on it before messaging the never-worked tier, not after.
 3. **Tier 3 — people with history who didn't vote.** Silence isn't refusal; chase it the
    same as any other gap.
 
