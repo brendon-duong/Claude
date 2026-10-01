@@ -3443,6 +3443,38 @@ changed, most likely because he is actively working the Admin Portal in
 parallel. Re-fetch fresh rather than trusting an older read, and don't
 assume a tool bug when two consecutive reads disagree.
 
+## ONLY ASSIGN NEW ZEALAND PHONE NUMBERS — NEVER AUSTRALIAN — Brendon, 1 Oct 2026
+
+Found the hard way, live, 1 Oct: `GET /v2/phone/numbers?type=unassigned` returned
+a mixed pool — mostly NZ DIDs but a few Australian toll numbers in the same
+list, with nothing in the response distinguishing "pick me" from "don't." The
+first assignment attempt grabbed whichever came back first in the list, which
+happened to be `+61 2 8359 8490` (Australia), and put it on a caller (Evangeline
+Panes / giegie) who already had a correct NZ number — leaving her with two
+numbers, one of them wrong, until it could be removed.
+
+**The rule: every number assigned to a caller must be a New Zealand number.**
+Check the `location` field on each entry from `/v2/phone/numbers` (or the
+leading `+64` on the number itself) before assigning — never assign the first
+unassigned result without checking country first. This is a NZ political phone
+poll operation; an Australian caller ID on an outbound call is wrong regardless
+of whether the call itself goes through.
+
+**Before assigning anyone a number at all, check whether they already have one.**
+The Admin Portal's Number(s) column can read `--` when it is actually just
+stale/not yet loaded — Evangeline already had `+6448878950` assigned, and the
+only reason the mistake was caught was reading her live `/v2/phone/users`
+record back immediately after writing. Read-before-write applies here exactly
+as it does for calling plans: GET the user, look at `phone_numbers[]`, and only
+assign if that array is genuinely empty.
+
+**Removing a wrongly-assigned number needs ITS OWN scope**, same pattern as the
+calling plan scopes: `phone:write:user_number:admin` to assign, a *separate*
+`phone:delete:user_number:admin` to remove. Confirmed live 1 Oct — the write
+scope alone could not undo its own mistake. If both aren't added up front, a
+bad assignment can only be fixed by Brendon directly in the Admin Portal, not
+by the session that made it.
+
 ## Message the bench directly the moment a spot frees up — Brendon, 29 Sep 2026
 
 *"You always need to message the bench if a spot frees up."* When a rostered
