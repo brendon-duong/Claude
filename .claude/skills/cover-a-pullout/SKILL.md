@@ -58,9 +58,20 @@ exact range in both the `#shift-changes` post and the direct ask.
 
 - **`#shift-changes-pacificlinkglobal`** for offers, swaps and withdrawals — a pickup
   offer naming specific days is narrower than a ✅ vote and the narrower one wins.
-- **Brendon's own DM threads** — a caller often tells him directly rather than posting
-  publicly, and this agent posts as his account, so those DMs are readable. A DM offer
-  sitting unread is not the same as nobody volunteering.
+- **Brendon's own DM threads — read them directly, don't rely on a channel search to
+  surface them.** Found 2 Oct 2026: Brendon said a caller (Francine Tena) "just said she
+  couldn't work," but `slack_search_public_and_private` across all channel types —
+  including `im` — came back empty for her name that day, twice, with different keyword
+  combinations. The decline was real: a DM to Brendon at 13:44 ("sore throat... won't be
+  able to take tonight's shift"), invisible to search but sitting right there in the
+  thread. **The fix is `slack_read_channel` with the caller's own user ID as the
+  `channel_id`** (it reads DM history when given a user_id, no separate DM-search tool
+  needed) — not a keyword search, which can silently miss a real message. Before telling
+  Brendon "nothing in Slack says that" about any specific caller, read that caller's DM
+  thread with him directly; only report it truly unfindable once that's come up empty too.
+  A caller often tells him directly rather than posting publicly, and this agent posts as
+  his account, so those DMs are readable. A DM offer or decline sitting unread is not the
+  same as nobody volunteering or nobody pulling out.
 - **Unused volunteers from earlier in the week** ("extras") — anyone who put their hand up
   and wasn't needed that day is first in line for the next opening, not a cold ask.
 
