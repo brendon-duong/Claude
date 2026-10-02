@@ -3443,6 +3443,14 @@ changed, most likely because he is actively working the Admin Portal in
 parallel. Re-fetch fresh rather than trusting an older read, and don't
 assume a tool bug when two consecutive reads disagree.
 
+**When a roster assignment fails with "You do not have enough calling plan,"
+that means zero spare licences — load `.claude/skills/reassign-zoom-capacity/SKILL.md`
+and free one from a confirmed-idle caller rather than reporting it as a blocker.**
+Standing authorisation from Brendon, 2 Oct 2026 — see the fifth posting/action
+exception under "How Brendon works" below. The skill has the exact API calls and,
+more importantly, what counts as a safe donor (an explicit same-day decline, not
+just "not on today's roster").
+
 ## ONLY ASSIGN NEW ZEALAND PHONE NUMBERS — NEVER AUSTRALIAN — Brendon, 1 Oct 2026
 
 Found the hard way, live, 1 Oct: `GET /v2/phone/numbers?type=unassigned` returned
@@ -3763,6 +3771,28 @@ manufacture an answer Brendon himself hasn't given — leave it open and say so.
   email, no WhatsApp, no message to Curia. **Four posting exceptions now exist —
   availability, roster, covering a pull-out, and the call sheet — and they are
   exactly four.**
+
+- **A FIFTH EXCEPTION, granted 2 Oct 2026 — reassigning Zoom calling capacity.**
+  This one is an action, not a post. Brendon asked for the plan/number
+  reassignment done earlier that session (5 blocked callers fixed by freeing 5
+  confirmed-idle callers' plans and numbers) to become something handled
+  automatically: *"Going forward are you able to use this as a skill so I don't
+  need to do it in the future."*
+
+  So, without asking first: **when a rostered caller has no AU/NZ Unlimited
+  calling plan and assigning one 400s with "You do not have enough calling
+  plan," find a caller who has explicitly said — that same day, in Slack — that
+  they are not working, and move their plan and number onto the blocked
+  caller.** `.claude/skills/reassign-zoom-capacity/SKILL.md` has the exact API
+  calls and, the part that actually matters, what counts as a safe donor.
+
+  **The condition that makes this safe is the same shape as the other four: do
+  the real work, don't just take the shortcut.** "Safe donor" means an explicit,
+  same-day decline — never someone merely absent from today's roster (they can
+  still be picked up as a bench cover), never someone on a reserve/backup list,
+  never a heavy regular likely to need the line back within a day or two. If no
+  caller cleanly qualifies, say so and tell Brendon the account needs more
+  licences rather than stretching the bar to manufacture a donor.
 
   **TAG THE ROSTERED CALLERS IN THE POST — Brendon, 25 Sep:** *"You got to tag the
   team members working too going forward so they are able to see it."* A call sheet
