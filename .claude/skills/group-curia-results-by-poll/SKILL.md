@@ -42,12 +42,25 @@ row; nothing in any row is recalculated or retyped.
 
 1. Read the day's block in full (`sheets.mjs read`) to get every row's exact values.
 2. Re-order in memory, grouped by Poll, stable within each group.
-3. Write back to the same row range (`sheets.mjs write '<sheet>' '<range>' @payload.json`)
-   — same range, same row count, just reordered content. Formatting (white fill,
-   non-bold) is uniform across all data rows in a block already, so a value-only write
-   doesn't need a follow-up `copyformat` pass the way a brand-new block does.
-4. Read the range back and confirm every row's data matches what you intended to write,
-   per `verify-work` — a reorder is still a write to a sheet Curia reads.
+3. **Pad every row to the same column count before writing** — same number of elements
+   per row, empty string `""` for a missing Shift Note, never a short array. The write is
+   a `pass JSON directly as the write command's 3rd argument`, not `@file` (`@file` is
+   only for the whole-workbook tabs payload). **Found 5 Oct 2026: skipping the padding
+   corrupts the sheet silently.** The Sheets API only overwrites the columns a row
+   actually supplies — a 9-value row (no note) leaves column K's PREVIOUS content in
+   place rather than clearing it. Since a reorder moves rows to new positions, a caller
+   with no note who lands in a row that used to belong to someone WITH a note inherits
+   that stranger's old note. First attempt on Sunday 4 Oct did exactly this to 7 rows
+   (April Rose Suzon got Ann Caymo's old "Zoom issue" note, Rhodora Trujillo got Jayzel's
+   break note, etc.) — caught only because step 4 below compared the read-back against
+   the intended payload row by row, not just eyeballed it. Pad every row to the full
+   column width (name through notes, 10 columns on this sheet) every time.
+4. Write back to the same row range.
+5. Read the range back and confirm every row's data matches what you intended to write
+   EXACTLY, cell by cell against the payload actually sent — per `verify-work` — not just
+   that the names and totals look right. A reorder is still a write to a sheet Curia
+   reads, and the padding bug above is exactly the kind of error that looks fine at a
+   glance and is wrong in one column.
 
 ## If the write gets blocked by the harness
 
