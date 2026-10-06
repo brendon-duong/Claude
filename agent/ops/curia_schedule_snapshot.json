@@ -1,36 +1,8 @@
 {
   "schedule": {
-    "2026-09-30": {
-      "Hauraki-Waikato 500": 10,
-      "NZNP 333": 10,
-      "Nelson 400": 5,
-      "Rangitikei 400": 10,
-      "Waiariki 500": 10
-    },
-    "2026-10-01": {
-      "Corp 1000": 21,
-      "NZNP 333": 11,
-      "Waiariki 500": 9
-    },
-    "2026-10-02": {
-      "Nelson 400": 5,
-      "Rangitikei 400": 10,
-      "Wgtn 1000": 15
-    },
-    "2026-10-04": {
-      "Corp 1000": 25,
-      "Mt Albert 400 NZTU": 5,
-      "NZNP 333": 10,
-      "Wgtn 1000": 5
-    },
-    "2026-10-05": {
-      "Corp 1000": 20,
-      "Mt Albert 400 NZTU": 15,
-      "NZNP 333": 10
-    },
     "2026-10-06": {
-      "NZNP 333": 12,
-      "Wellington 1000": 18
+      "Ikaroa-Rawhiti 500": 15,
+      "NZNP 333": 15
     },
     "2026-10-07": {
       "Ikaroa-Rawhiti 500": 10,
@@ -41,9 +13,11 @@
       "NZNP 333": 12
     },
     "2026-10-11": {
+      "Hutt South 400": 7,
       "NZNP 333": 12
     },
     "2026-10-12": {
+      "Hutt South 400": 10,
       "NZNP 333": 12,
       "Te Tai Tokerau 500": 10
     },
@@ -66,10 +40,12 @@
       "NZNP 333": 12
     },
     "2026-10-19": {
-      "NZNP 333": 12
+      "NZNP 333": 12,
+      "Young Maori 500": 12
     },
     "2026-10-20": {
-      "NZNP 333": 12
+      "NZNP 333": 12,
+      "Young Maori 500": 12
     },
     "2026-10-21": {
       "Ak Ctl 400": 18,
@@ -146,5 +122,5 @@
       "Corp 1000": 10
     }
   },
-  "taken_at": "2026-09-30T04:13:21.632Z (Curia modifiedTime)"
+  "taken_at": "2026-10-06T04:15:52.325Z (Curia modifiedTime)"
 }
