@@ -3201,40 +3201,57 @@ as 30 minutes apart; the minimum interval is 1 hour"*. Hourly is the floor. Do n
 a sub-hourly cron.
 
 It reads `#shift-changes`, `#help`, `#results` and `#availability` over the last 65
-minutes, reads the Curia schedule for which days actually run, works out a replacement
-for every pull-out on the 75/25 fortnight score, and reports. **It sends nothing at all
-when nothing happened** — a watcher that pings 13 times a day gets muted.
+minutes, reads the Curia schedule for which days actually run, and works out a
+replacement for every pull-out or shortfall on the 75/25 fortnight score. **It sends
+nothing at all when nothing happened** — a watcher that pings 13 times a day gets muted.
 
-**It reports twice, and BOTH are to Brendon alone:**
+**CORRECTED 6 Oct 2026: this section described the Routine as report-only. It is not —
+it was flipped to fill gaps itself, and this file simply never caught up.** Found by
+reading the live prompt (`get_trigger`), not by memory, per the standing rule to grep a
+Routine's actual prompt before trusting a stale restatement of it. The prompt's
+`updated_at` is 26 Sep 2026, so this has been live for ten days with CLAUDE.md still
+describing the old behaviour.
+
+**What it actually does now, live:** on a pull-out or a shortfall it posts in
+`#shift-changes` naming the day and shift time, then DMs real callers directly asking
+if they can cover — Tier 1 the bench (✅ for that day, not yet rostered, ranked by the
+75/25 fortnight score), Tier 2 new starters who have never worked (newest first, call
+history is **not** a requirement), Tier 3 everyone else with history who didn't vote. A
+❌ on that day is the only hard no. How many people it asks scales with how close the
+shift is — 3 DMs beyond 24 hours, 5 inside 24, 8 plus a heads-up DM to Brendon inside 6,
+and Brendon first if the shift has already started. Capped at 8 DMs per gap and 8 per
+run, never a repeat ask, never a second ask after a no. When someone accepts it confirms
+them by name in `#shift-changes` and tells the others asked that the spot's filled and
+it'll come to them first next time. A missing Zoom licence is never a filter — it tells
+Brendon to move one, same as the reassign-zoom-capacity skill. DMs never mention
+completes, ranking, time off the phone, pay or standing.
+
+**Reporting stays Brendon-only; acting on a gap does not** — those are two different
+things and this file previously conflated them:
 
 - **A Slack DM to `U0C0U8P4T0W`** — his own account. Lock-screen length, one line per
-  item. Added 24 Sep on his ask for a second channel beyond email. **This is not a
-  widening of draft-everything-send-nothing**: it is the owner's own report to his own
-  DM, the same reasoning that already allows the weekly performance review to email him.
-  The prompt says twice that it may DM **no other user under any circumstances** and may
-  post to **no channel at all**.
-- **An email to `brendon@pacificlinkglobal.com`**, nothing in cc or bcc, carrying the
-  detail and the ready-to-send drafts in `<pre>` blocks.
+  item, *what it did*, e.g. "Lorraine out Fri 25 → posted in #shift-changes, DM'd 5,
+  Katherine Boiser confirmed." Added 24 Sep on his ask for a second channel beyond email.
+- **An email to `brendon@pacificlinkglobal.com`**, nothing in cc or bcc: what it did
+  verbatim and naming who, what's still open and how many hours until that shift, what
+  needs him (including any licence to move), unanswered `#help` problems, anything it
+  couldn't resolve.
+
+Both are reports of completed action now, not drafts waiting on him to send — the thing
+29 Sep's cover-a-pullout incident and tonight's (6 Oct) unacknowledged `#shift-changes`
+volunteers both looked like a gap in. It wasn't: tonight's volunteers went unanswered
+because both of tonight's polls were already at target, not because the Routine can't
+act — Ron's pull-out the same night was caught, posted, and filled with Jess inside the
+hour, exactly per this logic.
 
 **SMS does not exist here.** He asked for it directly. There is no SMS tool, and the
 Blueticks WhatsApp connector answers `503 "No WhatsApp engine is connected"`. What works
 is email, Slack DM, and the Routine's own push notification. Say that plainly rather
 than promising to look into it.
 
-**It is report-only for now, and that was a deliberate narrowing of what he asked.**
-Brendon asked on 24 Sep for it to message the replacement itself — *"automatically just
-messaging them directly on Slack to let them know that they are working, what poll
-they're going to be on, and then sending them the relevant tools"*. It was built to email
-him the pick and the ready-to-send message instead, on the reasoning that a wrong pick
-tells a real person to work a shift that is not theirs, and he should see three or four
-land correctly first. **He was told this explicitly and can flip it with one word.** If
-he does, the change is to the "WHAT YOU MUST NOT DO" block, and the DM-only rule for
-every other user stays.
-
-**Connectors it needs: Slack, Microsoft 365 AND Google Drive**, plus the repo. Like every
-Routine created from a session it came back with `sources: []` and `mcp_connections: []`
-— confirmed again in the `update_trigger` response on 24 Sep. Brendon has to wire it in
-the Routines UI before it does anything.
+**Connectors it needs: Slack, Microsoft 365, Google Drive AND Google Sheets**, plus the
+repo. Confirmed live via `get_trigger` on 6 Oct 2026 — all four are attached, so it is
+not waiting on Brendon for anything connector-side.
 
 **DST trap.** `0 22,23,0-10 * * *` is 8am-8pm Sydney only on AEST. **From 4 October 2026
 (AEDT, UTC+11) it becomes 9am-9pm.** Harmless for this job; do not "correct" it without
@@ -3503,15 +3520,15 @@ recent DM threads for anyone who's already said they're free**, not only
 `#shift-changes` and `#availability`.
 
 This is the same Tier 1/2/3 order already built into the shift watcher Routine
-(`trig_014g7fRRcCsaFeugu2qggo5Z` — see "THE THIRD EXCEPTION" below), which
-already computes the bench-first pick every time someone pulls out. **That
-Routine currently only emails/DMs the pick to Brendon as a draft — it does not
-message the bench itself**, a deliberate narrowing he accepted on 24 Sep so a
-wrong pick wouldn't reach a real person unproven. 29 Sep is him asking for that
-to change. Until the Routine's prompt is updated to send rather than draft,
-**any interactive session covering a pull-out does this by hand**: check who's
-on the bench for that day before posting anything wider, DM them directly, and
-only open it to the whole channel if the bench doesn't cover it.
+(`trig_014g7fRRcCsaFeugu2qggo5Z` — see "THE THIRD EXCEPTION" below and "The eighth
+Routine" above). **CORRECTED 6 Oct 2026: it does now message the bench itself** — posts
+in `#shift-changes` and DMs real callers in tier order, confirms whoever accepts, and
+only reports the outcome to Brendon. The "draft only, flip it with one word" framing
+that used to live here was stale; the Routine's own prompt (`updated_at` 26 Sep) shows
+it was already flipped. An interactive session covering a pull-out still follows the
+same check-the-bench-first order by hand when it's the one doing the covering (as this
+session did for Ron's flu pull-out on 6 Oct), but the hourly Routine no longer needs a
+person to turn its pick into an actual DM.
 
 ## Verify the roster is actually full, and chase silence — Brendon, 29 Sep 2026
 
