@@ -1,10 +1,5 @@
 {
   "schedule": {
-    "2026-10-05": {
-      "Corp 1000": 20,
-      "Mt Albert 400 NZTU": 15,
-      "NZNP 333": 10
-    },
     "2026-10-06": {
       "Ikaroa-Rawhiti 500": 15,
       "NZNP 333": 15
@@ -18,9 +13,11 @@
       "NZNP 333": 12
     },
     "2026-10-11": {
+      "Hutt South 400": 7,
       "NZNP 333": 12
     },
     "2026-10-12": {
+      "Hutt South 400": 10,
       "NZNP 333": 12,
       "Te Tai Tokerau 500": 10
     },
@@ -125,5 +122,5 @@
       "Corp 1000": 10
     }
   },
-  "taken_at": "2026-10-05T09:50:49.611Z (Curia modifiedTime)"
+  "taken_at": "2026-10-06T04:15:52.325Z (Curia modifiedTime)"
 }
