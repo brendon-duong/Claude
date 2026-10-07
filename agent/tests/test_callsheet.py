@@ -15,7 +15,9 @@ from business_agent.callsheet import (
     Allocation,
     PoolNumber,
     allocate,
+    allocate_with_ringbacks,
     build_workbook,
+    harvest_ringbacks,
     is_reusable,
     next_title,
     parse_high_water,
@@ -164,6 +166,72 @@ class TestAllocate(unittest.TestCase):
     def test_a_zero_block_size_is_rejected(self):
         with self.assertRaises(ValueError):
             allocate(pool(), ["Ana"], poll="ACT 1000", day=DAY, block_size=0)
+
+
+class TestHarvestRingbacks(unittest.TestCase):
+    def test_keeps_ringbacks_and_never_called_drops_the_rest(self):
+        rows = [
+            (54027, "021 165 5765", "RB"),
+            (54030, "021 165 5800", "Completed"),
+            (54033, "021 165 5900", ""),
+            (54040, "021 165 6000", "Refused"),
+            (54050, "021 165 6100", "Dialed RBs"),
+        ]
+        harvested = harvest_ringbacks(rows)
+        self.assertEqual([h.number_id for h in harvested], [54027, 54033, 54050])
+
+    def test_order_is_preserved_not_resorted(self):
+        rows = [(999, "a", "RB"), (1, "b", "RB")]
+        self.assertEqual([h.number_id for h in harvest_ringbacks(rows)], [999, 1])
+
+    def test_an_all_called_tab_harvests_nothing(self):
+        rows = [(1, "a", "Completed"), (2, "b", "Refused"), (3, "c", "GNA")]
+        self.assertEqual(harvest_ringbacks(rows), [])
+
+
+class TestAllocateWithRingbacks(unittest.TestCase):
+    def test_ringbacks_are_drawn_before_any_fresh_number(self):
+        harvested = [PoolNumber(900 + i, f"h{i}", "RB") for i in range(5)]
+        fresh = pool(start=60000, count=1000)
+        result = allocate_with_ringbacks(
+            harvested, fresh, ["Ana"], poll="NZNP 333", day=DAY, block_size=10
+        )
+        ids = [n.number_id for n in result.blocks[0].numbers]
+        self.assertEqual(ids, [900, 901, 902, 903, 904, 60000, 60001, 60002, 60003, 60004])
+
+    def test_a_caller_who_fits_entirely_in_ringbacks_touches_no_fresh_number(self):
+        harvested = [PoolNumber(900 + i, f"h{i}", "RB") for i in range(200)]
+        fresh = pool(start=60000, count=1000)
+        result = allocate_with_ringbacks(
+            harvested, fresh, ["Ana"], poll="NZNP 333", day=DAY, block_size=200
+        )
+        self.assertEqual(result.blocks[0].numbers[-1].number_id, 1099)
+        self.assertIsNone(result.high_water, "no fresh number was issued")
+
+    def test_high_water_is_computed_only_from_fresh_numbers_issued(self):
+        harvested = [PoolNumber(900 + i, f"h{i}", "RB") for i in range(5)]
+        fresh = pool(start=60000, count=1000)
+        result = allocate_with_ringbacks(
+            harvested, fresh, ["Ana", "Ben"], poll="NZNP 333", day=DAY, block_size=10
+        )
+        # Ana: 900-904 (ringbacks) + 60000-60004 (fresh); Ben: 60005-60014 (all fresh).
+        self.assertEqual(result.high_water, 60014)
+
+    def test_a_non_reusable_row_sneaking_into_harvested_is_dropped(self):
+        harvested = [PoolNumber(1, "a", "RB"), PoolNumber(2, "b", "Completed")]
+        fresh = pool(start=60000, count=10)
+        result = allocate_with_ringbacks(
+            harvested, fresh, ["Ana"], poll="NZNP 333", day=DAY, block_size=10
+        )
+        ids = [n.number_id for n in result.blocks[0].numbers]
+        self.assertNotIn(2, ids)
+
+    def test_unserved_when_both_pools_are_exhausted(self):
+        result = allocate_with_ringbacks(
+            [], [], ["Ana"], poll="NZNP 333", day=DAY, block_size=200
+        )
+        self.assertEqual(result.unserved, ["Ana"])
+        self.assertIsNone(result.high_water)
 
 
 class TestBuildWorkbook(unittest.TestCase):

@@ -234,6 +234,74 @@ def allocate(
     return allocation
 
 
+def harvest_ringbacks(rows: list[tuple[int, str, str]]) -> list[PoolNumber]:
+    """The subset of one caller's own tab, from a previous day's sheet, that
+    is still worth dialling: a ring-back, or a number they never got to.
+
+    `rows` is (id, phone, outcome) exactly as read off that tab, in the order
+    they appear - callers list their numbers top to bottom and there is no
+    reason to reorder them.
+
+    Recycle WITHIN the same poll only (CLAUDE.md, 28 Sep 2026): call this
+    once per poll, on that poll's own previous sheet, never mixed with
+    another poll's numbers even where they share a master pool (an ACT 1000
+    ring-back goes back to ACT 1000, not to NZNP, though both draw from the
+    same NZ Numbers master).
+    """
+    return [item for item in (PoolNumber(i, n, o) for i, n, o in rows) if is_reusable(item)]
+
+
+def allocate_with_ringbacks(
+    harvested: list[PoolNumber],
+    fresh: list[PoolNumber],
+    callers: list[str],
+    *,
+    poll: str,
+    day: date,
+    block_size: int = DEFAULT_BLOCK_SIZE,
+) -> Allocation:
+    """Cut blocks per caller from harvested ring-backs first, fresh numbers
+    second - Brendon's standing rule (28 Sep 2026): never draw fresh numbers
+    for a poll until that poll's own ring-backs are used up.
+
+    Unlike `allocate`, this never sorts by `number_id`. `harvested` and
+    `fresh` are usually two different pools with unrelated numbering -
+    yesterday's own sheet versus today's master pool past its high-water
+    mark - so sorting the combined list would scramble the ring-backs-first
+    order rather than preserve it. Pass each list already in the order you
+    want drawn; `fresh` should already be filtered to reusable, un-issued
+    numbers (this calls `is_reusable` on `harvested` only, since a harvested
+    row's outcome is exactly what decides whether it belongs in the harvest
+    at all - `fresh` numbers have no outcome yet to check).
+
+    `Allocation.high_water` is computed only from the `fresh` numbers a
+    caller actually received, never from harvested ones - the harvested
+    numbers don't belong to the fresh pool's own numbering, so folding them
+    in would corrupt the "USE FROM" mark written back to that pool's title.
+    """
+    harvested = [item for item in harvested if is_reusable(item)]
+    ordered = harvested + list(fresh)
+    boundary = len(harvested)  # ordered[boundary:] came from `fresh`
+
+    allocation = Allocation(poll=poll, day=day)
+    cursor = 0
+    fresh_used: list[PoolNumber] = []
+    for caller in callers:
+        chunk = ordered[cursor : cursor + block_size]
+        if not chunk:
+            allocation.unserved.append(caller)
+            continue
+        allocation.blocks.append(Block(caller=caller, numbers=chunk))
+        start, end = cursor, cursor + len(chunk)
+        if end > boundary:
+            fresh_used.extend(ordered[max(start, boundary):end])
+        cursor = end
+
+    if fresh_used:
+        allocation.high_water = max(item.number_id for item in fresh_used)
+    return allocation
+
+
 def _tab_name(caller: str, taken: set[str], *, verbatim: bool = False) -> str:
     """A worksheet name Excel and Sheets will both accept, and unique.
 
