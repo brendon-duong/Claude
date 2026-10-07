@@ -4071,6 +4071,25 @@ trusted.
    (harvested numbers first, fresh to fill the rest, never resorted by `number_id` since the two
    pools usually have unrelated numbering). 8 tests, 676 total passing.
 
+**Added the same afternoon, 7 Oct 2026: step 0b, cross-check email before trusting the schedule
+sheet.** Brendon: *"make sure to actually look at the e-mail and make sure there hasn't been an
+updated poll sent out when making the callsheets."* The schedule Google Sheet was the only
+source the Routine read for what's running today; Curia also send poll changes and corrections
+by email, and the two can disagree. The Routine now searches Gmail for every poll identified
+from the schedule before treating it as final, and if an email contradicts the schedule — a
+different poll, a changed headcount — it does not silently pick one: it tries to tell which is
+newer (email dated after the schedule's own `modifiedTime`) and only resolves confidently on
+that basis, otherwise alerts Brendon with both readings. If sheets are already built and shared
+for the day, an email-detected change is treated exactly like a post-build schedule change —
+alert only, never rebuild.
+
+**Also confirmed, same ask: connector attachment genuinely cannot be done from a session, not
+just "wasn't tried."** `update_trigger` has no connector field in its own schema at all (checked
+the tool definition directly), and `create_trigger` refuses the `connectors` parameter outright
+for this organisation (tested again this session, not assumed from history). Both the new Friday
+invoice Routine (ask 23) and this one (ask 24) need Brendon to attach their connectors himself in
+the claude.ai Routines UI — there is no other route.
+
 ## WhatsApp for Curia contacts — still not connected, checked live 7 Oct 2026
 
 Brendon asked (7 Oct 2026) about seeing the "Curia & PL" WhatsApp group chat (Milena and Reza)
