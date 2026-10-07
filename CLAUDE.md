@@ -3942,6 +3942,78 @@ necessarily stale/wrong here — it simply hasn't caught up to a phone call or v
 yet. Trust Brendon's own count for anything Curia asked for same-day; don't wait for the
 sheet to catch up before acting on it.
 
+### `business_agent/revenue.py` and the Friday invoice Routine — built 7 Oct 2026
+
+Brendon, 7 Oct 2026: *"let's look at the revenue / extras tracker and make the pre-existing
+invoice for me every Friday as routine so we are able to just copy and paste it in so it can
+save me lots of time... so I know on Friday how much to invoice David."* The
+`AskUserQuestion` clarifying call itself errored on his end ("asked basis failed") before he
+could answer it — not a rejection of being asked — so this was built on stated defaults
+(actual caller-shifts from Zoom, Sun-Sat week, matching `invoices.week_of`) rather than held
+up waiting for a retry of a tool that had already failed once.
+
+**The $19.50/hour figure and the per-caller line shape were both checked live against real
+Xero invoices to David Farrar, not assumed.** `get_invoices(contact_ids=[David Farrar],
+include_line_items=True)` returned every invoice back to January: rate is $18.50/hour through
+INV-0139 (27 Mar 2026), **$19.50/hour from INV-0141 (2 Apr 2026) onward** — a real rate rise on
+a real date, confirming the figure already in this file rather than contradicting it. More
+important, and not previously recorded here: **every invoice bills one line PER CALLER**
+("Market Research Phone Polller - <name>"), **quantity in whole 3-hour-shift units** (3, 15,
+33, never a fractional span), at $19.50/hour — not one aggregate "N caller-shifts" line. A
+single total was never going to be what Brendon pastes into Xero; the per-caller breakdown is
+the part that actually saves him typing.
+
+**Calibrated against INV-0178** (issued 2 Oct 2026, the most recent, net $15,736.50 ⇒ 269
+caller-shifts implied): `week_revenue(date(2026, 9, 27))` reads **264 caller-shifts, net
+$15,444.00 — 98.1%**, in the same range the shift audit itself runs at against Elaine's manual
+process (96.6% on completes). The gap is almost certainly the duplicate-Zoom-name problem this
+file already documents elsewhere (e.g. `eunice cortes` / `eunie cortes` both appearing live on
+6 Oct) — never auto-merge those to chase the invoice number closer; report them instead, which
+is what the Routine's prompt now does.
+
+`business_agent/revenue.py` (16 tests, 666 total passing):
+
+    revenue.day_revenue(day)            -> DayRevenue: ShiftCalls.on_shift callers that day
+    revenue.week_revenue(week_start)     -> WeekRevenue: 7 DayRevenue, Sunday to Saturday
+    revenue.week_of(d)                   -> the Sunday, same split as invoices.week_of
+    revenue.caller_lines(week)           -> CallerLine per caller: shift_days, hours, net
+    revenue.invoice_lines_text(week)     -> tab-separated, paste straight into Xero's grid
+    revenue.invoice_text(week)           -> the headline Net / GST / Total plus day breakdown
+    python3 -m business_agent.revenue [YYYY-MM-DD]   -> CLI, defaults to today in NZ time
+
+Counting is the same `ShiftCalls.on_shift` ground truth the shift audit and the weekly
+performance review already use — never the roster plan, never Curia's own schedule figures
+(which lag same-day asks, as above). This means an "extra" who covered a pull-out is billed
+automatically and nobody who was rostered but never dialled in is billed by mistake, with no
+separate "extras" step needed.
+
+**`trig_01PyoeCwSX3qC6WwPwAnDFv8`, "Curia invoice figure — Friday 10am NZ"** — `0 21 * * 4`,
+fresh session each fire (`create_new_session_on_fire`, not self-bound — an earlier attempt at
+creating this Routine self-bound it to the interactive session that created it, which is wrong
+for a weekly job expected to outlive that session; it was deleted and recreated correctly).
+Same environment as the other Zoom-reading Routines (`env_01Tbj77FEPUKBePCjAFhG2Jn`, Custom
+network access with `zoom.us`/`api.zoom.us` allowlisted — inherited automatically from the
+creating session). Like every Routine created from a session it came back with **no repo and
+no connectors** — needs **the repo (`brendon-duong/Claude`, branch
+`claude/business-agent-dev-9jxs55`) and Microsoft 365** attached in the Routines UI before its
+first real run.
+
+It runs the CLI for the current NZ week, composes one HTML email with the headline Net/GST/
+Total up front, the day-by-day breakdown, a plain note on any day that reads zero because it
+hasn't happened yet (a Friday run can never see that day's own shift, or Saturday's if Curia
+run one), and the full per-caller line list verbatim in a `<pre>` block so it pastes straight
+into Xero. Sent to **both** `brendon@pacificlinkglobal.com` and `logan@pacificlinkglobal.com`
+— Brendon asked for both addresses directly, so this is a fifth standing send-without-asking
+case, scoped narrowly to this one weekly email; it does not touch Slack, Drive, Xero or any
+caller. **This is unattended by his own explicit instruction** ("this can be sent as an
+e-mail..."), the same shape as the declared-results Routine writing Curia's sheet unattended —
+not draft-and-approve.
+
+**Not yet verified live**: no fired session has confirmed the repo/Microsoft 365 attachment
+actually works end-to-end (the established pattern elsewhere in this file — fire a test session
+against the same environment before trusting a new Routine). Do that once Brendon has attached
+both in the UI, before the first real Friday run is trusted.
+
 ## A rolled-forward shortfall is ADDITIVE to today's total — it does not cancel out, Brendon 1 Oct 2026
 
 Got this wrong the same day it was supposedly already fixed: asked who from Wednesday's
