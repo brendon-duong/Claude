@@ -93,8 +93,16 @@ class Allocation:
         return sum(block.size for block in self.blocks)
 
 
-# "RB", "Ring Back", "RINGBACK" — a number worth trying again.
-_RINGBACK = re.compile(r"^\s*(rb|ring\s*back)\b", re.IGNORECASE)
+# Every ring-back label from CLAUDE.md's allocation table — a number worth
+# trying again. "RB", "Ring Back", "RINGBACK", "RBs", "RB's", "RB/VM", "VM",
+# "Dialed RBs", "Callback", "Ringback/VM", "Ringback/Voicemail/No Answer" all
+# land here. Widened 7 Oct 2026: the original pattern matched "RB" and
+# "ring back" only, which silently dropped "Dialed RBs", "Callback" and a
+# bare "VM" — three real labels from the table — out of the harvest.
+_RINGBACK = re.compile(
+    r"^\s*(?:rb(?:'s|s)?\b|ring\s*back(?:s)?\b|dialed\s*rbs?\b|call\s*back\b|vm\b)",
+    re.IGNORECASE,
+)
 
 
 def is_reusable(number: PoolNumber) -> bool:

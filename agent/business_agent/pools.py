@@ -19,18 +19,22 @@ sample sizes, and ACT 1000 / ACT 500 likewise.
 from __future__ import annotations
 import re
 
-# The whole-year master list. NZNP and ACT both draw from it - one file, not two.
-# Checked live 25 Sep 2026: still an .xlsx owned by curiaresearch@gmail.com,
-# 6.3 MB, titled "NZ Numbers 2026 - 2027 - USE FROM 15002.xlsx".
+# The whole-year master list. NZNP and ACT both draw from it - one file, not two
+# - and Brendon confirmed NZNP 333 is the same master too (27 Sep 2026): "NZNP
+# 333 is also with NZ Numbers."
 #
-# TWO LIMITS THAT ARE NOT SOLVED, both proved live, so do not assume otherwise:
-#   * it CANNOT be shaded green - an .xlsx cannot be touched by the Sheets API,
-#     and Brendon holds edit but not sharing rights so sheets-bot cannot be added.
-#     The filename mark is the only mark available on it.
-#   * reading it is UNRELIABLE - at 6.3 MB download_file_content dropped the Drive
-#     connector three times running on 19 Sep. Retry, and if it keeps failing say
-#     so rather than falling back to a stale local copy.
-NZ_MASTER = '1DWugvAGB2uPoUXlLZpSglFRxWG0Zjh7C'
+# THIS IS BRENDON'S OWN COPY, NOT CURIA'S ORIGINAL .xlsx. Curia's own master
+# (the 6.3MB .xlsx owned by curiaresearch@gmail.com, '1DWugvAGB2uPoUXlLZpSglFRxWG0Zjh7C')
+# cannot be shaded - it is an Office file, the Sheets API refuses those outright,
+# and Brendon holds edit but not sharing rights on it so sheets-bot cannot be
+# added either. This ID is "NZ Numbers 2026 - 2027" sitting in the shareable
+# Drive folder (0AA2IL8tCFjvlUk9PVA) as a native Google Sheet, where sheets-bot
+# already has access and shading/renaming works directly (used live 7 Oct 2026
+# for the NZNP 333 draw - rows shaded, retitled "USE FROM ROW 61167").
+# If this ever needs re-pointing, confirm the replacement is a native Google
+# Sheet sheets-bot can write to, not another .xlsx - that mistake is exactly
+# what made the original unshadeable.
+NZ_MASTER = '1rB4tzZTg8cGr7OUR2H-009L1YmwLO9-SqvUhVh-YmAE'
 
 STANDING: dict[str, str] = {
     'nznp': NZ_MASTER,

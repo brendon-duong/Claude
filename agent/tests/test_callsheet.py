@@ -86,6 +86,18 @@ class TestReusable(unittest.TestCase):
         for outcome in ("RB", "RINGBACK", "Ring Back", "rb", "RB / VM"):
             self.assertTrue(is_reusable(PoolNumber(1, "09 555 0000", outcome)), outcome)
 
+    def test_every_ringback_label_from_the_allocation_table_is_reusable(self):
+        # CLAUDE.md's allocation table lists these as RB variants. The original
+        # regex only matched "RB" and "ring back" prefixes and silently missed
+        # the other three - found 7 Oct 2026 while building the call-sheet
+        # Routine's harvest step.
+        for outcome in ("RBs", "Rbs", "RB's", "Ringbacks", "Dialed RBs", "Callback",
+                        "Ringback/VM", "Ringback/Voicemail/No Answer"):
+            self.assertTrue(is_reusable(PoolNumber(1, "09 555 0000", outcome)), outcome)
+
+    def test_a_bare_vm_is_reusable(self):
+        self.assertTrue(is_reusable(PoolNumber(1, "09 555 0000", "VM")))
+
     def test_a_refusal_is_finished_with(self):
         for outcome in ("Refused", "REFUSED", "Completed", "GNA", "DO NOT CALL", "INVALID"):
             self.assertFalse(is_reusable(PoolNumber(1, "09 555 0000", outcome)), outcome)
