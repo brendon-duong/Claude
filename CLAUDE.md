@@ -4137,3 +4137,69 @@ prior shift — a "yes" on the first answers nothing about the second:**
 Full detail and the "additive, not cancelled" framing live in
 `.claude/skills/cover-a-pullout/SKILL.md` — load it the moment a pull-out, a rolled-forward
 block, or a "how many do we need today" question comes up.
+
+## The caller directory now refreshes itself — built 7 Oct 2026, evening
+
+The 24 Sep build of `agent/data/Pacific Link - Caller Directory.csv` had gone **13 days
+stale** with no refresh mechanism, found during a deep-dive Brendon asked for the same
+evening. That file is gitignored (personal data) and a Routine's checkout is fresh every
+fire, so it was never going to be the thing a weekly refresh writes to — it needs somewhere
+that persists across sessions. The fix moves the directory to a Google Sheet, the same
+shape as every other piece of structured per-person data this project already keeps there.
+
+**`business_agent/caller_directory.py`, 10 tests.** Takes three plain lists — Slack
+members, Zoom phone users, and call history over a window — and joins them:
+
+    caller_directory.build_directory(slack_members, zoom_users, call_history) -> list[CallerRow]
+    caller_directory.to_rows(directory) -> list[list[str]]   # header + sorted rows
+
+Email is the primary key. Where a caller's Slack and Zoom emails differ (the two known
+cases, Eunilyn Lisondra and Lovely Salva), it falls back to `names.match()` on the real
+name / Zoom display name — reusing the roster's own settled-alias matcher rather than a
+second parallel one. **A canonical name claimed by more than one Slack member is left
+unresolved for both**, flagged in the Notes column, per the project's standing
+match-to-neither rule for duplicates. `status_for` reads 8+ shifts in the window as
+`active`, 1-7 as `occasional`, 0 as `none` — same thresholds the 24 Sep build used.
+
+**Seeded live the same evening, for real:** 93 Slack members on `#roster-pacificlinkglobal`
+(paged, Brendon/Logan/Elaine excluded), 82 Zoom phone users (55 with an AU/NZ Unlimited
+plan — matches the licence count exactly), 24 days of call history via
+`calllogs.calls_for_day` + `by_caller`. Result: **24 active, 10 occasional, 59 with no
+recent activity, 10 flagged** (no Zoom match, or a genuine ambiguity) rather than guessed.
+
+**Lives at** `1xoQAFag42kEUGuL15_SmHSg_ZJgtL_k9iBWUzZJckDo`, "Pacific Link Caller
+Directory" — a native Google Sheet in the shareable Drive folder
+(`0AA2IL8tCFjvlUk9PVA`), owned by `brendon.duong10@gmail.com`, shared with `sheets-bot`
+as writer. Read and write it with `scripts/sheets.mjs`, same as every other sheet this
+project keeps there — **not the Google Sheets connector**, which is still gated.
+
+**`trig_01BfAD6qyep8giAtoYCvMjSc`, "Caller directory refresh — Friday 9am NZ"** —
+`0 20 * * 4`, fresh session each fire, same environment as the other Zoom-reading
+Routines (`env_01Tbj77FEPUKBePCjAFhG2Jn`). Needs only **the repo and Slack** —
+no Google Drive connector, because the sheet write goes through the committed
+`Bash(node scripts/sheets.mjs *)` permission, not the Drive/Sheets connectors. Like
+every Routine created from a session it came back with neither attached; **still needs
+Brendon to tick Slack** in the Routines UI before its first fire. Reports to Brendon by
+push only, and only with a one-line summary — this is a quiet weekly refresh, not
+something that needs reading every time.
+
+## Shift gap chase — disabled 7 Oct 2026
+
+The deep-dive also surfaced an undocumented Routine, "Shift gap chase — hourly,
+Mon-Sat", running the same hours (8am-8pm Sydney) as the documented **Shift watcher**
+(`trig_014g7fRRcCsaFeugu2qggo5Z`) and apparently doing the same job — independently
+DMing callers and confirming them onto open slots. Two Routines able to act on the same
+gap is a real double-booking risk, not yet observed causing harm but never checked
+either. **Brendon disabled it the same evening**, rather than merging the two prompts.
+Shift watcher is now the sole owner of covering a pull-out or a shortfall. If a second
+"gap chase" job is ever wanted again, write it as an explicit second tier of the
+existing Routine's logic, not a separate Routine running the same hours.
+
+## Week Ahead Board refresh — connectors attached 7 Oct 2026
+
+`trig_01JzKJ8au9bTsx4wjbnshJPr` had `mcp_connections: []` since it was created on 26
+Sep — it could not read Slack, so the board was never actually refreshing despite the
+Routine "succeeding" on every scheduled fire (there was nothing in it to fail). Brendon
+attached Slack and Google Drive in the Routines UI the same evening this was found. Not
+yet re-verified against a live fire; the next Thu-Sat voting window is the first real
+test.
