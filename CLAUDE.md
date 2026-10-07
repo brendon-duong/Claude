@@ -4014,6 +4014,83 @@ actually works end-to-end (the established pattern elsewhere in this file — fi
 against the same environment before trusting a new Routine). Do that once Brendon has attached
 both in the UI, before the first real Friday run is trusted.
 
+## The tenth Routine — the call-sheet builder, and three fixes made building it
+
+Brendon, 7 Oct 2026: *"are you able to make that... I am wanting you to always draw ringbacks
+first if we have already made the surveys for the day."* Built the same afternoon, after a
+round of clarifying questions he answered directly:
+
+- **Timing**: 3-4pm NZ is when sheets need to be built and sent, but "we don't have a system in
+  place for a consistent time of receiving the numbers" from Curia — so the Routine checks
+  hourly from noon and builds the moment a poll's numbers are ready, rather than waiting for a
+  fixed time that might be too early.
+- **Pool mapping**: NZNP 333, NZNP 500 and ACT 1000 always draw from the NZ Numbers master
+  (confirmed again, reusing the existing `pools.py` STANDING mapping). Every other poll: search
+  Drive by poll name for the most recent non-"ALL USED" pool — he didn't ask for a maintained
+  lookup file, so that's the default; ambiguity gets flagged, never guessed.
+- **Same-day schedule change after a build**: "Alert me and I will let you know what to do
+  next" — never auto-rebuild once sheets are shared. This is the single rule that exists
+  because of 23 September, and it's load-bearing.
+- **Extras column**: *"That column doesn't matter"* — Curia's schedule has an "Extra PL Staff
+  Required Day of Shift" column; the Routine does not read it. A same-day extra (like Tristan,
+  7 Oct) stays Brendon's own call.
+- **Survey link**: pull it from his Gmail automatically (Curia's forwards land there, not in
+  his M365 inbox) — confirmed, so the Routine needs Gmail attached too.
+- **"Let everyone know what spreadsheet they are on"** — added mid-build, 7 Oct 2026, and
+  applied immediately to that day's own roster as well as written into the Routine: every
+  `#call-sheets-pacificlinkglobal` post must say, per poll, which exact link is whose — never
+  just two links and an assumption people will self-sort. Posted as its own message that
+  afternoon (superseding the scattered original-build-plus-addendum posts) so there was one
+  message naming every caller against their actual sheet.
+
+**`trig_01BUoM2Vf3P4r9D1dWsiHCMt`, "Call sheet builder — hourly noon-4pm NZ (daily, builds when
+numbers are ready)"** — `0 23,0,1,2,3 * * *` (23:00-03:00 UTC = noon-4pm NZDT), fresh session
+each fire, same environment as the other Zoom/Sheets Routines. Like every Routine created from
+a session it came back with **no repo and no connectors** — needs the repo, **Slack, Google
+Drive and Gmail** attached in the Routines UI before its first real run, and per the established
+pattern a fired test session should confirm all four work before the first live build is
+trusted.
+
+**Three real fixes came out of building this, not just the new Routine:**
+
+1. **`pools.NZ_MASTER` pointed at the wrong file.** It held Curia's own 6.3MB .xlsx master
+   (`1DWugvAGB2uPoUXlLZpSglFRxWG0Zjh7C`), which cannot be shaded (an Office file, and Brendon
+   holds edit but not sharing rights on it). It now points at the shareable-folder copy
+   (`1rB4tzZTg8cGr7OUR2H-009L1YmwLO9-SqvUhVh-YmAE`, "NZ Numbers 2026 - 2027") that `sheets-bot`
+   can actually shade and rename — the one used live for today's NZNP 333 draw. A module that
+   quietly pointed at the wrong file would have had the Routine fail the same shading step every
+   single day.
+2. **The ring-back matcher missed three real labels.** `callsheet.is_reusable` matched "RB" and
+   "ring back" prefixes only; "Dialed RBs", "Callback" and a bare "VM" — all real labels from the
+   allocation table — fell through as not reusable, which would have thrown away real recoverable
+   numbers on every harvest. Widened and covered (8 new tests).
+3. **The harvest-then-draw step didn't exist in code at all.** Ring-back recycling had been done
+   ad hoc each time (scratch Node scripts, never committed) since 28 Sep. Now
+   `business_agent/callsheet.py` has `harvest_ringbacks(rows)` (what's still worth dialling off a
+   previous sheet's own tab) and `allocate_with_ringbacks(harvested, fresh, callers, ...)`
+   (harvested numbers first, fresh to fill the rest, never resorted by `number_id` since the two
+   pools usually have unrelated numbering). 8 tests, 676 total passing.
+
+## WhatsApp for Curia contacts — still not connected, checked live 7 Oct 2026
+
+Brendon asked (7 Oct 2026) about seeing the "Curia & PL" WhatsApp group chat (Milena and Reza)
+through the Blueticks connector, separate from the team-WhatsApp retirement on 24 Sep — this is
+about Curia-facing visibility, not reviving WhatsApp for caller comms.
+
+**Still exactly the same blocker as every earlier check.** `mcp__WhatsApp__engine(action:
+"status")` returned empty and a chat search returned `503 "No WhatsApp engine is connected for
+this account"` — tested live this session, not assumed from this file's own history.
+
+**This is a device-pairing step, not a settings toggle, and nothing in this tool surface can do
+it.** Checked the full WhatsApp/Blueticks tool list (`engine`, `chats`, `groups`, `contacts`,
+`agents`, `agent_schedules`, `audiences`, `campaigns`, `scheduled_messages`, `utils`) for any
+connect/pair/QR action — there is none. Blueticks engines are linked by scanning a QR code with
+the phone that holds the WhatsApp account (most likely whichever number is already in the
+"Curia & PL" group), done from Brendon's own Blueticks account (blueticks.co) — nobody else can
+do this step for him. Once an engine is connected, `chats.search` should find the "Curia & PL"
+group directly and the read-only visibility he's asking for becomes buildable immediately;
+nothing else is blocking it. Flagged to him; not yet connected.
+
 ## A rolled-forward shortfall is ADDITIVE to today's total — it does not cancel out, Brendon 1 Oct 2026
 
 Got this wrong the same day it was supposedly already fixed: asked who from Wednesday's
