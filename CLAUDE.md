@@ -4009,10 +4009,16 @@ caller. **This is unattended by his own explicit instruction** ("this can be sen
 e-mail..."), the same shape as the declared-results Routine writing Curia's sheet unattended —
 not draft-and-approve.
 
-**Not yet verified live**: no fired session has confirmed the repo/Microsoft 365 attachment
-actually works end-to-end (the established pattern elsewhere in this file — fire a test session
-against the same environment before trusting a new Routine). Do that once Brendon has attached
-both in the UI, before the first real Friday run is trusted.
+**Verified live, 7 Oct 2026, from a fired test session (read-only — no email sent, no write
+path run):** repo checked out correctly (`agent/business_agent/revenue.py` present on
+`claude/business-agent-dev-9jxs55`); `api.zoom.us/v2/users` reachable (401, expected
+unauthenticated — the environment's Zoom allowlist carries over to this Routine's environment
+as documented); `python3 -m business_agent.revenue` ran clean from `agent/` and produced a real
+week (04–07 Oct, 142 caller-shifts, $8,307.00 net); **Microsoft 365 connector reachable** —
+`get_me` returned `brendon@pacificlinkglobal.com`. All four of the Routine's dependencies are
+confirmed working end-to-end. The only thing not exercised was the actual send path
+(`outlook_send_mail`), deliberately, per this check's own read-only scope — that stays to be
+proven on the Routine's first real Friday run.
 
 ## The tenth Routine — the call-sheet builder, and three fixes made building it
 
