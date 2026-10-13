@@ -3965,6 +3965,51 @@ Sharing with a real caller stays behind his say-so — it is outward-facing.
   caller drifting off, and they need different responses.
 - Rates are per **active week**, so leave never reads as unreliability.
 
+## ACT 1000 draws half from the Rural ACT pool, half from NZ Numbers — Brendon, 14 Oct 2026
+
+Settled 14 Oct, applies going forward whenever ACT 1000 call sheets are built, not just
+that day. The pool exists and is already wired up the same way every other native-sheet
+pool in the shareable folder is:
+
+    Rural Numbers Mar 2026 ACT   1DkEwx8TvQGJSh3EoQyEIqtQufgFJ22vfXX8g3MOeBp8
+    tab        NZ Numbers May 2025 ACT, 46,335 rows, 17 cols
+    title      USE FROM ROW 41201 — checked against the live shading, exact match:
+               rows 2-41200 #c6efce green, 41201+ #ffffff white
+    access     already shared with sheets-bot (same shareable folder as the NZ
+               Numbers master and Nelson 400)
+
+Like every fresh pool it carries respondent personal-detail columns (Age Bracket,
+Gender, Meshblock ID, Urban, Residential Postal Code, Residential Suburb, Maori
+Descent, Occupation, City) — strip to ID/Phone/Outcome/Notes at build time, same as
+Waitaki and Tamaki. The number to dial is column B, `Phone`.
+
+**5,135 rows remain as of 14 Oct.** At roughly half of ACT 1000's callers per day
+drawing from it, that is only a couple of weeks before it needs topping up from Curia
+— worth flagging to Brendon again once it gets low, not a blocker today.
+
+ACT 1000's other half still draws from the NZ Numbers master (`pools.NZ_MASTER`) as
+before — this is additive, not a replacement.
+
+## Ring-back harvest must clear the source sheet, every time — Brendon, 14 Oct 2026
+
+*"For NZNP you are able to use ringbacks from previous callsheets first. Make sure to
+delete the numbers from the old callsheets so we don't recall the same numbers."*
+
+The "recycle ring-backs before drawing fresh numbers" rule (28 Sep, above) was never
+wrong about *which* numbers to harvest — it was silent on what happens to the OLD
+sheet afterward. Without this, a number harvested today stays sitting on last week's
+sheet looking like a live ring-back, and a future harvest pass over that same old
+sheet would reissue it to someone else — the exact double-draw risk the whole
+ring-back system exists to avoid, just moved one level down.
+
+**The fix, mandatory every time a ring-back is harvested for reuse:** once a number
+is pulled from an old call sheet onto today's build, clear that row (ID, phone,
+outcome) from the old sheet — not just read it. `harvest_ringbacks()` only reads;
+it does not yet write the clear back to the source tab, so until that is built into
+the Routine, clearing the old sheet is a manual step in the same build that does the
+harvest, never a follow-up to come back to later. Applies to NZNP 333 first since
+that is what prompted it, but the same logic holds for any poll's ring-back harvest.
+
 ## Wed 30 Sep no-shows, settled 1 Oct — only one was real
 
 Of six people who didn't call on 30 Sep, only **Jean Carla Sumarago** was an actual
