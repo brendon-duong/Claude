@@ -3119,6 +3119,15 @@ Four things to get right:
   `RINGBACK/VOICEMAIL/NO ANSWER` all appeared on the same night. Match against the
   allocation table, never on an exact string.
 
+**NEVER WRITE AN `RB-` (OR ANY OTHER) PREFIX ONTO THE ID COLUMN ON THE CALL SHEET
+ITSELF — Brendon, 13 Oct 2026.** A build before this date tagged every harvested
+number's ID as `RB-56109` rather than plain `56109`, to make a recycled number visible
+at a glance while building the sheet. That tag is for this project's own bookkeeping
+only and must never reach the caller's actual sheet — the ID column is always the bare
+pool number, exactly as it would be for a fresh draw, whether the row came from a
+harvest or the master pool. If a build needs to track which rows were recycled for its
+own working notes, do that in a scratch file, never in the ID column a caller sees.
+
 **One label is still unresolved: `GNS` (1 row, 27 Sep).** Probably a GNA typo but it is
 a guess, so it was excluded from the harvest rather than assumed. Ask Brendon if it
 recurs.
