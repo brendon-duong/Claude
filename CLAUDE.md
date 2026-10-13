@@ -3423,6 +3423,47 @@ never a no-show, and say so plainly rather than asking the caller to account
 for a shift they were never given. Only call it a no-show once their name is
 confirmed present on that day's actual roster post.
 
+## Paginate the ENTIRE day's Zoom call log before counting who called — 13 Oct 2026
+
+**Got Monday 13 October's no-show count badly wrong, then corrected it the same day.**
+First pass read Zoom's `/phone/call_logs` for 12 Oct and reported "25 of 34 dialled, 7
+no-shows" to Brendon. He pushed back ("remember there was some people that swapped out
+that day...") and asked for it to be checked against the actual call sheets. **The real
+answer: all 34 called, zero no-shows.** Two things were wrong at once:
+
+- **Only page 1 of the call log was ever read — 300 of 8,622 records that day.**
+  `/phone/call_logs` paginates at `page_size` (300 here) and the first pass never
+  followed `next_page_token`. A caller with fewer calls, or who called later in the
+  day, simply doesn't appear on page 1 and reads as silent — which is indistinguishable
+  from a real no-show if you stop there. Ron (141 calls), Salvador Banila (258),
+  Jennifer Tarinay (206), Jane Wareei (287), Karla (326), Ms Jen (197) and Goldy (207)
+  were all flagged no-shows this way; every one of them had a full shift's worth of
+  calls sitting on later pages.
+- **The roster itself was reconstructed from a Slack post rather than read off the
+  actual call sheet tabs**, and it invented a person — "Princess Matildo" — who
+  doesn't appear on any of the three call sheets built for that day at all. The
+  call-sheet tabs (`sheets.mjs inspect` on each of the day's spreadsheets) are the
+  real roster, the same rule as "build roster lists from source" above; a Slack roster
+  post can be stale or superseded by a same-day swap in a way the actual sheet isn't.
+
+**The fix, now mandatory before calling anyone a no-show off call logs:**
+
+1. **Get the real roster from the actual call sheets for that day**, not a Slack post
+   — `sheets.mjs inspect` on each poll's spreadsheet, the tab names are the ground
+   truth (excludes stray tabs like a leftover `Sheet2`).
+2. **Pull every page of that day's call log, not just the first.** Loop on
+   `next_page_token` until it comes back empty, same as `calllogs.calls_for_day`
+   already does in `business_agent/calllogs.py` — that production path was never
+   wrong; this was a manual one-off check that skipped its own pagination.
+3. **Apply the full known Zoom-alias list** (Kharen=Khars-, Ron=Ronniel Villaver,
+   Kris=Kris Dolz, Ms Jen=Jinelyn L., Nilyn=Eunilyn Lisondra, etc. — see "Already
+   settled, do not re-ask" above) before concluding a tab name has no matching Zoom
+   record.
+
+A name with zero matches after all three steps is a real gap worth flagging. A name
+with zero matches after only step 1 of a partial log pull is not — it is exactly this
+mistake waiting to happen again.
+
 ## Build roster lists from source, never retype them by hand — 29 Sep 2026
 
 The "52 vs 53" and "how am I short on the last one if I have 53 licences"
