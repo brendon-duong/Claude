@@ -4257,6 +4257,27 @@ do this step for him. Once an engine is connected, `chats.search` should find th
 group directly and the read-only visibility he's asking for becomes buildable immediately;
 nothing else is blocking it. Flagged to him; not yet connected.
 
+## A vacant, never-rostered slot rolls forward too, not just a drawn-and-abandoned block — Brendon, 14 Oct 2026
+
+Corrects the narrower reading below. This file previously said only a block that was actually
+*drawn* (numbers assigned, then abandoned) rolls forward — an unfilled slot that never got a
+caller at all, with no numbers ever drawn for it, was treated as simply absorbed into that
+day's shortfall and gone. **Brendon was explicit that is wrong, twice over, and said to put it
+in memory:** *"Those 4 blocks are not built but we need someone to cover them tomorrow as it
+rolls over the next day... Even if it's vacant we can roll that over to the next day."*
+
+So the rule is now: **every slot short of the day's target rolls forward as an addition to the
+next running day of that poll — whether or not numbers were ever drawn for it.** A still-vacant
+ACT 1000 slot today is tomorrow's problem to cover on top of tomorrow's own target, exactly the
+same as Mercjoy's actually-drawn-and-abandoned NZNP 333 block. Don't draw the distinction between
+"a real orphaned block" and "a slot nobody ever got assigned" when sizing tomorrow's need —
+both count, in full.
+
+Worked example, 14 Oct: Wednesday finished 4 short of its 58 target (1 NZNP 333, 3 ACT 1000, none
+of it covered by end of shift). Thursday's own base target is 52, plus Curia told Brendon
+directly to expect roughly 4 extras tomorrow. **The real number to roster against: 52 + 4
+(Wednesday's rollover) + 4 (Curia's extras) = 60**, not 52, not 56 — all three additions stack.
+
 ## A rolled-forward shortfall is ADDITIVE to today's total — it does not cancel out, Brendon 1 Oct 2026
 
 Got this wrong the same day it was supposedly already fixed: asked who from Wednesday's
