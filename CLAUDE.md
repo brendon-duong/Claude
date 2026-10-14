@@ -4052,6 +4052,10 @@ the `jessburgos1829@` email. She had asked for call sheet access twice before (1
 13 Oct) with no reply either time, then asked again today. Share future call sheets to
 **both** her emails, the same pattern as Nilyn and Salvador Banila.
 
+**Juvylyn Abe has a new email, `abejuvylyn@gmail.com`** — Brendon, 14 Oct 2026. Her Slack
+account is still `juvylynabe@gmail.com`. Share every call sheet to **both** going forward,
+same pattern as the others above.
+
 ## Wed 30 Sep no-shows, settled 1 Oct — only one was real
 
 Of six people who didn't call on 30 Sep, only **Jean Carla Sumarago** was an actual
