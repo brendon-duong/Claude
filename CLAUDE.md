@@ -4010,6 +4010,48 @@ the Routine, clearing the old sheet is a manual step in the same build that does
 harvest, never a follow-up to come back to later. Applies to NZNP 333 first since
 that is what prompted it, but the same logic holds for any poll's ring-back harvest.
 
+## Wednesday 14 Oct — final shortfall, and two things that cost real time finding
+
+Target for the night was **58** (NZNP 333: 12, Tamaki Makaurau 500: 18, ACT 1000: 28 —
+Brendon's revised figure, up from the base 22 after Curia asked for 5 extra plus one
+covering a Tuesday gap). **Final count: 53 confirmed, 5 short** — NZNP 333 11/12 (Mercjoy
+Tibandal pulled out, urgent matter), Tamaki 17/18 (Princess Matildo pulled out, unwell),
+ACT 1000 25/28 (3 slots never filled despite a wide DM chase — everyone identifiable in
+the roster channel was asked, with zero reply from most). Both pull-outs' specific number
+blocks were posted in `#shift-changes` (Mercjoy's and Princess Matildo's — IDs
+20085–23158 on Tamaki) rather than just the headcount gap, per the standing number-block
+rule — neither had a cover by end of session.
+
+**Phone capacity was a second, separate gap from headcount, and it is now fully
+resolved.** Found by checking every confirmed caller's Zoom Phone record (not assumed):
+six people were rostered but could not dial. Five had an extension but no AU/NZ Unlimited
+plan or number (Rechiell W., Ericka Kim Arnosa, Mary Jane Vergara, Francine Tena, Mary Joy
+Villacura) — fixed via the `reassign-zoom-capacity` skill, pulling from five people
+confirmed not working that day (Mercjoy, Katherine Boiser, Chery Ann Custadillo, Stefany
+Fojas, Cheska Rejante). The sixth, **Yvonne Eusebio, had no Zoom Phone extension at all**
+— not a plan problem, she was not in the phone-user list as a person. Brendon created her
+extension directly in the Admin Portal mid-session; a plan freed from Almira Palomares
+(also confirmed not working) plus an unassigned NZ number (`09`, specifically asked for —
+Zoom's unassigned pool had only one NZ number left, the other three were Australian) were
+then assigned to the new extension. **A session has no API scope to create a phone user
+from scratch** — that step needs Admin Portal access, same as the licence/number
+assignment needs the scopes already documented above.
+
+**The Tamaki Makaurau 500 `#call-sheets` post was silently skipped.** The sheet was built
+and shared correctly — verified by `get_file_permissions`, every rostered caller present
+as writer — but the actual announcement to `#call-sheets-pacificlinkglobal` never went
+out, only NZNP 333 and ACT 1000 did. Nobody noticed until Shareea Malou Galos asked for it
+directly over an hour into the shift. **Her Drive permission was fine; the fault was a
+missing post, not a missing share** — exactly the class of mistake `verify-work`
+documents, and a reminder that "shared" and "announced" are two different facts that both
+need checking, not one inferred from the other.
+
+**Jessie Ann Burgos (`jessburgos1829@gmail.com`) is a second Slack login for the same
+person as "Jess" (`burgosjess199x@gmail.com`) on ACT 1000** — her Zoom Phone record uses
+the `jessburgos1829@` email. She had asked for call sheet access twice before (1 Oct,
+13 Oct) with no reply either time, then asked again today. Share future call sheets to
+**both** her emails, the same pattern as Nilyn and Salvador Banila.
+
 ## Wed 30 Sep no-shows, settled 1 Oct — only one was real
 
 Of six people who didn't call on 30 Sep, only **Jean Carla Sumarago** was an actual
