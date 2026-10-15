@@ -4278,6 +4278,38 @@ of it covered by end of shift). Thursday's own base target is 52, plus Curia tol
 directly to expect roughly 4 extras tomorrow. **The real number to roster against: 52 + 4
 (Wednesday's rollover) + 4 (Curia's extras) = 60**, not 52, not 56 — all three additions stack.
 
+## Tamaki Makaurau 500 draws from its OWN pool, never NZ Numbers — Brendon, 15 Oct 2026
+
+Built Thursday 15 Oct's Tamaki sheet with fresh numbers pulled from the NZ Numbers master
+by mistake. **`pools.py`'s `STANDING` dict already had this right — only `nznp` and `act`
+map to `NZ_MASTER`. Tamaki was never in it,** and the fix was to search Drive for Tamaki's
+own dedicated pool (`Tamaki Makauru Numbers Sep 2026`, folder `1V7Hfhhs2mp1VEwDkkxlZLKSj1n0FvC7T`,
+same restricted folder as Rangitikei/Waiariki) rather than reach for the master everyone
+else uses. **Check `pools.is_standing()` before drawing fresh numbers for ANY poll** — a
+poll not in `STANDING` needs its own pool found or asked for, never NZ Numbers by default.
+
+**That Tamaki pool only had 94 numbers left**, against 1,715 still needed after ring-backs
+(1,885 harvested out of 3,600 needed for 18 callers). Combined 1,979 total, split evenly
+per the standing "divide what's left" rule — 110 each for 17 callers, 109 for the 18th.
+The pool is now titled ALL USED; a fresh one is needed from Curia before Tamaki runs again.
+
+**Undoing the wrong draw meant keeping the master pool's used range CONTIGUOUS, not just
+freeing the mistaken middle chunk.** Brendon: *"make sure it's in chronological order in
+the NZ numbers so it's easy for Curia to draw."* Unshading Tamaki's 1,715 mistaken ids
+(77471–79185) and leaving ACT 1000's real NZ-half draw where it already sat (79186–80569)
+would have left a shaded-white-shaded pattern — technically safe (no double-draw) but
+unreadable to Curia, who read the title as "everything before this row is used." The fix
+re-pulled the 1,384 ACT 1000 numbers from the now-closed gap (77471–78854 instead of
+79186–80569) and **rewrote the 7 affected ACT 1000 callers' tabs with the new numbers**
+— the phone numbers on their sheets changed, not just the pool's bookkeeping, because the
+old range was being freed back to "unused." Final mark: `NZ Numbers 2026 - 2027 - USE FROM
+ROW 78856`, clean and contiguous.
+
+**The general lesson: when a wrong draw is found, undoing it is not just "mark it unused
+again" if anything downstream already has those exact numbers on a live call sheet.**
+Check what depends on the mistaken range before deciding whether reverting is a shading fix
+alone or needs the dependent tabs rebuilt too.
+
 ## There is a hard daily cap on callers, and overflow rolls forward too — Brendon, 15 Oct 2026
 
 *"We can only have a max of 55 and the overflow will roll over to tomorrow."* On top of the
