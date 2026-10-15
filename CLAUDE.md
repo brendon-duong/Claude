@@ -4278,6 +4278,36 @@ of it covered by end of shift). Thursday's own base target is 52, plus Curia tol
 directly to expect roughly 4 extras tomorrow. **The real number to roster against: 52 + 4
 (Wednesday's rollover) + 4 (Curia's extras) = 60**, not 52, not 56 — all three additions stack.
 
+## There is a hard daily cap on callers, and overflow rolls forward too — Brendon, 15 Oct 2026
+
+*"We can only have a max of 55 and the overflow will roll over to tomorrow."* On top of the
+existing rollover rules above (a shortfall, drawn or vacant, rolls to the next running day),
+**the target itself can exceed what can actually be worked in one day**, and when it does the
+excess is not squeezed in — it rolls forward exactly like any other shortfall.
+
+Thursday 15 Oct: target was 65 (58 base/rollover + 7 Curia extras), but the real ceiling that
+day was 55. NZNP 333 and Tamaki Makaurau 500 were filled to their own full numbers first
+(12 + 18 = 30, per "prioritize the multipoll, make sure to make that full"), and **ACT 1000
+absorbed the rest of the 55** (25), per "all the extras are meant to go on ACT one thousand."
+The gap between 65 and 55 — 10 — rolled to Friday on top of whatever Friday's own target is.
+
+**Don't assume 55 is a permanent number** — ask or re-derive it each time a target materially
+exceeds the previous day's actual headcount; it reads like the AU/NZ Unlimited calling-plan
+licence count (see the Zoom capacity rules elsewhere in this file) but was given verbally, not
+confirmed against a live `/v2/phone/users` licence count that day.
+
+## A specific caller can be excluded from a day's roster on Brendon's say-so, no reason needed in the channel — Brendon, 15 Oct 2026
+
+*"Don't let Peterson or Rechiell work today."* Both had zero Zoom call activity the previous
+shift (see the audit). When Brendon names someone to leave off a specific day, pull them from
+that day's roster/call sheet build without further litigation — don't message them the reason,
+and don't post anything in #shift-changes that reads as a performance callout (the standing rule
+against sending anyone their own off-phone or no-show figures still applies). If their absence
+leaves a real gap, chase a replacement the normal way; if the day's cap already absorbs the
+removal (as it did here — removing Rechiell plus reassigning another extra landed ACT 1000
+exactly on its capped number), no backfill is needed and that's worth saying so explicitly
+rather than silently chasing a replacement nobody needs.
+
 ## A rolled-forward shortfall is ADDITIVE to today's total — it does not cancel out, Brendon 1 Oct 2026
 
 Got this wrong the same day it was supposedly already fixed: asked who from Wednesday's
