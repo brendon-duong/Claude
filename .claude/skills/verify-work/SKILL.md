@@ -56,6 +56,25 @@ standing exception to post there without asking. Flag to Brendon separately, onc
 some data may already be logged against the wrong survey — whether to tell Curia is his
 call, not something to act on unilaterally.
 
+**Drew any numbers from a master pool — SHADE THE USED ROWS AND UPDATE THE TITLE, EVERY
+TIME, NOT JUST WHEN ASKED.** Found 20 Oct 2026: a whole day's draw (NZNP 333, Epsom,
+Young Maori 500 — thousands of numbers) went out with the title updated but nothing
+shaded, twice, until Brendon caught it by eye. Shading is not a nice-to-have on top of the
+title — the title says where the pool stands, the shading is what actually stops the next
+session redrawing a number mid-block. Do both, immediately after the draw, before telling
+anyone the sheet is ready. If the file's green convention has been overwritten by a prior
+mistake, or the file turns out to carry someone else's own marking (Curia's own usage in
+their own colour, found the same day on this same pool), ask rather than assume one
+colour fits everything — but do not skip marking it at all.
+
+**Before trusting a pool's own row/ID convention, check whether the file is actually in
+that order.** Found the same day: a title read "USE FROM ROW n" and the file's IDs did
+not increase row by row — assumed broken and resorted it by ID, which actually destroyed
+real information (each caller's historical block is a contiguous run of ROWS, appended in
+draw order, not sorted by ID value) and caused 999 already-used numbers to be redrawn.
+Check for append/draw order before concluding a title or a file is stale — a sequence
+that looks disordered by ID can still be perfectly ordered by when it was issued.
+
 **Posted a call-sheet link to `#call-sheets-pacificlinkglobal` — THE ACTUAL URL MUST BE IN THE
 POST, EVERY TIME.** Found 1 Oct 2026: all four of that day's call-sheet posts (Corp 1000,
 NZNP 333, Hauraki-Waikato 500, Waiariki 500) said "your call sheet and survey link are in
