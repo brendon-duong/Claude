@@ -70,7 +70,26 @@ def is_standing(poll: str) -> bool:
 # names.py only grows on his say-so - guessing a poll onto this list wastes
 # capacity PL did not need to hold back; guessing one off it repeats this
 # incident.
-SHARED_WITH_CURIA: frozenset[str] = frozenset({'young maori'})
+#
+# 'nz maori' / 'gen maori' added 20 Oct 2026, pending Brendon's confirmation
+# but applied now rather than left unguarded overnight. Evidence, not a
+# guess: the Drive file "Maori Numbers Oct 26" (found while sourcing
+# tomorrow's NZ Maori 500 draw) is ID-for-ID and phone-for-phone identical,
+# on every row sampled, to the now-exhausted "Under 30 Maori Numbers Oct 26"
+# pool that caused the original incident - same master list, re-exported
+# under a new name with none of Pacific Link's usage stripped out. Drawing
+# from it as if it were a fresh pool would have re-issued numbers already
+# dialled AND re-drawn the 454 numbers just handed back to Curia. The pool
+# also has ~5,274 phone numbers appearing at more than one ID, so a draw
+# must be deduplicated by phone, never by ID alone - see
+# business_agent.tests or the 20 Oct build notes for the method. Flag to
+# Brendon: if "NZ Maori" / "Young Maori" / "Gen Maori" turn out NOT to be one
+# shared resource after all, remove the extra two entries below.
+#
+# 'ak ctl' added 20 Oct 2026, Brendon's own words, directly: "You need to
+# save some numbers for Curia for Auckland central." Confirmed, not
+# inferred.
+SHARED_WITH_CURIA: frozenset[str] = frozenset({'young maori', 'nz maori', 'gen maori', 'ak ctl'})
 
 # Confirmed by Brendon, 20 Oct 2026, after Curia's complaint - half of
 # whatever remains, not the whole pool, every single draw.

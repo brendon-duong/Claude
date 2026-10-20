@@ -50,6 +50,13 @@ class SharedWithCuriaTest(unittest.TestCase):
         self.assertFalse(pools.is_shared_with_curia('NZNP 333'))
         self.assertFalse(pools.is_shared_with_curia('Waitaki 400'))
 
+    def test_nz_maori_and_gen_maori_are_shared(self):
+        # Added 20 Oct 2026: "Maori Numbers Oct 26" proved ID-and-phone
+        # identical to the exhausted "Under 30 Maori" pool that caused the
+        # original incident - same resource under Curia's renamed poll.
+        self.assertTrue(pools.is_shared_with_curia('NZ Maori 500'))
+        self.assertTrue(pools.is_shared_with_curia('Gen Maori 500'))
+
 
 class MaxSafeDrawTest(unittest.TestCase):
     def test_a_shared_poll_is_capped_at_half(self):
