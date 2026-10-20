@@ -3751,6 +3751,61 @@ every near-zero-activity name (Karla, Shareea, Lily, Charlene) already had a sam
 replacement with notice given, so the two silent no-shows are still unidentified. Don't
 manufacture an answer Brendon himself hasn't given — leave it open and say so.
 
+## Tuesday 20 / Wednesday 21 Oct — a second near-miss on the Maori pool, Auckland Central has TWO pools, and a `share_file` failure does not mean a write is blocked
+
+Building Wednesday 21 Oct's call sheets (NZNP 333, NZ Maori 500, Ak Ctl 400) surfaced three
+things worth keeping, on top of the same-night fix to the 500-numbers-back incident above.
+
+**"Maori Numbers Oct 26" (`1GudUNIdLk2HWE0mSbVQWzz7h6eTEndU6XbEfheRqaFE`) is the SAME master
+list as the exhausted "Under 30 Maori Numbers Oct 26"** — proved by checking, not assumed:
+every sampled row matches ID-for-ID and phone-for-phone between the two files. Drawing from it
+as a fresh pool would have re-issued numbers already dialled under the old pool AND re-drawn
+the 454 numbers just handed back to Curia that same night. It also has **~5,274 phone numbers
+appearing at more than one ID** — a draw must dedupe by phone, never by ID alone, or the same
+real person gets rung twice under two different row numbers. Brendon confirmed this file is
+still the right one to draw from ("this is the numbers for the Maori numbers for today and
+tomorrow"); the fix is dedup-before-draw, not a different file. `pools.SHARED_WITH_CURIA` now
+covers `nz maori` / `young maori` / `gen maori` as one shared resource, same 50/50 reserve.
+
+**`share_file` refusing "The caller does not have permission" does NOT mean `sheets-bot` can't
+write to a file.** Got this wrong twice in one night, told Brendon shading was "genuinely not
+possible" on both "Maori Numbers Oct 26" and the Ak Ctl pools, and he had to push back before it
+was checked properly. The actual test is simple and was sitting right there the whole time:
+`get_file_permissions` showed `sheets-bot` already listed as `writer` on the Maori file, and a
+plain `sheets.mjs write ... --shade` call succeeded immediately — no `share_file` needed at all.
+**Before telling Brendon shading is blocked on any file, run `get_file_permissions` and/or try
+the actual write, never stop at a `share_file` error.** A pool that's shared with Curia (several
+owners: `brendon.duong10`, `curiaresearch`, David Farrar's own address) can already carry
+`sheets-bot` as a writer from an earlier session's own `share_file` call — re-sharing an
+existing role is what was erroring, not the access itself.
+
+**When the safe draw isn't contiguous, shading needs one band per contiguous run, not one
+big band.** The Maori draw (1,400 numbers) excluded ~4,556 already-used/given-back phones
+scattered through the pool, so the actual IDs drawn fell into **259 separate contiguous runs**.
+`sheets.mjs`'s `shade` payload takes an array of bands in one call — compute the runs from the
+real drawn ID list (`itertools.groupby` on consecutive integers, or the simple walk used here)
+and pass all of them in one `write` call rather than approximating with a single range.
+
+**Auckland Central 400 draws from TWO pools, not one**, and the first one found
+("Ak Ctl Numbers Part Oct 26", folder-restricted, `share_file` still genuinely refused on this
+one — real restriction, not the above false alarm) was not the whole story: Brendon supplied a
+second file, "Auckland Central Numbers October 2026" (`1XwpAiAlVlqJE4D7ZSB-zGwLp_B3zekdCmC2X8-vpkOo`),
+which `sheets-bot` already holds writer on. **Drawing from only the first one and calling it
+"ALL USED" at 2,500/2,500 with nothing held back repeated the exact Under 30 Maori mistake in
+one more poll, same night** — caught and corrected before any caller saw the wrong numbers.
+**Brendon's standing figure for Ak Ctl 400 going forward: 200 numbers per caller, at least 400
+numbers held back for Curia, drawn across both files** (fill from the shadeable one first since
+it can actually be marked green, spill into the other only for the remainder). Check Drive for
+a sibling pool file by name before concluding a restricted pool is the only source — ask
+Brendon directly if one isn't obviously there, the way this session should have the first time.
+
+**Green shading is now a hard rule, no exceptions, title-marks are the true last resort.**
+Brendon, 21 Oct: *"Remember everytime you draw a number you need to highlight it green. Make
+that a hard rule everytime you draw a number."* Only fall back to a title mark when a write is
+confirmed genuinely refused (a real `share_file` failure on a pool nobody else has shared
+`sheets-bot` into, like the restricted-folder Ak Ctl file above) — never assume it from a
+`share_file` error alone, per the correction above.
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,
