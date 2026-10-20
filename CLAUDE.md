@@ -4328,6 +4328,37 @@ exceeds the previous day's actual headcount; it reads like the AU/NZ Unlimited c
 licence count (see the Zoom capacity rules elsewhere in this file) but was given verbally, not
 confirmed against a live `/v2/phone/users` licence count that day.
 
+## NEVER DRAW A SHARED POOL DOWN TO ZERO — SAVE NUMBERS FOR CURIA, Brendon 20 Oct 2026
+
+Curia messaged Brendon directly (WhatsApp, "CURIA & PL"): *"your Claude agent used all the
+Māori under 30 numbers and left none for our staff even though we had about 200 per person
+worked out for across both nights. Your agent assigned your staff 200 per night leaving us
+with nothing."* Brendon's instruction back: *"You need to save numbers for Curia."*
+
+**What happened.** The Under 30 Maori Numbers Oct 26 pool had a red-shaded zone (rows
+2-1202) already understood to be Curia's own prior usage — that part was correctly never
+touched. But the rest of the file (rows 1203-7530, 6,328 numbers) was treated as entirely
+Pacific Link's to draw from, across Monday night and Tuesday 20 Oct, right down to the last
+row — closing the pool out to "ALL USED" with nothing held back. Curia's own staff, it turns
+out, were expecting to draw from that same remaining pool in parallel, not just the
+red-marked section.
+
+**The standing rule now: when a pool is shared with Curia, drawing it to zero is a mistake
+by itself, independent of whether any individual number gets double-dialled.** A pool
+reading "ALL USED" after a Pacific Link draw is a red flag to check, not a clean finish.
+
+**The exact split ratio was NOT settled when this was written** — Brendon was asked for a
+preference (50/50, matching Curia's own headcount, a flat reserve, or asking Curia each
+time) and the question was declined in the moment, mid-incident. So: **before any future
+draw from a pool Curia also uses, ask Brendon what to hold back if it isn't already stated
+in this file.** Never assume it is safe to use "whatever's left" just because the title's
+high-water mark says it's unclaimed — the title only records Pacific Link's own progress, it
+does not record whether Curia expected a share of what's past it.
+
+**This applies to the call-sheet builder Routine (`trig_01BUoM2Vf3P4r9D1dWsiHCMt`) too** —
+its prompt currently draws whatever a pool has left with no reserve logic. Update it with
+whatever split Brendon settles on before trusting it unattended on a shared pool again.
+
 ## A specific caller can be excluded from a day's roster on Brendon's say-so, no reason needed in the channel — Brendon, 15 Oct 2026
 
 *"Don't let Peterson or Rechiell work today."* Both had zero Zoom call activity the previous
