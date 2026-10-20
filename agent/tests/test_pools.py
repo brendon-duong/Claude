@@ -36,3 +36,34 @@ class PoolForTest(unittest.TestCase):
     def test_is_standing(self):
         self.assertTrue(pools.is_standing('ACT 1000'))
         self.assertTrue(pools.is_standing('NZNP 333'))
+
+
+class SharedWithCuriaTest(unittest.TestCase):
+    def test_young_maori_is_shared(self):
+        self.assertTrue(pools.is_shared_with_curia('Young Maori 500'))
+
+    def test_sample_size_does_not_matter(self):
+        self.assertTrue(pools.is_shared_with_curia('Young Maori 333'))
+
+    def test_an_unlisted_poll_is_not_shared(self):
+        self.assertFalse(pools.is_shared_with_curia('ACT 1000'))
+        self.assertFalse(pools.is_shared_with_curia('NZNP 333'))
+        self.assertFalse(pools.is_shared_with_curia('Waitaki 400'))
+
+
+class MaxSafeDrawTest(unittest.TestCase):
+    def test_a_shared_poll_is_capped_at_half(self):
+        self.assertEqual(pools.max_safe_draw(1907, 'Young Maori 500'), 953)
+
+    def test_a_non_shared_poll_is_never_capped(self):
+        self.assertEqual(pools.max_safe_draw(1907, 'ACT 1000'), 1907)
+        self.assertEqual(pools.max_safe_draw(1907, 'Waitaki 400'), 1907)
+
+    def test_the_cap_is_floored_not_rounded(self):
+        self.assertEqual(pools.max_safe_draw(5, 'Young Maori 500'), 2)
+
+    def test_an_empty_pool_caps_to_zero_not_negative(self):
+        self.assertEqual(pools.max_safe_draw(0, 'Young Maori 500'), 0)
+
+    def test_a_custom_fraction_overrides_the_default(self):
+        self.assertEqual(pools.max_safe_draw(100, 'Young Maori 500', fraction=0.25), 25)

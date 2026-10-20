@@ -167,6 +167,20 @@ class TestAllocate(unittest.TestCase):
         with self.assertRaises(ValueError):
             allocate(pool(), ["Ana"], poll="ACT 1000", day=DAY, block_size=0)
 
+    def test_a_poll_shared_with_curia_never_draws_more_than_half(self):
+        # 1000 available; Curia's half (500) must stay untouched.
+        result = allocate(
+            pool(count=1000), ["Ana", "Ben", "Cara"],
+            poll="Young Maori 500", day=DAY, block_size=200,
+        )
+        self.assertEqual(sum(b.size for b in result.blocks), 500)
+        self.assertEqual(result.held_back_for_curia, 500)
+        self.assertEqual(result.blocks[2].size, 100, "the 500 cap runs out mid-caller")
+
+    def test_a_poll_not_shared_with_curia_has_nothing_held_back(self):
+        result = allocate(pool(count=1000), ["Ana"], poll="ACT 1000", day=DAY)
+        self.assertEqual(result.held_back_for_curia, 0)
+
 
 class TestHarvestRingbacks(unittest.TestCase):
     def test_keeps_ringbacks_and_never_called_drops_the_rest(self):
@@ -232,6 +246,22 @@ class TestAllocateWithRingbacks(unittest.TestCase):
         )
         self.assertEqual(result.unserved, ["Ana"])
         self.assertIsNone(result.high_water)
+
+    def test_curia_reserve_caps_fresh_but_never_harvested_ringbacks(self):
+        # This is the 20 Oct 2026 incident in miniature: Curia's own staff
+        # must still have half of whatever's fresh left after harvesting.
+        harvested = [PoolNumber(900 + i, f"h{i}", "RB") for i in range(50)]
+        fresh = pool(start=60000, count=100)  # half of this (50) is PL's cap
+        result = allocate_with_ringbacks(
+            harvested, fresh, ["Ana"], poll="Young Maori 500", day=DAY, block_size=200,
+        )
+        self.assertEqual(result.held_back_for_curia, 50)
+        # Ana gets all 50 harvested (never capped) plus only 50 of the 100 fresh.
+        self.assertEqual(result.blocks[0].size, 100)
+        ids = [n.number_id for n in result.blocks[0].numbers]
+        self.assertEqual(len([i for i in ids if i >= 900 and i < 950]), 50,
+                          "harvested ringbacks are never reserved for Curia")
+        self.assertEqual(result.high_water, 60049)
 
 
 class TestBuildWorkbook(unittest.TestCase):

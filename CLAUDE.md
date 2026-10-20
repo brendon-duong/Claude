@@ -4343,21 +4343,41 @@ row — closing the pool out to "ALL USED" with nothing held back. Curia's own s
 out, were expecting to draw from that same remaining pool in parallel, not just the
 red-marked section.
 
-**The standing rule now: when a pool is shared with Curia, drawing it to zero is a mistake
+**The standing rule: when a pool is shared with Curia, drawing it to zero is a mistake
 by itself, independent of whether any individual number gets double-dialled.** A pool
 reading "ALL USED" after a Pacific Link draw is a red flag to check, not a clean finish.
 
-**The exact split ratio was NOT settled when this was written** — Brendon was asked for a
-preference (50/50, matching Curia's own headcount, a flat reserve, or asking Curia each
-time) and the question was declined in the moment, mid-incident. So: **before any future
-draw from a pool Curia also uses, ask Brendon what to hold back if it isn't already stated
-in this file.** Never assume it is safe to use "whatever's left" just because the title's
-high-water mark says it's unclaimed — the title only records Pacific Link's own progress, it
-does not record whether Curia expected a share of what's past it.
+**CONFIRMED 50/50, same day, after Brendon said this had happened "a few times" and Curia
+were "getting fucked off."** Half of whatever remains goes to Pacific Link, half stays
+untouched for Curia, every single draw — not a judgement call per pool.
 
-**This applies to the call-sheet builder Routine (`trig_01BUoM2Vf3P4r9D1dWsiHCMt`) too** —
-its prompt currently draws whatever a pool has left with no reserve logic. Update it with
-whatever split Brendon settles on before trusting it unattended on a shared pool again.
+**This is not just written down — it is enforced in code, because a prose rule is exactly
+what got skipped the last few times.** `business_agent/pools.py`:
+
+    SHARED_WITH_CURIA = frozenset({'young maori'})   # extend only on Brendon's say-so
+    CURIA_RESERVE_FRACTION = 0.5
+    max_safe_draw(available, poll)                    # available if not shared, else floor(available * 0.5)
+
+`business_agent/callsheet.py`'s `allocate()` and `allocate_with_ringbacks()` both call
+`pools.max_safe_draw` on the fresh pool before cutting any caller's block, and the result
+carries `Allocation.held_back_for_curia` so a build has to look at the number, not just
+trust it happened. **Harvested ring-backs (a caller's own recycled numbers from a previous
+day) are never capped** — only `fresh`, the shared pool itself, is Curia's to share in.
+14 tests cover this (`SharedWithCuriaTest`, `MaxSafeDrawTest` in `test_pools.py`;
+the Curia-reserve cases in `test_callsheet.py`).
+
+**`SHARED_WITH_CURIA` currently has one entry: `young maori`** (matches "Young Maori 500",
+"Young Maori 333", any sample size — `pools.normalise` drops the number). Extend it the same
+way `names.ALIASES` only grows on Brendon's decision, never by inference — guessing a poll
+onto this list wastes capacity nobody needed held back; guessing one off it repeats this
+incident.
+
+**The call-sheet builder Routine (`trig_01BUoM2Vf3P4r9D1dWsiHCMt`) already calls
+`callsheet.allocate_with_ringbacks` directly** (its step 3), so the code enforcement above
+reaches it automatically — checked live against its stored prompt, not assumed. Its prompt
+was still updated the same day (step 3 and step 6) to name the rule explicitly and report
+`held_back_for_curia` in its alert to Brendon, so a human reading the alert can see the
+number too, not just trust the code silently did the right thing.
 
 ## A specific caller can be excluded from a day's roster on Brendon's say-so, no reason needed in the channel — Brendon, 15 Oct 2026
 

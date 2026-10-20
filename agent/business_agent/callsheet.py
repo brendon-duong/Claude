@@ -21,6 +21,8 @@ import re
 from dataclasses import dataclass, field
 from datetime import date
 
+from . import pools
+
 DEFAULT_BLOCK_SIZE = 200
 
 # The colour the source sheet uses to mark numbers already handed out.
@@ -87,6 +89,9 @@ class Allocation:
     # Callers who got nothing because the pool ran dry.
     unserved: list[str] = field(default_factory=list)
     high_water: int | None = None
+    # Numbers that were available but withheld to keep Curia's share intact
+    # (pools.max_safe_draw) - 0 for any poll not in pools.SHARED_WITH_CURIA.
+    held_back_for_curia: int = 0
 
     @property
     def issued(self) -> int:
@@ -219,7 +224,14 @@ def allocate(
     if reusable_only:
         ordered = [item for item in ordered if is_reusable(item)]
 
-    allocation = Allocation(poll=poll, day=day)
+    # Never draw a shared pool down past Curia's share (pools.max_safe_draw) -
+    # CLAUDE.md, 20 Oct 2026: drawing one to zero is a mistake on its own,
+    # whatever an empty "USE FROM" title makes it look like.
+    safe_draw = pools.max_safe_draw(len(ordered), poll)
+    held_back = len(ordered) - safe_draw
+    ordered = ordered[:safe_draw]
+
+    allocation = Allocation(poll=poll, day=day, held_back_for_curia=held_back)
     cursor = 0
     for caller in callers:
         chunk = ordered[cursor : cursor + block_size]
@@ -280,10 +292,20 @@ def allocate_with_ringbacks(
     in would corrupt the "USE FROM" mark written back to that pool's title.
     """
     harvested = [item for item in harvested if is_reusable(item)]
-    ordered = harvested + list(fresh)
+
+    # Never draw a shared pool down past Curia's share (pools.max_safe_draw).
+    # Only `fresh` is capped - `harvested` is Pacific Link's own numbers
+    # recycled off a previous day's sheet, not a draw against the shared pool,
+    # so it is never what Curia is owed a share of.
+    fresh = list(fresh)
+    safe_draw = pools.max_safe_draw(len(fresh), poll)
+    held_back = len(fresh) - safe_draw
+    fresh = fresh[:safe_draw]
+
+    ordered = harvested + fresh
     boundary = len(harvested)  # ordered[boundary:] came from `fresh`
 
-    allocation = Allocation(poll=poll, day=day)
+    allocation = Allocation(poll=poll, day=day, held_back_for_curia=held_back)
     cursor = 0
     fresh_used: list[PoolNumber] = []
     for caller in callers:

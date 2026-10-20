@@ -56,3 +56,46 @@ def pool_for(poll: str) -> str | None:
 
 def is_standing(poll: str) -> bool:
     return pool_for(poll) is not None
+
+
+# Polls whose number pool Curia's OWN staff also draw from, past whatever is
+# already marked as their usage. Brendon, 20 Oct 2026, after Curia found the
+# entire remaining Under 30 Maori pool had been drawn by Pacific Link alone
+# across two nights, leaving them nothing: "You need to save numbers for
+# Curia." This must never again be left to a human noticing after the fact -
+# `max_safe_draw` is the enforcement, called from `callsheet.allocate` and
+# `callsheet.allocate_with_ringbacks` on every draw.
+#
+# Extend this set only on a decision from Brendon, the same way ALIASES in
+# names.py only grows on his say-so - guessing a poll onto this list wastes
+# capacity PL did not need to hold back; guessing one off it repeats this
+# incident.
+SHARED_WITH_CURIA: frozenset[str] = frozenset({'young maori'})
+
+# Confirmed by Brendon, 20 Oct 2026, after Curia's complaint - half of
+# whatever remains, not the whole pool, every single draw.
+CURIA_RESERVE_FRACTION = 0.5
+
+
+def is_shared_with_curia(poll: str) -> bool:
+    return normalise(poll) in SHARED_WITH_CURIA
+
+
+def max_safe_draw(available: int, poll: str, *, fraction: float = CURIA_RESERVE_FRACTION) -> int:
+    """How many numbers Pacific Link may draw from `available` without eating
+    into Curia's share.
+
+    Non-shared polls are unaffected - `available` is returned unchanged, same
+    as before this existed. A pool shared with Curia is capped at `fraction`
+    of what's there, floored, so the cap can never accidentally read as "draw
+    everything" on a small remainder and Curia's half never goes negative.
+
+    This is deliberately blind to how much Curia has already taken - it caps
+    PL's draw at half of what is UNUSED right now, not half of the pool's
+    original size. If Curia already drew their expected share and this still
+    leaves PL short, that is a real capacity shortfall to raise with Brendon,
+    not something to route around by drawing past the cap.
+    """
+    if not is_shared_with_curia(poll):
+        return available
+    return int(available * fraction)
