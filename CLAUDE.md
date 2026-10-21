@@ -71,6 +71,17 @@ tally counts matching the sections.
 It is a **snapshot, not live**, and the page says so. Do not describe it to
 Brendon as live.
 
+## Standing instruction: keep the Pacific Link Roster page current
+
+`https://claude.ai/artifact/1dtZ8vBum5BQuN9fG11yGN` — **"Pacific Link Roster"**.
+When Brendon says "the Pacific Link Roster" he means **this page**, not a Slack post
+and not the roster dashboard. On 21 Oct 2026 he said he had asked "so many times" for
+it to be updated and it hadn't been. So **update it as the work happens** — every
+roster change, pull-out, swap, no-show, extra added, or number draw — not when asked.
+Same rule as the build register and agent map: read the artifact first, merge, then
+publish with `url` set to it. The data is the `DATA` array (one entry per day, Sun to
+Sat); edit that, not the markup.
+
 ## Standing instruction: there is no memory, so read the store first
 
 A session remembers nothing from the last one. The container is wiped and
