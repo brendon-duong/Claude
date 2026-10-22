@@ -82,6 +82,19 @@ Same rule as the build register and agent map: read the artifact first, merge, t
 publish with `url` set to it. The data is the `DATA` array (one entry per day, Sun to
 Sat); edit that, not the markup.
 
+## Standing instruction: keep an ongoing standby bench every shift day — Brendon, 22 Oct 2026
+
+*"Create an on-going bench in case of drop outs."* Every shift day, once the roster is full:
+
+1. **Standby bench** = people who said yes for that day but weren't needed, ranked on the 75/25
+   fortnight score. Post them in `#shift-changes` as an ordered standby list (tagged, `<@ID>`),
+   asking them to watch Slack around shift time and reply if they're no longer free.
+2. **Reserve list** = everyone else who voted ✅ for that day and isn't rostered, best first.
+3. Put both on the **Pacific Link Roster** page under that day.
+4. On a drop-out, go down the standby list in order first (cover-a-pullout skill), then the
+   reserve list. Check their AU/NZ Unlimited plan + 04 number before confirming.
+5. Rebuild the list each day — yesterday's bench is not today's.
+
 ## Standing instruction: there is no memory, so read the store first
 
 A session remembers nothing from the last one. The container is wiped and
