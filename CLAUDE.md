@@ -3447,6 +3447,21 @@ never a no-show, and say so plainly rather than asking the caller to account
 for a shift they were never given. Only call it a no-show once their name is
 confirmed present on that day's actual roster post.
 
+## "Has anyone pulled out?" means read #shift-changes from the START of the day, every time — 22 Oct 2026
+
+April Rose Suzon posted *"Can someone cover my shift"* in `#shift-changes` at 1:09pm AEDT on
+22 Oct. Three later "has anyone pulled out?" checks all said no, because each one read the
+channel with `oldest` set to roughly "since my last post" rather than "since the start of the
+shift day" — the 1:00-2:00pm window fell between two reads and was never looked at. She chased
+at 3:40pm, twenty minutes before the shift, and only then was she covered (Jayzel took over her
+tab and exact number block).
+
+**The fix:** whenever the question is whether anyone has pulled out today, read
+`#shift-changes`, `#help` and Brendon's DMs from the morning of the shift day (e.g. 7am NZ),
+not from the last check. It is one read; overlapping costs nothing, a gap costs a shift. And
+read every message by a rostered caller, not just the newest few — a pull-out is often buried
+under a run of "I can work today" replies.
+
 ## Paginate the ENTIRE day's Zoom call log before counting who called — 13 Oct 2026
 
 **Got Monday 13 October's no-show count badly wrong, then corrected it the same day.**
