@@ -3845,6 +3845,14 @@ confirmed genuinely refused (a real `share_file` failure on a pool nobody else h
 `sheets-bot` into, like the restricted-folder Ak Ctl file above) — never assume it from a
 `share_file` error alone, per the correction above.
 
+**"Green" means exactly `#c6efce` — payload `"color": [198, 239, 206]`. Never red.** On 25 Oct
+2026 the call-sheet builder Routine shaded Pacific Link's own NZNP 333 draw (NZ Numbers rows
+88270–93248) `#ff0000`. Red is **Curia's** mark for their own staff's draw, so it told Curia
+those 4,979 numbers were theirs. Identified as ours because the band began exactly at the
+previous green boundary and ended on the last ID on our sheet; repainted green the same morning
+after Brendon asked, *"make sure to highlight it green"*. The builder's prompt now states the
+hex and requires a `showformat` read-back of the first and last shaded rows before posting.
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,
