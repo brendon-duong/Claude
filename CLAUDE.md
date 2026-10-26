@@ -3853,6 +3853,27 @@ previous green boundary and ended on the last ID on our sheet; repainted green t
 after Brendon asked, *"make sure to highlight it green"*. The builder's prompt now states the
 hex and requires a `showformat` read-back of the first and last shaded rows before posting.
 
+## WEEK OF 25-30 OCT 2026: BRENDON'S HEADCOUNTS BEAT CURIA'S SHEET — Brendon, 24 and 26 Oct 2026
+
+Brendon agreed with David Farrar directly (by text, 24 Oct) to **move Corp 1000's 20 callers
+from Wednesday 28 to Friday 30** and to **add 10 to Sunday 25**. Curia's schedule sheet was not
+updated to match. On 26 Oct: *"Tell the shift watcher to stop flagging Wednesday as we have
+changed our schedule to what I have told you."* For these dates, every Routine and session uses
+these numbers, not the sheet:
+
+    Sun 25 Oct   NZNP 333 28 (+1 Brendon added on the day = 29)
+    Mon 26 Oct   NZNP 333 18 (+1 Brendon added on the day = 19)
+    Tue 27 Oct   NZNP 333 18 + ACT 1000 22 = 40
+    Wed 28 Oct   NZNP 333 18 + ACT 1000 11 + Tamaki 400 10 = 39      NO Corp 1000 on Wednesday
+    Thu 29 Oct   NZNP 333 18 + ACT 1000 11 + Corp 1000 10 + Tamaki 400 10 = 49
+    Fri 30 Oct   Corp 1000 30
+
+Do not flag Wednesday as short on Corp 1000 or Friday as over, do not ask Brendon about it, and
+never recruit for a Wednesday Corp spot. Build Wednesday's and Friday's call sheets to these
+figures. Brendon's newest post in `#roster` or `#shift-changes` overrides this table. **Lapses
+after Fri 30 Oct**; from Sat 31 Oct read the sheet as normal. The shift watcher's own prompt
+(`trig_014g7fRRcCsaFeugu2qggo5Z`) carries the same override, added 26 Oct.
+
 ## How Brendon works
 
 - **Draft everything, send nothing.** A standing setting. Compose messages,
