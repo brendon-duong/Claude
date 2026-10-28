@@ -2082,10 +2082,16 @@ Time in / Time out / Break, and the RESULTS block (C / RB / R / GNA / TOTAL).
 That RESULTS block is also the answer to the long-open "one shared template" ask —
 every caller now declares in the same shape.
 
-**Share BOTH sheets with EVERY caller, not just their own poll's.** Posting two
-links to a 130-person WhatsApp group guarantees people tap the wrong one and get
-"request access". Cross-sharing removes a whole class of support traffic; the tab
-name is what tells a caller where to work.
+**SHARE EACH SHEET ONLY WITH THE CALLERS ON THAT SHEET — Brendon, 29 Oct 2026.**
+*"You only give access to people that are actually calling on that specific callsheet."*
+This replaces the 23 Sep cross-sharing rule (every caller got every poll's sheet, to
+stop wrong-link "request access" traffic). Cross-sharing gave 58 accounts edit access
+to every tab of every poll, and on 28 Oct a caller typed into another caller's tab on a
+sheet she wasn't working. So: a poll's sheet goes to that poll's rostered callers (all
+of their known Google accounts), plus `sheets-bot`, and nobody else. A cover or a
+caller moved between polls gets the sheet they're now on, not all of them. The
+`#call-sheets` post already says per poll "this link, these names", which is what stops
+people opening the wrong one.
 
 **`share_file` cannot revoke, and cannot re-notify.** It only grants, and
 re-granting a role someone already has is a silent no-op — Google emails only on a
@@ -3865,7 +3871,10 @@ these numbers, not the sheet:
     Mon 26 Oct   NZNP 333 18 (+1 Brendon added on the day = 19)
     Tue 27 Oct   NZNP 333 18 + ACT 1000 22 = 40
     Wed 28 Oct   NZNP 333 18 + ACT 1000 11 + Tamaki 400 10 = 39      NO Corp 1000 on Wednesday
-    Thu 29 Oct   NZNP 333 18 + ACT 1000 11 + Corp 1000 10 + Tamaki 400 10 = 49
+    Thu 29 Oct   NZNP 333 19 + ACT 1000 11 + Corp 1000 25 = 55    NO Tamaki 400 (Curia cancelled
+                 it 29 Oct; its 10 moved to Corp). Corp 25 = 10 + Curia's 5 extras + 10 ex-Tamaki.
+                 Pull-out priority that day (Brendon): cover ACT and NZNP first; a Corp pull-out's
+                 numbers can roll to the next Corp shift.
     Fri 30 Oct   Corp 1000 30
 
 Do not flag Wednesday as short on Corp 1000 or Friday as over, do not ask Brendon about it, and
