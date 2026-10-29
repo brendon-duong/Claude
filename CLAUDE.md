@@ -3874,8 +3874,16 @@ these numbers, not the sheet:
     Thu 29 Oct   NZNP 333 19 + ACT 1000 11 + Corp 1000 25 = 55    NO Tamaki 400 (Curia cancelled
                  it 29 Oct; its 10 moved to Corp). Corp 25 = 10 + Curia's 5 extras + 10 ex-Tamaki.
                  Pull-out priority that day (Brendon): cover ACT and NZNP first; a Corp pull-out's
-                 numbers can roll to the next Corp shift.
-    Fri 30 Oct   Corp 1000 30
+                 numbers can roll to the next Corp shift. FINAL: 51 worked of 55 - Corp 21/25.
+                 Pull-outs Erika, Yvonne, Sibyl, Bryan, Mary Jane; Kristine Celetaria covered
+                 Yvonne; Jasyl, Juvylyn and Alie Mae moved Corp -> ACT. Closed - do not chase.
+    Fri 30 Oct   Corp 1000 34 = Brendon's 30 + Thursday's 4 missing Corp shifts ROLLED FORWARD
+                 (Brendon, 29 Oct: "anyone that we are short of we roll over today's missing
+                 shift onto tomorrow"). The 4 extras work Thursday's unassigned Corp blocks
+                 (Erika's, Jasyl's, Juvylyn's, Alie Mae's tabs) - those numbers move to Friday's
+                 Corp sheet, not fresh draws. Friday is short until 34 are rostered: fill the 4
+                 from the Friday bench as normal. (Curia's sheet shows 10 for Friday; Brendon's
+                 30 stands unless he posts otherwise.)
 
 Do not flag Wednesday as short on Corp 1000 or Friday as over, do not ask Brendon about it, and
 never recruit for a Wednesday Corp spot. Build Wednesday's and Friday's call sheets to these
