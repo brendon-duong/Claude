@@ -179,6 +179,14 @@ directory or into this file. That is the whole of the memory.
   Kim Rikka Tumbiga covered her Wednesday Nelson 400 spot; Ms Jen (first on the Friday
   reserve list) was asked to cover her Friday Wgtn 1000 spot.
 
+- **NEVER grant Kingsly Cajilig (`kingslyc@hogansmith.com`) access to anything — Brendon,
+  29 Oct 2026: "block future requests from Kingsly for phone numbers."** He is not a caller.
+  He requested edit access to the 28 Oct NZNP 333 sheet (which somehow reached him) and on
+  29 Oct sent five more requests for the ACT 1000 and Corp 1000 sheets within minutes. Never
+  `share_file` to him, never approve a request from him, and if he turns up on any sheet's
+  permissions, tell Brendon to remove him. His request emails in Brendon's Gmail are filed under
+  the label `Blocked - Kingsly`. Google Drive has no way to stop someone *requesting* access, so
+  the protection is that nobody ever approves it.
 - **Always share call sheets to `salvadorbanila041284@gmail.com` for Salvador
   Banila, never his Slack address.** Brendon, 29 Sep 2026. His Slack/profile
   email is `salvadorbanila@yahoo.com`, and Drive's `share_file` rejects it
