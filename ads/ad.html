@@ -1,0 +1,55 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100vw;height:100vh;overflow:hidden}
+body{font-family:"Inter","Liberation Sans","DejaVu Sans",Arial,sans-serif;color:#fff;
+ background:radial-gradient(120vw 60vh at 85% -5%,#ff8a3d 0%,#e2562a 18%,rgba(226,86,42,0) 55%),
+ linear-gradient(180deg,#0b2a4a 0%,#0a3c66 45%,#0e6fa3 100%);
+ display:flex;flex-direction:column;padding:6vw 7vw 6vw}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:800;letter-spacing:.35vw;font-size:2.6vw}
+.brand{border:.3vw solid #fff;padding:1vw 2vw;border-radius:1vw}
+.tag{background:rgba(255,255,255,.16);padding:1.1vw 2.2vw;border-radius:5vw;font-size:2.3vw;letter-spacing:.2vw}
+h1{margin-top:5vw;font-size:13.2vw;line-height:.92;font-weight:900;letter-spacing:-.4vw;text-transform:uppercase}
+h1 .hot{color:#ffd9b8}h1 .cold{color:#9fe6ff}
+.sub{margin-top:3vw;font-size:3.9vw;line-height:1.3;font-weight:500;max-width:78vw;color:#e6f4fb}
+.art{flex:1;display:flex;align-items:flex-end;justify-content:center;min-height:0;margin:2vw 0}
+.art svg{height:100%;max-width:100%}
+.chips{display:flex;gap:2vw;justify-content:center;margin-bottom:3.5vw}
+.chip{background:rgba(4,22,40,.55);border:.2vw solid rgba(159,230,255,.5);border-radius:2vw;padding:1.8vw 2.4vw;font-size:2.7vw;font-weight:700;text-align:center;flex:1}
+.chip b{display:block;font-size:4.4vw;color:#9fe6ff;font-weight:900}
+.cta{display:flex;justify-content:space-between;align-items:center}
+.btn{background:#fff;color:#0b2a4a;font-weight:900;font-size:4.2vw;padding:2.6vw 6vw;border-radius:8vw;text-transform:uppercase;letter-spacing:.15vw}
+.ship{font-size:2.8vw;font-weight:600;text-align:right;line-height:1.35;color:#e6f4fb}
+</style></head><body>
+<div class="top"><div class="brand">YOUR BRAND</div><div class="tag">PORTABLE ICE BATH</div></div>
+<h1><span class="hot">35° outside.</span><br><span class="cold">4° in here.</span></h1>
+<p class="sub">The coldest spot in your house this summer. Fill it, ice it, get in.</p>
+<div class="art">
+<svg viewBox="0 0 600 520" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <linearGradient id="body" x1="0" x2="1"><stop offset="0" stop-color="#05080c"/><stop offset=".35" stop-color="#2a3138"/><stop offset=".6" stop-color="#14181d"/><stop offset="1" stop-color="#020304"/></linearGradient>
+  <radialGradient id="water" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#d9f6ff"/><stop offset=".6" stop-color="#6fd0f2"/><stop offset="1" stop-color="#1f8fc4"/></radialGradient>
+  <linearGradient id="ice" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#bfeaff"/></linearGradient>
+ </defs>
+ <ellipse cx="300" cy="478" rx="250" ry="34" fill="#041628" opacity=".55"/>
+ <path d="M80 120 V430 A220 62 0 0 0 520 430 V120 Z" fill="url(#body)"/>
+ <g fill="none" stroke="#3b444d" stroke-width="3" opacity=".8">
+  <path d="M80 215 A220 62 0 0 0 520 215"/><path d="M80 320 A220 62 0 0 0 520 320"/>
+ </g>
+ <g stroke="#11151a" stroke-width="5" opacity=".9"><line x1="170" y1="172" x2="170" y2="482"/><line x1="300" y1="182" x2="300" y2="492"/><line x1="430" y1="172" x2="430" y2="482"/></g>
+ <ellipse cx="300" cy="120" rx="220" ry="62" fill="#0c1014"/>
+ <ellipse cx="300" cy="120" rx="220" ry="62" fill="none" stroke="#4a545e" stroke-width="5"/>
+ <ellipse cx="300" cy="128" rx="198" ry="52" fill="url(#water)"/>
+ <g fill="url(#ice)" stroke="#fff" stroke-width="2" opacity=".95">
+  <rect x="170" y="96" width="46" height="40" rx="8" transform="rotate(-14 193 116)"/>
+  <rect x="250" y="120" width="52" height="42" rx="8" transform="rotate(9 276 141)"/>
+  <rect x="330" y="92" width="44" height="38" rx="8" transform="rotate(20 352 111)"/>
+  <rect x="392" y="116" width="48" height="40" rx="8" transform="rotate(-8 416 136)"/>
+  <rect x="282" y="78" width="36" height="30" rx="7" transform="rotate(-22 300 93)"/>
+  <rect x="120" y="118" width="38" height="32" rx="7" transform="rotate(12 139 134)"/>
+ </g>
+ <rect x="500" y="388" width="34" height="20" rx="5" fill="#222a31"/><circle cx="538" cy="398" r="8" fill="#e2562a"/>
+ <g fill="#fff" opacity=".85"><circle cx="70" cy="60" r="4"/><circle cx="545" cy="40" r="5"/><circle cx="40" cy="250" r="3"/><circle cx="565" cy="230" r="3"/><circle cx="110" cy="20" r="3"/></g>
+</svg></div>
+<div class="chips"><div class="chip"><b>5 MIN</b>set-up</div><div class="chip"><b>NO</b>plumbing</div><div class="chip"><b>PACKS</b>away flat</div></div>
+<div class="cta"><div class="btn">Shop now</div><div class="ship">Ships Australia-wide<br>Lid + pump included</div></div>
+</body></html>
