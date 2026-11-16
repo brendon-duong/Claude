@@ -1,0 +1,114 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
+body{font-family:"Inter Display","Inter",Arial,sans-serif;color:#fff;position:relative}
+.layer{position:absolute;inset:0}
+#hot{background:radial-gradient(900px 900px at 50% 38%,#ffb347 0%,#ff6a2b 35%,#c6341a 70%,#7a1a10 100%)}
+#cold{background:radial-gradient(1100px 900px at 50% 60%,#1687c2 0%,#0a4a7c 45%,#06223f 100%)}
+#flash{background:#fff}
+.t{position:absolute;left:0;width:1080px;text-align:center;font-weight:900;text-transform:uppercase;letter-spacing:-4px;line-height:.92;will-change:transform}
+.ice{color:#9fe6ff}.warm{color:#fff1df}
+#tub{position:absolute;left:540px;width:600px;height:520px;margin-left:-300px;margin-top:-260px;transform-origin:50% 50%}
+#tub svg{overflow:visible;width:600px;height:520px}
+.row{position:absolute;left:100px;width:960px;white-space:nowrap;font-weight:900;font-size:82px;letter-spacing:-3px;text-transform:uppercase;display:flex;gap:34px;align-items:center}
+.row span{display:inline-flex;width:110px;height:110px;border-radius:55px;background:#fff;color:#06223f;align-items:center;justify-content:center;font-size:64px;letter-spacing:0;flex:none}
+#timer{font-variant-numeric:tabular-nums;font-size:150px;letter-spacing:-2px;top:1130px}
+#brand{position:absolute;left:50%;top:300px;transform:translateX(-50%);border:6px solid #fff;border-radius:16px;padding:16px 36px;font-weight:800;font-size:44px;letter-spacing:8px;white-space:nowrap}
+#btn{position:absolute;left:50%;top:1400px;background:#fff;color:#06223f;font-weight:900;font-size:68px;padding:38px 110px;border-radius:120px;text-transform:uppercase;letter-spacing:2px;white-space:nowrap}
+#ship{top:1590px;font-size:42px;font-weight:600;letter-spacing:0;text-transform:none;line-height:1.3;color:#d9f1fb}
+</style></head><body>
+<div class="layer" id="hot"></div><div class="layer" id="cold"></div>
+<div class="layer" id="shake">
+ <div class="t warm" id="a1" style="top:420px;font-size:470px">35°</div>
+ <div class="t warm" id="a2" style="top:900px;font-size:170px">Outside.</div>
+ <div class="t" id="a3" style="top:1140px;font-size:58px;letter-spacing:1px;font-weight:700;text-transform:none;color:#3b0d06">And the aircon's losing.</div>
+</div>
+<div class="t ice" id="b1" style="top:330px;font-size:400px">4°</div>
+<div class="t ice" id="b2" style="top:720px;font-size:170px">In here.</div>
+<div class="t" id="c0" style="top:300px;font-size:88px;letter-spacing:-2px;line-height:1">The 3 stages of<br><span class="ice">a cold plunge</span></div>
+<div class="row" id="c1" style="top:590px"><span>1</span>Hesitation</div>
+<div class="row" id="c2" style="top:750px"><span>2</span>Instant regret</div>
+<div class="row ice" id="c3" style="top:910px"><span>3</span>Totally hooked</div>
+<div class="t" id="timer">0:00</div>
+<div class="t" id="d1" style="top:420px;font-size:210px"></div>
+<div class="t ice" id="d2" style="top:660px;font-size:110px;letter-spacing:-2px"></div>
+<div id="brand">YOUR BRAND</div>
+<div class="t" id="e1" style="top:480px;font-size:104px;letter-spacing:-3px">Your backyard.<br><span class="ice">Your ice bath.</span></div>
+<div id="tub"><svg viewBox="0 0 600 520" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <linearGradient id="body" x1="0" x2="1"><stop offset="0" stop-color="#05080c"/><stop offset=".35" stop-color="#2a3138"/><stop offset=".6" stop-color="#14181d"/><stop offset="1" stop-color="#020304"/></linearGradient>
+  <radialGradient id="water" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#d9f6ff"/><stop offset=".6" stop-color="#6fd0f2"/><stop offset="1" stop-color="#1f8fc4"/></radialGradient>
+  <linearGradient id="icg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#bfeaff"/></linearGradient>
+ </defs>
+ <ellipse cx="300" cy="478" rx="250" ry="34" fill="#041628" opacity=".55"/>
+ <path d="M80 120 V430 A220 62 0 0 0 520 430 V120 Z" fill="url(#body)"/>
+ <g fill="none" stroke="#3b444d" stroke-width="3" opacity=".8"><path d="M80 215 A220 62 0 0 0 520 215"/><path d="M80 320 A220 62 0 0 0 520 320"/></g>
+ <g stroke="#11151a" stroke-width="5" opacity=".9"><line x1="170" y1="172" x2="170" y2="482"/><line x1="300" y1="182" x2="300" y2="492"/><line x1="430" y1="172" x2="430" y2="482"/></g>
+ <ellipse cx="300" cy="120" rx="220" ry="62" fill="#0c1014"/>
+ <ellipse cx="300" cy="120" rx="220" ry="62" fill="none" stroke="#4a545e" stroke-width="5"/>
+ <ellipse cx="300" cy="128" rx="198" ry="52" fill="url(#water)"/>
+ <ellipse id="rip" cx="300" cy="128" rx="60" ry="16" fill="none" stroke="#fff" stroke-width="4"/>
+ <g id="rest" fill="url(#icg)" stroke="#fff" stroke-width="2"></g>
+ <g id="fall" fill="url(#icg)" stroke="#fff" stroke-width="2"></g>
+ <rect x="500" y="388" width="34" height="20" rx="5" fill="#222a31"/><circle cx="538" cy="398" r="8" fill="#e2562a"/>
+</svg></div>
+<div id="btn">Shop now</div>
+<div class="t" id="ship">Ships Australia-wide</div>
+<div class="layer" id="flash"></div>
+<script>
+const $=id=>document.getElementById(id),cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const p=(t,a,b)=>cl((t-a)/(b-a)),eo=x=>1-Math.pow(1-x,3),ei=x=>x*x*x,back=x=>{const c=1.7;return 1+ (c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+const lerp=(a,b,x)=>a+(b-a)*x;
+// ice cubes
+const N=16,cubes=[];const NS='http://www.w3.org/2000/svg';
+for(let i=0;i<N;i++){const x=120+((i*137)%360),y=96+((i*53)%60),s=34+((i*29)%20),r=((i*47)%50)-25;
+ const mk=g=>{const e=document.createElementNS(NS,'rect');e.setAttribute('width',s);e.setAttribute('height',s*.86);e.setAttribute('rx',8);g.appendChild(e);return e};
+ cubes.push({x,y,s,r,f:mk($('fall')),k:mk($('rest')),t0:2.62+i*0.12});}
+function show(el,o,tr){el.style.opacity=o;if(tr!==undefined)el.style.transform=tr}
+function pop(el,t,a,dur=.35,out=null,extra=''){ // pop in at a, optional fade at out
+ let o=p(t,a,a+.12),s=lerp(.7,1,back(p(t,a,a+dur)));if(out!==null){o*=1-p(t,out,out+.18)}
+ show(el,o,`${extra} scale(${s})`)}
+window.seek=function(t){
+ const cut=2.5;
+ // backgrounds
+ $('hot').style.opacity=t<cut?1:0;$('hot').style.transform=`scale(${1.05+.06*Math.sin(t*5)})`;
+ $('cold').style.opacity=t>=cut?1:0;
+ $('flash').style.opacity=t>=cut?.9*(1-p(t,cut,cut+.3)):0;
+ // S1
+ const s1=t<cut?1:0;$('shake').style.opacity=s1;
+ const amp=4+10*p(t,.8,2.5);$('shake').style.transform=`translate(${Math.sin(t*61)*amp}px,${Math.cos(t*47)*amp}px)`;
+ $('a1').textContent=Math.round(lerp(26,35,eo(p(t,0,1.1))))+'°';
+ show($('a1'),1,`scale(${lerp(1.5,1,eo(p(t,0,.35)))+.05*p(t,1.1,2.5)})`);
+ pop($('a2'),t,.55);show($('a3'),p(t,1.35,1.55),`translateY(${lerp(30,0,eo(p(t,1.35,1.7)))}px)`);
+ // S2 text
+ const b=t>=cut&&t<5.1;const bo=b?(1-p(t,4.85,5.05)):0;
+ $('b1').textContent=Math.round(lerp(35,4,eo(p(t,cut,3.5))))+'°';
+ show($('b1'),bo,`scale(${lerp(1.6,1,eo(p(t,cut,cut+.3)))})`);
+ show($('b2'),bo*p(t,3.0,3.1),`scale(${lerp(.7,1,back(p(t,3.0,3.35)))})`);
+ // tub position
+ const keys=[[2.5,2300,1.25],[3.0,1330,1.3],[4.9,1330,1.3],[5.3,1560,.82],[9.8,1560,.82],[10.15,1290,1.25],[12.3,1290,1.25],[12.7,1060,.86],[15,1060,.9]];
+ let y=keys[0][1],sc=keys[0][2];for(let i=0;i<keys.length-1;i++){const[a,ya,sa]=keys[i],[bb,yb,sb]=keys[i+1];if(t>=a){const x=eo(p(t,a,bb));y=lerp(ya,yb,x);sc=lerp(sa,sb,x)}}
+ const bob=t>3?Math.sin(t*2.2)*6:0;
+ show($('tub'),t>=cut?1:0,`translateY(${y+bob}px) scale(${sc})`);$('tub').style.top='0px';
+ // cubes
+ cubes.forEach(c=>{const x=p(t,c.t0,c.t0+.5),land=x>=1;
+  c.f.setAttribute('transform',`translate(${c.x},${lerp(-1100,c.y,ei(x))}) rotate(${c.r+ (1-x)*240} ${c.s/2} ${c.s/2})`);c.f.setAttribute('opacity',t>=c.t0&&!land?1:0);
+  const wob=Math.sin(t*2+c.x)*3;c.k.setAttribute('transform',`translate(${c.x},${c.y+wob}) rotate(${c.r+wob*2} ${c.s/2} ${c.s/2})`);c.k.setAttribute('opacity',land?.95:0);});
+ const rp=(t*1.4)%1;$('rip').setAttribute('rx',60+130*rp);$('rip').setAttribute('ry',16+34*rp);$('rip').setAttribute('opacity',t>3?(1-rp)*.7:0);
+ // S3
+ const c=t>=5.05&&t<10.05,co=c?1-p(t,9.8,10):0;
+ show($('c0'),co*p(t,5.05,5.2),`translateY(${lerp(-40,0,eo(p(t,5.05,5.4)))}px)`);
+ [['c1',5.6],['c2',7.0],['c3',8.4]].forEach(([id,a])=>{show($(id),co*p(t,a,a+.1),`translateX(${lerp(-120,0,back(p(t,a,a+.4)))}px)`)});
+ const sec=Math.round(180*p(t,5.6,9.3));$('timer').textContent=Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
+ $('timer').style.color=sec>=180?'#9fe6ff':'#fff';show($('timer'),co*p(t,5.5,5.7),`scale(${sec>=180?lerp(1.25,1,eo(p(t,9.3,9.6))):1})`);
+ // S4
+ const feats=[[10.05,'5 MIN','set-up'],[10.85,'NO','plumbing'],[11.65,'PACKS','away flat']];let f=null;feats.forEach(x=>{if(t>=x[0])f=x});
+ if(f&&t<12.45){$('d1').textContent=f[1];$('d2').textContent=f[2];const s=lerp(1.5,1,eo(p(t,f[0],f[0]+.2)));show($('d1'),1,`scale(${s})`);show($('d2'),p(t,f[0]+.1,f[0]+.2),'')}else{show($('d1'),0);show($('d2'),0)}
+ // S5
+ const e=t>=12.5;show($('brand'),e?p(t,12.5,12.7):0);
+ show($('e1'),e?p(t,12.6,12.75):0,`scale(${lerp(.8,1,back(p(t,12.6,13)))})`);
+ const pulse=1+.04*Math.sin((t-13)*7);show($('btn'),e?p(t,13.2,13.35):0,`translateX(-50%) scale(${lerp(.6,1,back(p(t,13.2,13.6)))*pulse})`);
+ show($('ship'),e?p(t,13.6,13.8):0,'');
+};
+seek(0);
+</script></body></html>
