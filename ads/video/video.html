@@ -20,12 +20,12 @@ body{font-family:"Inter Display","Inter",Arial,sans-serif;color:#fff;position:re
 #btn{position:absolute;left:50%;top:1400px;background:#fff;color:#06223f;font-weight:900;font-size:68px;padding:38px 110px;border-radius:120px;text-transform:uppercase;letter-spacing:2px;white-space:nowrap}
 #ship{top:1590px;font-size:42px;font-weight:600;letter-spacing:0;text-transform:none;line-height:1.3;color:#d9f1fb}
 </style></head><body>
-<div class="layer" id="hot"></div><div class="layer" id="cold"></div>
+<div class="layer" id="cold"></div><img class="layer" id="clip" style="width:1080px;height:1920px;object-fit:cover;display:none"><div class="layer" id="shade" style="background:linear-gradient(180deg,rgba(3,18,34,1) 0%,rgba(3,18,34,.75) 45%,rgba(3,18,34,.9) 100%);opacity:0"></div><div class="layer" id="hot"></div>
 <div class="layer" id="shake"><div class="stack" style="top:330px;height:1000px">
  <div class="t" id="a1"></div><div class="t" id="a2"></div>
  <div class="t" id="a3" style="font-size:58px;letter-spacing:1px;font-weight:700;text-transform:none;margin-top:30px"></div>
 </div></div>
-<div class="stack" style="top:260px;height:640px"><div class="t ice" id="b1"></div><div class="t ice" id="b2"></div></div>
+<div class="stack" id="bst" style="top:260px;height:640px"><div class="t ice" id="b1"></div><div class="t ice" id="b2"></div></div>
 <div class="t" id="c0" style="top:300px;font-size:88px;letter-spacing:-2px;line-height:1"></div>
 <div class="row" id="c1" style="top:590px"><span>1</span><b id="r1"></b></div>
 <div class="row" id="c2" style="top:750px"><span>2</span><b id="r2"></b></div>
@@ -64,6 +64,14 @@ const lerp=(a,b,x)=>a+(b-a)*x;
 const ST=['Hesitation','Instant regret','Totally hooked'],CAP=[[5.3,'Why.'],[6.6,"Breathe."],[7.9,"Okay…"],[9.2,"Done."]];
 const HOT='radial-gradient(900px 900px at 50% 38%,#ffb347 0%,#ff6a2b 35%,#c6341a 70%,#7a1a10 100%)';
 const V={
+ nolast:{bg:'radial-gradient(900px 900px at 50% 38%,#5ad1ff 0%,#1b6fd6 45%,#0a1f5c 100%)',fg:'#fff',sub:'#dff3ff',a1:'Nobody lasts',a2:'their first go.',a3:"That's the point.",b1:'Get',b2:'in.',mid:'timer',end:180,e:['Three minutes.','Your place.']},
+ shower:{bg:'radial-gradient(900px 900px at 50% 38%,#ffe29a 0%,#ff9f43 45%,#b3541e 100%)',fg:'#2a1300',sub:'#4a2400',a1:'Cold showers',a2:"aren't cold.",a3:'Not in an Aussie summer.',b1:'This',b2:'is cold.',mid:'list',title:['The 3 stages of','a cold plunge'],rows:ST,e:['Actually cold.','At your place.']},
+ runner:{bg:'radial-gradient(900px 900px at 50% 38%,#ff7a59 0%,#d63a3a 45%,#3d0a14 100%)',fg:'#fff',sub:'#ffd9d0',a1:'Long run:',a2:'Done.',a3:'Legs: cooked.',b1:'Now',b2:'get in.',mid:'timer',end:180,e:['Finish every','run cold.']},
+ nomember:{bg:'radial-gradient(900px 900px at 50% 38%,#b06cff 0%,#6a2bd9 45%,#1c0a4a 100%)',fg:'#fff',sub:'#e8dcff',a1:'No membership.',a2:'No booking.',a3:'No driving across town.',b1:'Just',b2:'get in.',mid:'list',title:['Ready in','3 steps'],rows:['Set it up','Fill it','Add ice'],notimer:1,e:['Your ice bath.','Your schedule.']},
+ balcony:{bg:'radial-gradient(900px 900px at 50% 38%,#7ef0d0 0%,#12a594 45%,#063f3a 100%)',fg:'#04211e',sub:'#04211e',a1:'Got a',a2:'balcony?',a3:"Then you've got room.",b1:'Ice bath.',b2:'Sorted.',mid:'list',title:['Ready in','3 steps'],rows:['Set it up','Fill it','Add ice'],notimer:1,e:['Small space.','Big chill.']},
+ hardest:{bg:'radial-gradient(900px 900px at 50% 38%,#3a3f4a 0%,#1c1f26 50%,#050608 100%)',fg:'#fff',sub:'#c9d2e0',a1:'The hardest',a2:'3 minutes',a3:'of your day.',b1:'Also',b2:'the best.',mid:'timer',end:180,e:['Three minutes.','Every day.']},
+ scroll:{bg:'radial-gradient(900px 900px at 50% 38%,#ff4d6d 0%,#c9184a 45%,#4a0519 100%)',fg:'#fff',sub:'#ffd6df',a1:'Stop',a2:'scrolling.',a3:'Start shivering.',b1:'Get',b2:'in.',mid:'timer',end:120,e:['Get yours.','Start the clock.']},
+ coming:{bg:'linear-gradient(180deg,#ffcf5c 0%,#ff8a3d 50%,#d1432a 100%)',fg:'#2a0d00',sub:'#4a1a05',a1:'Summer',a2:'is coming.',a3:'So is the heat.',b1:'Cool off',b2:'properly.',mid:'list',title:['The 3 stages of','a cold plunge'],rows:ST,e:['Your backyard.','Your ice bath.']},
  summer:{bg:HOT,fg:'#fff1df',sub:'#3b0d06',a1:[26,35,'°'],a2:'Outside.',a3:"And the aircon's losing.",b1:[35,4,'°'],b2:'In here.',mid:'list',title:['The 3 stages of','a cold plunge'],rows:ST,e:['Your backyard.','Your ice bath.']},
  summer_timer:{bg:HOT,fg:'#fff1df',sub:'#3b0d06',a1:[26,35,'°'],a2:'Outside.',a3:"And the aircon's losing.",b1:[35,4,'°'],b2:'In here.',mid:'timer',end:180,e:['The coldest spot','in your house.']},
  studio:{bg:'radial-gradient(900px 900px at 50% 38%,#ff5fa2 0%,#c2188b 40%,#5b0f7a 100%)',fg:'#fff',sub:'#ffe1f1',a1:'Still paying',a2:'per plunge?',a3:'Every. Single. Session.',b1:'Plunge',b2:'at home.',mid:'list',title:['Ready in','3 steps'],rows:['Set it up','Fill it','Add ice'],notimer:1,e:['Pay once.','Plunge daily.']},
@@ -72,6 +80,7 @@ const V={
  morning:{bg:'linear-gradient(180deg,#2b1055 0%,#7a3b8f 45%,#ff7e5f 100%)',fg:'#fff',sub:'#ffe3d6',a1:'5:45',a2:'AM.',a3:'Coffee can wait.',b1:'Wake up',b2:'properly.',mid:'list',title:['The 3 stages of','a cold plunge'],rows:ST,e:['Earn your','morning.']},
  mate:{bg:'radial-gradient(900px 900px at 50% 38%,#4be38a 0%,#0f9d58 45%,#064a2a 100%)',fg:'#fff',sub:'#062b18',a1:'Tag the mate',a2:"who'd last",a3:'10 seconds.',b1:'Then',b2:'beat them.',mid:'timer',end:120,e:['Ice bath.','Your place.']},
  comfort:{bg:'radial-gradient(900px 900px at 50% 38%,#f4f1ea 0%,#d9d3c7 50%,#a59d8d 100%)',fg:'#111',sub:'#3a372f',a1:'Comfort',a2:'is easy.',a3:'Anyone can do easy.',b1:'Do',b2:'this.',mid:'list',title:['The 3 stages of','a cold plunge'],rows:ST,e:['Three minutes.','Every day.']}};
+const Q=new URLSearchParams(location.search),NCLIP=+Q.get('clip')||0;
 const C=V[new URLSearchParams(location.search).get('v')||'summer'];
 function fit(el,txt,max){el.textContent=txt;let s=max;el.style.fontSize=s+'px';while(el.scrollWidth>980&&s>40){s-=6;el.style.fontSize=s+'px'}}
 const cnt=x=>Array.isArray(x);
@@ -81,6 +90,7 @@ fit($('b1'),cnt(C.b1)?'35°':C.b1,cnt(C.b1)?400:250);fit($('b2'),C.b2,cnt(C.b1)?
 if(C.mid=='list'){$('c0').innerHTML=C.title[0]+'<br><span class="ice">'+C.title[1]+'</span>';C.rows.forEach((r,i)=>$('r'+(i+1)).textContent=r)}
 else{$('timer').style.top='420px';$('timer').style.fontSize='330px'}
 $('e1').innerHTML=C.e[0]+'<br><span class="ice">'+C.e[1]+'</span>';
+if(NCLIP){$('d1').style.top='1060px';$('d2').style.top='1300px';$('d2').style.color='#fff';$('bst').style.top='1070px';$('bst').style.height='540px';$('bst').style.gap='10px';$('bst').style.textShadow='0 6px 30px rgba(0,0,0,.7)';['b1','b2'].forEach(i=>{$(i).style.color='#fff'});fit($('b1'),cnt(C.b1)?'35°':C.b1,cnt(C.b1)?300:210);fit($('b2'),C.b2,cnt(C.b1)?170:210)}
 // ice cubes
 const N=16,cubes=[];const NS='http://www.w3.org/2000/svg';
 for(let i=0;i<N;i++){const x=120+((i*137)%360),y=96+((i*53)%60),s=34+((i*29)%20),r=((i*47)%50)-25;
@@ -96,6 +106,10 @@ window.seek=function(t){
  $('hot').style.opacity=t<cut?1:0;$('hot').style.transform=`scale(${1.05+.06*Math.sin(t*5)})`;
  $('cold').style.opacity=t>=cut?1:0;
  $('flash').style.opacity=t>=cut?.9*(1-p(t,cut,cut+.3)):0;
+ if(NCLIP){const im=$('clip');im.style.display=t>=cut?'block':'none';let k;
+  if(t<5)k=(t-cut)*30;else if(t<12.5){const span=NCLIP-76,x=((t-5)*15)%(2*span);k=75+(x<span?x:2*span-x)}else k=NCLIP-1;
+  k=Math.max(0,Math.min(NCLIP-1,Math.round(k)));const src='clip/c'+String(k+1).padStart(4,'0')+'.jpg';if(im.dataset.s!==src){im.dataset.s=src;im.src=src}
+  $('shade').style.opacity=t<cut?0:t<5?.15:t<10?.72:t<12.5?.6:.86;}
  // S1
  const s1=t<cut?1:0;$('shake').style.opacity=s1;
  const amp=4+10*p(t,.8,2.5);$('shake').style.transform=`translate(${Math.sin(t*61)*amp}px,${Math.cos(t*47)*amp}px)`;
@@ -111,7 +125,7 @@ window.seek=function(t){
  const keys=[[2.5,2300,1.25],[3.0,1330,1.3],[4.9,1330,1.3],[5.3,1560,.82],[9.8,1560,.82],[10.15,1290,1.25],[12.3,1290,1.25],[12.7,1060,.86],[15,1060,.9]];
  let y=keys[0][1],sc=keys[0][2];for(let i=0;i<keys.length-1;i++){const[a,ya,sa]=keys[i],[bb,yb,sb]=keys[i+1];if(t>=a){const x=eo(p(t,a,bb));y=lerp(ya,yb,x);sc=lerp(sa,sb,x)}}
  const bob=t>3?Math.sin(t*2.2)*6:0;
- show($('tub'),t>=cut?1:0,`translateY(${y+bob}px) scale(${sc})`);$('tub').style.top='0px';
+ show($('tub'),t>=cut&&!NCLIP?1:0,`translateY(${y+bob}px) scale(${sc})`);$('tub').style.top='0px';
  // cubes
  cubes.forEach(c=>{const x=p(t,c.t0,c.t0+.5),land=x>=1;
   c.f.setAttribute('transform',`translate(${c.x},${lerp(-1100,c.y,ei(x))}) rotate(${c.r+ (1-x)*240} ${c.s/2} ${c.s/2})`);c.f.setAttribute('opacity',t>=c.t0&&!land?1:0);
