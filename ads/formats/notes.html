@@ -1,0 +1,30 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
+body{background:#fbf6e6;color:#1c1c1e}
+#bar{position:absolute;top:170px;left:60px;right:60px;display:flex;justify-content:space-between;color:#d99a00;font-size:46px;font-weight:600}
+#w{position:absolute;top:290px;left:70px;right:70px}
+h1{font-size:82px;letter-spacing:-3px;min-height:98px}
+.d{color:#9a9588;font-size:34px;margin:4px 0 22px}
+.lab{font-size:48px;font-weight:800;margin:18px 0 8px;min-height:60px}
+.l{font-size:48px;display:flex;align-items:center;gap:28px;min-height:80px}
+.c{width:58px;height:58px;border-radius:29px;border:5px solid #c9c2ad;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:38px;font-weight:900}
+.c.on{background:#d99a00;border-color:#d99a00}.l.on span{color:#a39e90;text-decoration:line-through}
+#big{font-size:64px;font-weight:900;letter-spacing:-2px;line-height:1.1;min-height:150px}
+#ph{position:absolute;left:110px;top:1135px;width:470px;height:320px;border-radius:30px;overflow:hidden;border:14px solid #fff;box-shadow:0 20px 50px rgba(0,0,0,.25)}#ph img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}
+#cta{position:absolute;left:70px;top:1505px;font-size:50px;font-weight:800}#cta span{background:linear-gradient(#ffe066,#ffe066) no-repeat 0 60%/0% 62%;padding:0 8px}
+#btn{position:absolute;left:640px;top:1250px;background:#1c1c1e;color:#fff;font-weight:800;font-size:46px;padding:24px 56px;border-radius:60px}
+</style><div id="bar"><span>‹ Notes</span><span>Done</span></div>
+<div id="w"><h1 id="h"></h1><div class="d">Today</div><div class="lab" id="a"></div>
+<div class="l"><div class="c"></div><span></span></div><div class="l"><div class="c"></div><span></span></div><div class="l"><div class="c"></div><span></span></div><div class="l"><div class="c"></div><span></span></div>
+<div class="lab" id="b"></div><div id="big"></div></div>
+<div id="ph"><img></div><div id="cta"><span>YOUR BRAND portable ice bath</span></div><div id="btn">Shop now →</div>
+<script src="common.js"></script><script>
+window.DUR=13;
+const L=[[1.9,'Paying per cold plunge'],[3.0,'Booking a 6am slot'],[4.1,'Driving across town in 38°'],[5.2,"Cold showers that aren't cold"]];
+const ls=[...document.querySelectorAll('.l')];
+window.seek=t=>{$('h').textContent=typed('This summer',t,.3,16);$('a').textContent=typed('Not doing:',t,1.2,22);
+ ls.forEach((l,i)=>{const[a,s]=L[i];l.style.visibility=t>=a?'visible':'hidden';l.children[1].textContent=typed(s,t,a,34);const on=t>=a+.95;l.className='l'+(on?' on':'');l.children[0].className='c'+(on?' on':'');l.children[0].textContent=on?'✓':''});
+ $('b').textContent=typed('Doing instead:',t,6.6,24);$('big').innerHTML=typed('Ice bath. On the balcony. Every morning.',t,7.3,26);
+ $('ph').style.opacity=t>=8.9?1:0;$('ph').style.transform=`rotate(-3deg) scale(${pop(t,8.9,.35)})`;setImg($('ph').firstChild,cf(play(t-8.9)));
+ $('cta').style.opacity=p(t,10.3,10.5);$('cta').firstChild.style.backgroundSize=100*eo(p(t,10.5,11.1))+'% 62%';
+ $('btn').style.opacity=t>=11.2?1:0;$('btn').style.transform=`scale(${pop(t,11.2)})`};seek(0);
+</script>

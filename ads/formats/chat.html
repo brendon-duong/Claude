@@ -1,0 +1,26 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
+body{background:#0b0b0d;color:#fff}
+#hdr{position:absolute;top:0;left:0;right:0;height:330px;background:#141417;border-bottom:2px solid #24242a;z-index:5;display:flex;align-items:flex-end;padding:0 50px 34px;gap:30px}
+#av{width:110px;height:110px;border-radius:55px;background:linear-gradient(135deg,#ff9f43,#e2562a);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:52px}
+#hdr b{font-size:52px;display:block}#hdr i{font-style:normal;color:#4cd964;font-size:34px}
+#list{position:absolute;left:0;right:0;bottom:330px;display:flex;flex-direction:column;gap:16px;padding:0 44px}
+.m{font-size:50px;line-height:1.25;padding:26px 38px;border-radius:46px;max-width:780px;transform-origin:0 100%}
+.them{background:#26262b;align-self:flex-start}.me{background:#2f7cf6;align-self:flex-end;transform-origin:100% 100%}
+.ph{padding:0;overflow:hidden;border-radius:46px}.ph img{width:560px;height:720px;object-fit:cover}
+.dots{letter-spacing:10px;color:#8e8e93;font-weight:900}
+.card{background:#fff;color:#111;padding:0;overflow:hidden;width:700px}.card img{width:700px;height:330px;object-fit:cover}
+.card div{padding:28px 36px 34px}.card b{font-size:46px;display:block}.card span{font-size:36px;color:#666;display:block;margin:6px 0 22px}
+.card em{font-style:normal;display:block;background:#2f7cf6;color:#fff;font-weight:800;font-size:42px;text-align:center;padding:22px;border-radius:26px}
+#inp{position:absolute;left:44px;right:44px;bottom:190px;height:104px;border-radius:52px;border:3px solid #2c2c33;color:#6b6b73;font-size:44px;display:flex;align-items:center;padding:0 44px}
+</style><div id="hdr"><div id="av">J</div><div><b>Flatmate</b><i>online</i></div></div><div id="list"></div><div id="inp">Message</div>
+<script src="common.js"></script><script>
+window.DUR=13;
+const M=[[.4,0,'recovery place at 6?'],[1.7,1,'nah'],[2.5,1,'got my own ice bath now'],[4.0,0,'at the apartment??'],[5.1,1,'IMG'],[6.9,0,"ok that's actually sick"],[7.9,0,'how long did you last'],[8.9,1,"3 min. you'd do 10 seconds"],[10.1,0,'send me the link'],[10.9,1,'CARD']];
+const els=M.map(([t,me,x])=>{const d=document.createElement('div');d.className='m '+(me?'me':'them');
+ if(x=='IMG'){d.className+=' ph';d.innerHTML='<img>'}else if(x=='CARD'){d.className+=' card';d.innerHTML='<img><div><b>YOUR BRAND</b><span>Portable Ice Bath</span><em>Shop now</em></div>'}else d.textContent=x;
+ let ty=null;if(!me){ty=document.createElement('div');ty.className='m them dots';ty.textContent='•••';$('list').appendChild(ty)}
+ $('list').appendChild(d);return{t,d,ty}});
+window.seek=t=>{els.forEach(e=>{const on=t>=e.t;e.d.style.display=on?'block':'none';e.d.style.transform=`scale(${pop(t,e.t,.25)})`;
+ if(e.ty){const o=t>=e.t-.75&&t<e.t;e.ty.style.display=o?'block':'none'}
+ const im=e.d.querySelector('img');if(im&&on)setImg(im,cf(e.d.classList.contains('card')?95:play(t-e.t)))})};seek(0);
+</script>

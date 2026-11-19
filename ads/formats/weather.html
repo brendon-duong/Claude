@@ -1,0 +1,35 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
+body{color:#fff}
+.bg{position:absolute;inset:0}#hot{background:linear-gradient(180deg,#ff9a3c 0%,#ff5e3a 45%,#c2281d 100%)}#cold{background:linear-gradient(180deg,#0a2a52 0%,#0e5d96 55%,#27a6d9 100%)}
+#top{position:absolute;top:190px;left:0;right:0;text-align:center}
+#city{font-size:54px;font-weight:600}#big{font-size:330px;font-weight:200;letter-spacing:-14px;line-height:1}#sub{font-size:52px;font-weight:600;opacity:.9}
+#card{position:absolute;left:50px;right:50px;top:830px;background:rgba(255,255,255,.18);border-radius:46px;padding:14px 46px}
+.r{display:flex;align-items:center;height:112px;font-size:50px;font-weight:600;border-bottom:2px solid rgba(255,255,255,.2)}
+.r:last-child{border:0}.r b{width:190px}.sun{width:58px;height:58px;border-radius:29px;background:#ffe14d;box-shadow:0 0 0 10px rgba(255,225,77,.3);margin-right:40px}
+.bar{flex:1;height:14px;border-radius:7px;background:linear-gradient(90deg,#ffd24d,#ff3b30);margin-right:40px;transform-origin:0 50%}
+.r span{width:110px;text-align:right;font-weight:800}
+#you{background:#fff;color:#0a2a52;border-radius:30px;margin:10px -24px;padding:0 24px;border:0}
+#you .sun{background:#27a6d9;box-shadow:0 0 0 10px rgba(39,166,217,.3)}#you .bar{background:linear-gradient(90deg,#27a6d9,#9fe6ff)}
+#end{position:absolute;left:0;right:0;top:0;height:1920px;background:#06223f;border-radius:0}
+#end img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#eg{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(3,18,34,.92) 78%)}
+#et{position:absolute;left:70px;right:70px;top:1150px;font-size:110px;font-weight:900;letter-spacing:-4px;line-height:.95}
+#eb{position:absolute;left:70px;top:1420px;display:flex;align-items:center;gap:36px;font-size:40px;font-weight:700}
+#eb b{background:#fff;color:#06223f;font-size:52px;padding:28px 64px;border-radius:70px}
+</style><div class="bg" id="hot"></div><div class="bg" id="cold"></div>
+<div id="top"><div id="city">Sydney</div><div id="big">38°</div><div id="sub">Sunny. Again.</div></div>
+<div id="card"></div>
+<div id="end"><img><div id="eg"></div><div id="et">4° on<br>your balcony.</div><div id="eb"><b>Shop now</b>YOUR BRAND<br>Portable ice bath</div></div>
+<script src="common.js"></script><script>
+window.DUR=12;
+const D=[['Mon',36],['Tue',38],['Wed',37],['Thu',39],['Fri',38]];
+const rs=D.map(([d,v])=>{const r=document.createElement('div');r.className='r';r.innerHTML=`<b>${d}</b><div class="sun"></div><div class="bar"></div><span>${v}°</span>`;$('card').appendChild(r);return r});
+const you=document.createElement('div');you.className='r';you.id='you';you.innerHTML='<b style="width:390px">Your balcony</b><div class="sun"></div><div class="bar"></div><span>4°</span>';$('card').appendChild(you);
+window.seek=t=>{const f=6.2;$('cold').style.opacity=p(t,f,f+.5);
+ $('big').textContent=(t<f?Math.round(lerp(31,38,eo(p(t,0,1)))):Math.round(lerp(38,4,eo(p(t,f,f+.9)))))+'°';
+ $('city').textContent=t<f?'Sydney':'Your balcony';$('sub').textContent=t<f?'Sunny. Again.':'Feels like: wide awake.';
+ rs.forEach((r,i)=>{const a=1.3+i*.55;r.style.opacity=p(t,a,a+.15);r.querySelector('.bar').style.transform=`scaleX(${eo(p(t,a,a+.5))})`});
+ you.style.opacity=p(t,4.6,4.75);you.style.transform=`scale(${pop(t,4.6,.35)})`;you.querySelector('.bar').style.transform=`scaleX(${.15*eo(p(t,4.8,5.3))})`;
+ const e=8.2;$('end').style.transform=`translateY(${lerp(1920,0,eo(p(t,e,e+.45)))}px)`;setImg($('end').firstChild,cf(play(t-e)));
+ $('et').style.opacity=p(t,e+.5,e+.7);$('eb').style.opacity=p(t,e+1.3,e+1.5)};seek(0);
+</script>

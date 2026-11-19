@@ -1,0 +1,23 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
+body{background:#fff;color:#1f1f1f}
+#bar{position:absolute;left:50px;right:50px;top:230px;height:130px;border-radius:65px;border:3px solid #dadce0;box-shadow:0 6px 24px rgba(0,0,0,.1);display:flex;align-items:center;padding:0 46px;font-size:56px;gap:30px}
+#mag{width:44px;height:44px;border:7px solid #8a8f98;border-radius:50%;position:relative;flex:none}#mag:after{content:"";position:absolute;width:7px;height:26px;background:#8a8f98;right:-16px;bottom:-22px;transform:rotate(-45deg);border-radius:4px}
+#cur{width:5px;height:66px;background:#1463ff;margin-left:-22px}
+#res{position:absolute;left:50px;right:50px;top:420px}
+.g{border:3px solid #ececec;border-radius:36px;padding:34px 40px;margin-bottom:24px}.g b{font-size:50px;display:block}.g span{font-size:40px;color:#70757a;display:block;margin-top:10px}.g i{font-style:normal;color:#d93025;font-weight:700}
+#win{position:absolute;left:50px;right:50px;top:420px;border-radius:44px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);background:#fff}
+#win img{width:100%;height:760px;object-fit:cover;object-position:50% 25%}#win div{padding:38px 46px 46px}
+#win b{font-size:56px;letter-spacing:-2px;display:block}#win span{font-size:42px;color:#555;display:block;margin:14px 0 34px;line-height:1.35}
+#win em{font-style:normal;display:block;background:#1463ff;color:#fff;font-weight:800;font-size:54px;text-align:center;padding:30px;border-radius:70px}
+</style><div id="bar"><div id="mag"></div><span id="q"></span><div id="cur"></div></div>
+<div id="res"><div class="g"><b>Recovery studio</b><span>14 km away · <i>Closed</i> · Opens 9am</span></div><div class="g"><b>Wellness centre</b><span>9 km away · <i>Booking required</i></span></div><div class="g"><b>Gym + plunge pool</b><span>6 km away · <i>Members only</i></span></div></div>
+<div id="win"><img><div><b>YOUR BRAND Portable Ice Bath</b><span>0 km away · Open 24 hours · Sets up in 5 minutes</span><em>Shop now</em></div></div>
+<script src="common.js"></script><script>
+window.DUR=11.5;
+const A='ice bath near me',B='ice bath at home';
+window.seek=t=>{let q;if(t<4.3)q=typed(A,t,.4,13);else if(t<5)q=A.slice(0,Math.max(9,A.length-Math.floor((t-4.3)*20)));else q='ice bath '+typed('at home',t,5.1,11);
+ $('q').textContent=q;$('cur').style.opacity=(Math.floor(t*2.2)%2)?1:0;
+ [...$('res').children].forEach((g,i)=>{const a=2.1+i*.45;g.style.opacity=t<4.3?p(t,a,a+.15):(1-p(t,4.3,4.6));g.style.transform=`translateY(${lerp(40,0,eo(p(t,a,a+.3)))}px)`});
+ const e=6.4;$('win').style.opacity=p(t,e,e+.15);$('win').style.transform=`translateY(${lerp(80,0,eo(p(t,e,e+.4)))}px)`;setImg($('win').firstChild,cf(play(t-e)));
+ $('win').querySelector('em').style.transform=`scale(${t>e+1.2?1+.03*Math.sin((t-e)*7):1})`};seek(0);
+</script>

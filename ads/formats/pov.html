@@ -1,0 +1,13 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
+body{background:#000;color:#fff}
+#v{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.c{position:absolute;left:90px;right:90px;top:1090px;text-align:center;font-size:68px;font-weight:800;line-height:1.18;-webkit-text-stroke:14px #000;paint-order:stroke fill;letter-spacing:-1px}
+#pill{position:absolute;left:60px;right:60px;top:1330px;background:#fff;color:#111;border-radius:40px;padding:30px 40px;display:flex;align-items:center;justify-content:space-between;font-size:38px;font-weight:700;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#pill b{display:block;font-size:48px}#pill em{font-style:normal;background:#111;color:#fff;font-size:44px;font-weight:800;padding:24px 46px;border-radius:60px}
+</style><img id="v"><div class="c" id="c"></div><div id="pill"><div><b>YOUR BRAND</b>Portable ice bath</div><em>Shop now</em></div>
+<script src="common.js"></script><script>
+window.DUR=11;
+const C=[[0,"POV: it's 38° and your flatmate just bought an ice bath"],[3.3,'the first 10 seconds:'],[5.4,'the next 3 minutes:\nweirdly the best part of the day'],[8.2,'get your own']];
+window.seek=t=>{setImg($('v'),cf(play(t)));let c=C[0];C.forEach(x=>{if(t>=x[0])c=x});$('c').innerText=c[1];$('c').style.transform=`scale(${pop(t,c[0],.22)})`;$('c').style.top=t>=8.2?'1180px':'1090px';
+ $('pill').style.opacity=t>=8.5?1:0;$('pill').style.transform=`translateY(${lerp(120,0,eo(p(t,8.5,8.9)))}px)`};seek(0);
+</script>
