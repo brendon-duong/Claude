@@ -1,0 +1,7 @@
+person_id,name,phone,skills,max_shifts_per_week,unavailable,preferred_shifts,reliability
+sarah,Sarah Chen,+61400111222,calls;onboarding,5,,morning,0.95
+dan,Dan Okafor,+61400333444,calls,4,,morning,0.8
+priya,Priya Nair,+61400555666,calls;compliance,5,,afternoon,0.92
+tom,Tom Reilly,+61400777888,calls,3,2026-09-11,afternoon,0.7
+mei,Mei Lin,+61400999000,calls;compliance,5,,morning,0.88
+jack,Jack Moreau,+61400121314,calls;onboarding,5,,afternoon,0.75
